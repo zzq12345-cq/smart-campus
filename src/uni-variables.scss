@@ -1,0 +1,244 @@
+/**
+ * SCSS Variables and Mixins (Module-safe for @use)
+ * Contains only variables, mixins, and functions - NO CSS output
+ * This file can be safely used with @use in Vite's additionalData
+ */
+
+/**
+ * uni-app 内置样式变量
+ */
+
+/* 行为相关颜色 */
+$uni-color-primary: #007aff;
+$uni-color-success: #4cd964;
+$uni-color-warning: #f0ad4e;
+$uni-color-error: #dd524d;
+
+/* 文字基本颜色 */
+$uni-text-color:#333;//基本色
+$uni-text-color-inverse:#fff;//反色
+$uni-text-color-grey:#999;//辅助灰色,如加载更多的提示信息
+$uni-text-color-placeholder: #808080;
+$uni-text-color-disable:#c0c0c0;
+
+/* 背景颜色 */
+$uni-bg-color:#ffffff;
+$uni-bg-color-grey:#f8f8f8;
+$uni-bg-color-hover:#f1f1f1;//点击状态颜色
+$uni-bg-color-mask:rgba(0, 0, 0, 0.4);//遮罩颜色
+
+/* 边框颜色 */
+$uni-border-color:#c8c7cc;
+
+/* 文字尺寸 */
+$uni-font-size-sm:12px;
+$uni-font-size-base:14px;
+$uni-font-size-lg:16px;
+
+/* 图片尺寸 */
+$uni-img-size-sm:20px;
+$uni-img-size-base:26px;
+$uni-img-size-lg:40px;
+
+/* Border Radius */
+$uni-border-radius-sm: 2px;
+$uni-border-radius-base: 3px;
+$uni-border-radius-lg: 6px;
+$uni-border-radius-circle: 50%;
+
+/* 水平间距 */
+$uni-spacing-row-sm: 5px;
+$uni-spacing-row-base: 10px;
+$uni-spacing-row-lg: 15px;
+
+/* 垂直间距 */
+$uni-spacing-col-sm: 4px;
+$uni-spacing-col-base: 8px;
+$uni-spacing-col-lg: 12px;
+
+/* 透明度 */
+$uni-opacity-disabled: 0.3; // 组件禁用态的透明度
+
+/* 文章场景相关 */
+$uni-color-title: #2C405A; // 文章标题颜色
+$uni-font-size-title:20px;
+$uni-color-subtitle: #555555; // 二级标题颜色
+$uni-font-size-subtitle:26px;
+$uni-color-paragraph: #3F536E; // 文章段落颜色
+$uni-font-size-paragraph:15px;
+
+/* ============================================
+ * UniSmart Custom Design System
+ * Converted from Tailwind CSS CDN to SCSS variables
+ * ============================================ */
+
+// ============================================
+// Typography - Plus Jakarta Sans Font System
+// ============================================
+
+// Primary font family with fallbacks
+$font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+
+// Font weights
+$font-weight-normal: 400;
+$font-weight-medium: 500;
+$font-weight-semibold: 600;
+$font-weight-bold: 700;
+
+// ============================================
+// Colors - Theme System (4 Sections)
+// ============================================
+
+// Primary colors for 5 main sections
+$study-primary: #4A90E2;      // Study section - Blue (knowledge)
+$life-primary: #f49d25;        // Life section - Golden (warmth)
+$teaching-primary: #C00000;    // Teaching section - Red (passion)
+$psychology-primary: #886fde;  // Psychology section - Purple (calm)
+$mine-primary: #6fde81;        // Mine section - Green (personal)
+
+// Background colors
+$bg-light: #f6f6f8;            // Light mode background
+$bg-dark: #15131f;             // Dark mode background
+
+// Text colors
+$text-primary: #1e293b;        // slate-900
+$text-secondary: #64748b;      // slate-500
+$text-tertiary: #94a3b8;       // slate-400
+
+// Border colors (with transparency)
+$border-light: rgba(136, 111, 222, 0.1);  // primary/10
+$border-medium: rgba(136, 111, 222, 0.2); // primary/20
+
+// ============================================
+// Spacing - Tailwind-inspired Scale
+// ============================================
+
+// Base unit: 4px (Tailwind default)
+$spacing-1: 4px;    // 0.25rem
+$spacing-2: 8px;    // 0.5rem
+$spacing-3: 12px;   // 0.75rem
+$spacing-4: 16px;   // 1rem (most common)
+$spacing-5: 20px;   // 1.25rem
+$spacing-6: 24px;   // 1.5rem
+$spacing-8: 32px;   // 2rem
+
+// UniApp rpx conversions (1px = 2rpx for 375px width design)
+$spacing-1-rpx: 8rpx;
+$spacing-2-rpx: 16rpx;
+$spacing-3-rpx: 24rpx;
+$spacing-4-rpx: 32rpx;
+$spacing-5-rpx: 40rpx;
+$spacing-6-rpx: 48rpx;
+$spacing-8-rpx: 64rpx;
+
+// ============================================
+// Border Radius - Rounded Corners
+// ============================================
+
+$radius-sm: 4px;     // small buttons
+$radius-default: 8px; // default
+$radius-lg: 16px;    // cards
+$radius-xl: 24px;    // hero banners
+$radius-full: 9999px; // fully rounded (pills, circles)
+
+// UniApp rpx versions
+$radius-sm-rpx: 8rpx;
+$radius-default-rpx: 16rpx;
+$radius-lg-rpx: 32rpx;
+$radius-xl-rpx: 48rpx;
+
+// ============================================
+// Shadows - Elevation System
+// ============================================
+
+$shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+$shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+$shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+
+// Primary color shadow (for buttons, FABs)
+$shadow-primary: 0 10px 15px -3px rgba(136, 111, 222, 0.2);
+
+// ============================================
+// Z-Index Layers - Stacking Context
+// ============================================
+
+$z-dropdown: 1000;
+$z-sticky: 1020;
+$z-fixed: 1030;
+$z-modal-backdrop: 1040;
+$z-modal: 1050;
+$z-popover: 1060;
+$z-tooltip: 1070;
+
+// ============================================
+// Transitions - Animation Timings
+// ============================================
+
+$transition-fast: 150ms ease;
+$transition-base: 200ms ease;
+$transition-slow: 300ms ease;
+
+// ============================================
+// Component-Specific Variables
+// ============================================
+
+// Bottom navigation bar
+$navbar-height: 56px;
+$navbar-safe-area: 34px;
+
+// Top header
+$header-height: 56px;
+
+// Quick access card grid
+$quick-access-icon-size: 40px;
+$quick-access-gap: 12px;
+
+// Feed card
+$feed-card-avatar-size: 32px;
+
+// Floating AI button
+$fab-size: 56px;
+$fab-bottom: 96px;
+$fab-right: 24px;
+
+// ============================================
+// Utility Mixins
+// ============================================
+
+// Apply primary color theme
+@mixin theme-primary($color) {
+  --primary-color: #{$color};
+  --primary-light: #{rgba($color, 0.1)};
+  --primary-medium: #{rgba($color, 0.2)};
+}
+
+// Flexbox center alignment
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+// Text ellipsis (single line)
+@mixin text-ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// Text clamp (multi-line)
+@mixin text-clamp($lines) {
+  display: -webkit-box;
+  -webkit-line-clamp: $lines;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+// Hide scrollbar
+@mixin hide-scrollbar {
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

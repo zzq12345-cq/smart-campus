@@ -1,0 +1,16 @@
+{
+  "name": "follows-manager",
+  "version": "1.0.0",
+  "description": "Appwrite Function for follow and unfollow operations",
+  "main": "src/main.js",
+  "type": "module",
+  "scripts": {
+    "format": "prettier --write ."
+  },
+  "dependencies": {
+    "node-appwrite": "^20.2.1"
+  },
+  "devDependencies": {
+    "prettier": "^3.2.5"
+  }
+}

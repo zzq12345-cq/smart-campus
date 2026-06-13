@@ -1,0 +1,106 @@
+/**
+ * Global CSS - Font declarations and global styles
+ * This file contains CSS output and should be imported once in App.vue
+ */
+
+// ============================================
+// Typography - Plus Jakarta Sans Font System
+// ============================================
+
+// Font face declaration for local font
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  src: url('/static/fonts/PlusJakartaSans.woff2') format('woff2');
+  font-weight: 400 700; // Variable font supports 400-700
+  font-display: swap; // Prevent FOIT (Flash of Invisible Text)
+  font-style: normal;
+}
+
+:root {
+  --study-primary: #4A90E2;
+  --life-primary: #f49d25;
+  --teaching-primary: #C00000;
+  --psychology-primary: #886fde;
+  --mine-primary: #6fde81;
+  --primary-color: var(--psychology-primary);
+  --primary-light: rgba(136, 111, 222, 0.1);
+  --primary-medium: rgba(136, 111, 222, 0.2);
+  --surface-bg: #ffffff;
+  --surface-border: rgba(136, 111, 222, 0.12);
+  --app-page-bg: #f6f6f8;
+  --app-text-primary: #0f172a;
+  --text-primary-color: #0f172a;
+  --text-secondary-color: #64748b;
+  --page-transition-duration: 280ms;
+  --page-transition-easing: cubic-bezier(0.22, 1, 0.36, 1);
+  --page-transition-opacity-from: 0;
+  --page-transition-translate-from: 20rpx;
+  --page-transition-scale-from: 1;
+  --page-transition-blur-from: 0px;
+}
+
+page,
+view,
+text {
+  box-sizing: border-box;
+}
+
+.theme-light {
+  color-scheme: light;
+  --page-transition-opacity-from: 0;
+  --page-transition-translate-from: 20rpx;
+  --page-transition-scale-from: 1;
+  --page-transition-blur-from: 0px;
+}
+
+.theme-dark {
+  color-scheme: dark;
+  --app-page-bg: #15131f;
+  --app-text-primary: #f8fafc;
+  --surface-bg: rgba(17, 24, 39, 0.82);
+  --surface-border: rgba(148, 163, 184, 0.28);
+  --text-primary-color: #f8fafc;
+  --text-secondary-color: #cbd5e1;
+  --page-transition-opacity-from: 0.78;
+  --page-transition-translate-from: 10rpx;
+  --page-transition-scale-from: 0.992;
+  --page-transition-blur-from: 6px;
+}
+
+@keyframes page-enter {
+  from {
+    opacity: var(--page-transition-opacity-from, 0);
+    transform: translateY(var(--page-transition-translate-from, 20rpx))
+      scale(var(--page-transition-scale-from, 1));
+    filter: blur(var(--page-transition-blur-from, 0px));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes page-enter-dark {
+  from {
+    opacity: 0.65;
+    transform: translateY(12rpx);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes page-enter-dark {
+  from {
+    opacity: 0.65;
+    transform: translateY(12rpx);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+

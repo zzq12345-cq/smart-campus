@@ -858,23 +858,29 @@ onHide(() => {
 }
 
 .theme-light {
-  --page-bg: #f6f6f8;
-  --surface: #ffffff;
-  --text-main: #0f172a;
+  --page-bg: linear-gradient(180deg, #f3f0fc 0%, #faf8fe 35%, #ffffff 100%);
+  --glass-bg: rgba(255, 255, 255, 0.68);
+  --glass-border: rgba(255, 255, 255, 0.78);
+  --glass-shadow: 0 4rpx 14rpx rgba(31, 38, 135, 0.05);
+  --surface: rgba(255, 255, 255, 0.68);
+  --text-main: #1e293b;
   --text-sub: #64748b;
-  --text-soft: #94a3b8;
-  --line: rgba(136, 111, 222, 0.13);
-  --topbar-bg: rgba(246, 246, 248, 0.9);
+  --text-soft: #64748b;
+  --line: rgba(255, 255, 255, 0.78);
+  --topbar-bg: transparent;
 }
 
 .theme-dark {
-  --page-bg: #15131f;
-  --surface: rgba(24, 25, 39, 0.8);
+  --page-bg: linear-gradient(180deg, #15131f 0%, #1a1525 35%, #15131f 100%);
+  --glass-bg: rgba(30, 41, 59, 0.55);
+  --glass-border: rgba(255, 255, 255, 0.10);
+  --glass-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.20);
+  --surface: rgba(30, 41, 59, 0.55);
   --text-main: #f8fafc;
   --text-sub: #cbd5e1;
   --text-soft: #94a3b8;
-  --line: rgba(136, 111, 222, 0.25);
-  --topbar-bg: rgba(21, 19, 31, 0.9);
+  --line: rgba(255, 255, 255, 0.10);
+  --topbar-bg: transparent;
 }
 
 .top-bar {
@@ -922,9 +928,9 @@ onHide(() => {
 
 .hero-card {
   margin-top: 12rpx;
-  border-radius: 28rpx;
-  border: 1px solid var(--line);
-  background: linear-gradient(130deg, rgba(136, 111, 222, 0.22), rgba(136, 111, 222, 0.08));
+  border-radius: 36rpx;
+  background: linear-gradient(135deg, #6a52ba 0%, #886fde 100%);
+  box-shadow: 0 16rpx 36rpx rgba(136, 111, 222, 0.28);
   overflow: hidden;
   position: relative;
   padding: 40rpx;
@@ -940,14 +946,14 @@ onHide(() => {
 }
 
 .hero-title {
-  color: var(--text-main);
+  color: #ffffff;
   font-size: 46rpx;
   line-height: 1.24;
   font-weight: 700;
 }
 
 .hero-subtitle {
-  color: var(--text-sub);
+  color: rgba(255, 255, 255, 0.9);
   font-size: 24rpx;
   line-height: 1.45;
 }
@@ -1044,7 +1050,7 @@ onHide(() => {
 }
 
 .section-action {
-  color: #886fde;
+  color: #7359d3;
   font-size: 24rpx;
   font-weight: 600;
 }

@@ -1,9 +1,12 @@
 <template>
   <view :class="['study-page', themeClass]">
+    <!-- 装饰光斑 -->
+    <view class="orb orb-1" />
+    <view class="orb orb-2" />
+
     <view class="top-bar">
       <view class="left">
-        <Icon name="book_2" :size="22" color="#4A90E2" />
-        <text class="title">{{ pageData.headerTitle }}</text>
+        <text class="greeting">{{ pageData.headerTitle }}</text>
       </view>
       <view class="right">
         <view class="icon-btn" @tap="openSearch">
@@ -18,44 +21,38 @@
       </view>
     </view>
 
-    <view class="hero-card">
+    <view class="hero-card" @tap="handleCommonAction">
       <view class="hero-content">
+        <text class="hero-label">{{ pageData.heroSubtitle }}</text>
         <text class="hero-title">{{ pageData.heroTitle }}</text>
-        <text class="hero-subtitle">{{ pageData.heroSubtitle }}</text>
-        <view class="hero-button" @tap="handleCommonAction">
+        <view class="hero-button">
           <text class="hero-button-text">{{ pageData.heroAction }}</text>
         </view>
       </view>
       <view class="hero-icon">
-        <Icon name="school" :size="164" color="rgba(74, 144, 226, 0.25)" />
+        <Icon name="school" :size="120" color="rgba(255, 255, 255, 0.35)" />
       </view>
     </view>
 
     <view class="section-title-row">
       <view class="section-left">
-        <Icon name="menu_book" :size="18" color="#4A90E2" />
         <text class="section-title">{{ pageData.quickTitle }}</text>
       </view>
     </view>
 
-    <scroll-view class="quick-scroll" :scroll-x="hasQuickOverflow" show-scrollbar="false">
-      <view :class="['quick-grid', { 'is-overflow': hasQuickOverflow }]">
-        <view
-          v-for="(item, index) in pageData.quickActions"
-          :key="index"
-          class="quick-card"
-          @tap="handleQuickAction(index)"
-        >
-          <view class="quick-head">
-            <view class="quick-icon">
-              <Icon :name="item.icon" :size="20" color="#4A90E2" />
-            </view>
-            <text class="quick-title">{{ item.title }}</text>
-          </view>
-          <text class="quick-subtitle">{{ item.subtitle }}</text>
+    <view class="quick-grid">
+      <view
+        v-for="(item, index) in pageData.quickActions"
+        :key="index"
+        class="quick-item"
+        @tap="handleQuickAction(index)"
+      >
+        <view class="quick-icon">
+          <Icon :name="item.icon" :size="18" color="#ffffff" />
         </view>
+        <text class="quick-label">{{ item.title }}</text>
       </view>
-    </scroll-view>
+    </view>
 
     <view class="section-title-row">
       <view class="section-left">
@@ -676,11 +673,103 @@ onHide(() => {
 </script>
 
 <style lang="scss" scoped>
+/* ===== 玻璃态主题变量 ===== */
+.theme-light {
+  --page-bg: linear-gradient(180deg, #eef3fb 0%, #f6f9ff 35%, #ffffff 100%);
+  --glass-bg: rgba(255, 255, 255, 0.68);
+  --glass-border: rgba(255, 255, 255, 0.78);
+  --glass-shadow: 0 4rpx 14rpx rgba(31, 38, 135, 0.05);
+  --surface: rgba(255, 255, 255, 0.68);
+  --text-main: #1e293b;
+  --text-sub: #64748b;
+  --text-soft: #64748b;
+  --line: rgba(255, 255, 255, 0.78);
+}
+
+.theme-dark {
+  --page-bg: linear-gradient(180deg, #0f172a 0%, #1e1b2e 35%, #15131f 100%);
+  --glass-bg: rgba(30, 41, 59, 0.55);
+  --glass-border: rgba(255, 255, 255, 0.10);
+  --glass-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.20);
+  --surface: rgba(30, 41, 59, 0.55);
+  --text-main: #f8fafc;
+  --text-sub: #cbd5e1;
+  --text-soft: #94a3b8;
+  --line: rgba(255, 255, 255, 0.10);
+}
+
 .study-page {
   min-height: 100vh;
-  padding: 16rpx 24rpx 176rpx;
+  padding: 16rpx 28rpx 180rpx;
   background: var(--page-bg);
-  transition: background-color 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ===== 装饰光斑 ===== */
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(40px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.orb-1 {
+  top: -60rpx;
+  right: -50rpx;
+  width: 400rpx;
+  height: 400rpx;
+  background: rgba(91, 139, 212, 0.20);
+}
+
+.orb-2 {
+  bottom: 200rpx;
+  left: -60rpx;
+  width: 320rpx;
+  height: 320rpx;
+  background: rgba(136, 111, 222, 0.10);
+}
+
+/* ===== 顶栏 ===== */
+.top-bar {
+  position: relative;
+  z-index: 10;
+  height: 96rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12rpx;
+
+  .greeting {
+    font-size: 36rpx;
+    font-weight: 700;
+    color: var(--text-main);
+  }
+
+  .right {
+    display: flex;
+    align-items: center;
+    gap: 12rpx;
+  }
+
+  .icon-btn {
+    width: 72rpx;
+    height: 72rpx;
+    border-radius: 20rpx;
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.15s ease;
+
+    &:active {
+      transform: scale(0.94);
+    }
+  }
 }
 
 .icon-btn.has-badge {
@@ -708,124 +797,71 @@ onHide(() => {
   }
 }
 
-.theme-light {
-  --page-bg: #f6f6f8;
-  --surface: #ffffff;
-  --text-main: #0f172a;
-  --text-sub: #64748b;
-  --text-soft: #94a3b8;
-  --line: rgba(74, 144, 226, 0.12);
-  --topbar-bg: rgba(246, 246, 248, 0.9);
-}
-
-.theme-dark {
-  --page-bg: #151c2a;
-  --surface: rgba(15, 23, 42, 0.72);
-  --text-main: #f1f5f9;
-  --text-sub: #cbd5e1;
-  --text-soft: #94a3b8;
-  --line: rgba(74, 144, 226, 0.24);
-  --topbar-bg: rgba(21, 28, 42, 0.9);
-}
-
-.top-bar {
-  position: sticky;
-  top: 0;
-  z-index: 20;
-  height: 88rpx;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  backdrop-filter: blur(14px);
-  background: var(--topbar-bg);
-
-  .left {
-    display: flex;
-    align-items: center;
-    gap: 12rpx;
-  }
-
-  .title {
-    color: var(--text-main);
-    font-size: 34rpx;
-    font-weight: 700;
-  }
-
-  .right {
-    display: flex;
-    align-items: center;
-    gap: 8rpx;
-  }
-
-  .icon-btn {
-    width: 64rpx;
-    height: 64rpx;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    &:active {
-      opacity: 0.7;
-    }
-  }
-}
-
+/* ===== Hero 卡片 ===== */
 .hero-card {
-  margin-top: 12rpx;
   position: relative;
-  overflow: hidden;
-  border-radius: 28rpx;
-  border: 1px solid var(--line);
+  z-index: 1;
+  border-radius: 36rpx;
   padding: 40rpx;
-  background: linear-gradient(135deg, rgba(74, 144, 226, 0.22), rgba(74, 144, 226, 0.08));
+  margin-bottom: 24rpx;
+  background: linear-gradient(135deg, #3068b3 0%, #5b8bd4 100%);
+  box-shadow: 0 16rpx 36rpx rgba(91, 139, 212, 0.28);
+  overflow: hidden;
+  transition: transform 0.15s ease;
+
+  &:active {
+    transform: scale(0.98);
+  }
 }
 
 .hero-content {
-  width: 70%;
+  width: 72%;
   display: flex;
   flex-direction: column;
-  gap: 14rpx;
+  gap: 10rpx;
   position: relative;
   z-index: 2;
 }
 
-.hero-title {
-  font-size: 44rpx;
-  line-height: 1.25;
-  font-weight: 700;
-  color: var(--text-main);
+.hero-label {
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.92);
 }
 
-.hero-subtitle {
-  font-size: 24rpx;
-  line-height: 1.45;
-  color: var(--text-sub);
+.hero-title {
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.25;
 }
 
 .hero-button {
   align-self: flex-start;
-  margin-top: 10rpx;
-  border-radius: 18rpx;
-  padding: 14rpx 24rpx;
-  background: #4A90E2;
-  box-shadow: 0 10rpx 22rpx rgba(74, 144, 226, 0.35);
+  margin-top: 12rpx;
+  border-radius: 999rpx;
+  padding: 14rpx 28rpx;
+  background: rgba(255, 255, 255, 0.22);
+  backdrop-filter: blur(8px);
 }
 
 .hero-button-text {
   color: #fff;
   font-size: 24rpx;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .hero-icon {
   position: absolute;
-  right: -24rpx;
-  bottom: -24rpx;
+  right: -20rpx;
+  bottom: -20rpx;
+  z-index: 1;
 }
 
+/* ===== 区块标题 ===== */
 .section-title-row {
-  margin-top: 30rpx;
+  position: relative;
+  z-index: 1;
+  margin-top: 28rpx;
   margin-bottom: 16rpx;
   display: flex;
   align-items: center;
@@ -839,86 +875,83 @@ onHide(() => {
 }
 
 .section-title {
-  font-size: 34rpx;
+  font-size: 32rpx;
   font-weight: 700;
   color: var(--text-main);
 }
 
 .section-action {
   font-size: 24rpx;
-  color: #4A90E2;
+  color: #2c66ad;
   font-weight: 600;
 }
 
-.quick-scroll {
-  width: 100%;
-}
-
+/* ===== 快捷入口 4 列网格 ===== */
 .quick-grid {
-  width: 100%;
+  position: relative;
+  z-index: 1;
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 18rpx;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16rpx;
+  margin-bottom: 24rpx;
 }
 
-.quick-grid.is-overflow {
-  width: max-content;
-  grid-template-columns: none;
-  grid-template-rows: repeat(2, minmax(0, 1fr));
-  grid-auto-flow: column;
-  grid-auto-columns: 324rpx;
-}
-
-.quick-card {
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: 20rpx;
-  padding: 24rpx;
+.quick-item {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: 24rpx;
+  padding: 20rpx 8rpx;
   display: flex;
   flex-direction: column;
-  gap: 10rpx;
-}
-
-.quick-head {
-  display: flex;
   align-items: center;
-  gap: 14rpx;
+  gap: 10rpx;
+  box-shadow: var(--glass-shadow);
+  transition: transform 0.15s ease;
+
+  &:active {
+    transform: scale(0.95);
+  }
 }
 
 .quick-icon {
-  width: 62rpx;
-  height: 62rpx;
-  border-radius: 50%;
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 20rpx;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(74, 144, 226, 0.12);
+  background: linear-gradient(135deg, #5b8bd4, #8ab4e8);
 }
 
-.quick-title {
-  font-size: 28rpx;
-  color: var(--text-main);
-  font-weight: 700;
-}
-
-.quick-subtitle {
+.quick-label {
   font-size: 22rpx;
-  color: var(--text-soft);
-  line-height: 1.35;
+  color: var(--text-sub);
+  font-weight: 500;
+  text-align: center;
 }
 
+/* ===== 帖子列表 ===== */
 .feed-list {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
-  gap: 18rpx;
+  gap: 16rpx;
 }
 
 .feed-card {
-  border: 1px solid rgba(74, 144, 226, 0.2);
-  border-radius: 26rpx;
-  background: var(--surface);
-  padding: 24rpx;
-  box-shadow: 0 10rpx 22rpx rgba(74, 144, 226, 0.08);
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: 28rpx;
+  padding: 28rpx;
+  box-shadow: var(--glass-shadow);
+  transition: transform 0.15s ease;
+
+  &:active {
+    transform: scale(0.98);
+  }
 }
 
 .feed-meta {
@@ -937,7 +970,7 @@ onHide(() => {
 .feed-badge {
   min-height: 40rpx;
   border-radius: 999rpx;
-  padding: 0 12rpx;
+  padding: 0 14rpx;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -947,7 +980,7 @@ onHide(() => {
 }
 
 .feed-badge.topic {
-  background: rgba(74, 144, 226, 0.16);
+  background: rgba(91, 139, 212, 0.16);
   color: #3f7dcb;
 }
 
@@ -957,7 +990,7 @@ onHide(() => {
 }
 
 .feed-badge.media {
-  background: rgba(74, 144, 226, 0.08);
+  background: rgba(91, 139, 212, 0.08);
   color: #2f6fbc;
 }
 
@@ -990,7 +1023,7 @@ onHide(() => {
   height: 176rpx;
   border-radius: 16rpx;
   overflow: hidden;
-  background: rgba(74, 144, 226, 0.08);
+  background: rgba(91, 139, 212, 0.08);
 }
 
 .feed-images.single .feed-image-wrap {
@@ -1023,7 +1056,7 @@ onHide(() => {
   align-items: center;
   justify-content: space-between;
   padding-top: 14rpx;
-  border-top: 1px dashed var(--line);
+  border-top: 1px solid var(--line);
 }
 
 .author {
@@ -1033,15 +1066,15 @@ onHide(() => {
 }
 
 .author-avatar {
-  width: 28rpx;
-  height: 28rpx;
+  width: 32rpx;
+  height: 32rpx;
   border-radius: 50%;
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  background: rgba(74, 144, 226, 0.08);
+  background: rgba(91, 139, 212, 0.08);
 }
 
 .avatar-image {
@@ -1097,8 +1130,9 @@ onHide(() => {
 .state-card {
   border: 1px dashed var(--line);
   border-radius: 24rpx;
-  background: var(--surface);
-  padding: 32rpx 24rpx;
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  padding: 40rpx 24rpx;
   text-align: center;
 }
 

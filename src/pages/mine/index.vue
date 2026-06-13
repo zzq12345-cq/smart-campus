@@ -649,25 +649,31 @@ onHide(() => {
 }
 
 .theme-light {
-  --page-bg: #f6f8f6;
-  --surface: #ffffff;
+  --page-bg: linear-gradient(180deg, #edfcef 0%, #f5fef7 35%, #ffffff 100%);
+  --glass-bg: rgba(255, 255, 255, 0.68);
+  --glass-border: rgba(255, 255, 255, 0.78);
+  --glass-shadow: 0 4rpx 14rpx rgba(31, 38, 135, 0.05);
+  --surface: rgba(255, 255, 255, 0.68);
   --text-main: #0f172a;
   --text-sub: #64748b;
-  --text-soft: #94a3b8;
-  --line: rgba(111, 222, 129, 0.18);
-  --topbar-bg: rgba(246, 248, 246, 0.9);
+  --text-soft: #64748b;
+  --line: rgba(255, 255, 255, 0.78);
+  --topbar-bg: transparent;
   --avatar-ring: #ffffff;
 }
 
 .theme-dark {
-  --page-bg: #131f15;
-  --surface: rgba(15, 30, 20, 0.78);
+  --page-bg: linear-gradient(180deg, #131f15 0%, #15251a 35%, #15131f 100%);
+  --glass-bg: rgba(30, 41, 59, 0.55);
+  --glass-border: rgba(255, 255, 255, 0.10);
+  --glass-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.20);
+  --surface: rgba(30, 41, 59, 0.55);
   --text-main: #f8fafc;
   --text-sub: #cbd5e1;
   --text-soft: #94a3b8;
-  --line: rgba(111, 222, 129, 0.3);
-  --topbar-bg: rgba(19, 31, 21, 0.9);
-  --avatar-ring: #233728;
+  --line: rgba(255, 255, 255, 0.10);
+  --topbar-bg: transparent;
+  --avatar-ring: rgba(30, 41, 59, 0.55);
 }
 
 .top-bar {
@@ -796,7 +802,7 @@ onHide(() => {
 }
 
 .primary-btn-text {
-  color: #ffffff;
+  color: #0d3b16;
   font-size: 28rpx;
   font-weight: 700;
 }

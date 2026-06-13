@@ -179,6 +179,68 @@ $transition-base: 200ms ease;
 $transition-slow: 300ms ease;
 
 // ============================================
+// Glassmorphism Design System (from prototype)
+// ============================================
+
+// Glass surface
+$glass-bg-light: rgba(255, 255, 255, 0.68);
+$glass-bg-dark: rgba(30, 41, 59, 0.55);
+$glass-border-light: rgba(255, 255, 255, 0.78);
+$glass-border-dark: rgba(255, 255, 255, 0.10);
+$glass-shadow-light: 0 4rpx 14rpx rgba(31, 38, 135, 0.05);
+$glass-shadow-dark: 0 4rpx 16rpx rgba(0, 0, 0, 0.20);
+$glass-blur: 12px;
+
+// Section gradient pairs (from prototype)
+$study-gradient: linear-gradient(135deg, #5b8bd4 0%, #8ab4e8 100%);
+$life-gradient: linear-gradient(135deg, #f49d25 0%, #ffd166 100%);
+$teaching-gradient: linear-gradient(135deg, #c00000 0%, #ff5a5a 100%);
+$psychology-gradient: linear-gradient(135deg, #886fde 0%, #c4b5fd 100%);
+$mine-gradient: linear-gradient(135deg, #6fde81 0%, #a7f3d0 100%);
+
+// Page gradient backgrounds
+$page-gradient-light: linear-gradient(180deg, #eef3fb 0%, #f6f9ff 35%, #ffffff 100%);
+$page-gradient-dark: linear-gradient(180deg, #0f172a 0%, #1e1b2e 35%, #15131f 100%);
+
+// Section gradient backgrounds (per-module)
+$page-gradient-study-light: linear-gradient(180deg, #eef3fb 0%, #f6f9ff 35%, #ffffff 100%);
+$page-gradient-life-light: linear-gradient(180deg, #fff8ed 0%, #fffcf5 35%, #ffffff 100%);
+$page-gradient-teaching-light: linear-gradient(180deg, #fdf2f2 0%, #fff7f7 35%, #ffffff 100%);
+$page-gradient-psychology-light: linear-gradient(180deg, #f3f0fc 0%, #faf8fe 35%, #ffffff 100%);
+$page-gradient-mine-light: linear-gradient(180deg, #edfcef 0%, #f5fef7 35%, #ffffff 100%);
+
+$page-gradient-study-dark: linear-gradient(180deg, #0f172a 0%, #151c2e 35%, #15131f 100%);
+$page-gradient-life-dark: linear-gradient(180deg, #1e1b10 0%, #221a10 35%, #15131f 100%);
+$page-gradient-teaching-dark: linear-gradient(180deg, #1a1315 0%, #1e1517 35%, #15131f 100%);
+$page-gradient-psychology-dark: linear-gradient(180deg, #15131f 0%, #1a1525 35%, #15131f 100%);
+$page-gradient-mine-dark: linear-gradient(180deg, #131f15 0%, #15251a 35%, #15131f 100%);
+
+// Orb decoration helper
+@mixin orb($size, $top: null, $right: null, $bottom: null, $left: null, $color: rgba(91,139,212,0.20)) {
+  content: '';
+  position: absolute;
+  width: $size;
+  height: $size;
+  border-radius: 50%;
+  filter: blur(40px);
+  background: $color;
+  pointer-events: none;
+  z-index: 0;
+  @if $top != null { top: $top; }
+  @if $right != null { right: $right; }
+  @if $bottom != null { bottom: $bottom; }
+  @if $left != null { left: $left; }
+}
+
+// Glass surface card
+@mixin glass-surface {
+  background: var(--glass-bg);
+  backdrop-filter: blur($glass-blur);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+
+// ============================================
 // Component-Specific Variables
 // ============================================
 

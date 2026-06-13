@@ -7,3 +7,8 @@ test-results
 *.log
 .DS_Store
 tmp
+
+# AI 技能框架本地文件
+.claude/
+.superpowers/
+docs/superpowers/

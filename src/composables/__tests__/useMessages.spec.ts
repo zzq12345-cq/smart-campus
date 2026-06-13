@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import type { Message } from '@/types/message'
 
 const { mockRealtimeConstructor, mockRealtimeService, mockRealtimeSubscription } =
   vi.hoisted(() => ({
@@ -46,7 +47,7 @@ vi.mock('appwrite', () => ({
   }
 }))
 
-function baseMessage() {
+function baseMessage(): Message {
   return {
     $id: 'msg-1',
     conversationId: 'conv-1',
@@ -60,7 +61,7 @@ function baseMessage() {
   }
 }
 
-function createMessage(overrides: Partial<ReturnType<typeof baseMessage>> = {}) {
+function createMessage(overrides: Partial<Message> = {}): Message {
   return {
     ...baseMessage(),
     ...overrides

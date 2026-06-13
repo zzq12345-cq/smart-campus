@@ -10,7 +10,7 @@
 // Font face declaration for local font
 @font-face {
   font-family: 'Plus Jakarta Sans';
-  src: url('/static/fonts/PlusJakartaSans.woff2') format('woff2');
+  src: url('/static/fonts/PlusJakartaSans.ttf') format('truetype');
   font-weight: 400 700; // Variable font supports 400-700
   font-display: swap; // Prevent FOIT (Flash of Invisible Text)
   font-style: normal;
@@ -102,5 +102,4 @@ text {
     transform: translateY(0);
   }
 }
-
 

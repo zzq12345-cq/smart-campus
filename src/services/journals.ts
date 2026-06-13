@@ -1,11 +1,11 @@
 import { ID, Permission, Query, Role } from 'appwrite'
 import authService from '@/services/auth'
 import mentalHealthFunctionService from '@/services/mental-health-function'
-import type { Journal, JournalCreateData, JournalListOptions, JournalUpdateData } from '@/types/journal'
+import type { Journal, JournalCreateData, JournalListOptions, JournalMood, JournalUpdateData } from '@/types/journal'
 import { tablesDBProxy as tablesDB } from '@/utils/appwrite-proxy'
 import { JOURNALS_TABLE_ID, MINDGUARD_DATABASE_ID } from '@/utils/appwrite-shared'
 
-const JOURNAL_MOOD_SET = new Set(['happy', 'calm', 'anxious', 'sad', 'angry'])
+const JOURNAL_MOOD_SET = new Set<JournalMood>(['happy', 'calm', 'anxious', 'sad', 'angry'])
 const LEGACY_MOOD_TO_MODERN = {
   开心: 'happy',
   喜悦: 'happy',
@@ -14,7 +14,7 @@ const LEGACY_MOOD_TO_MODERN = {
   低落: 'sad'
 } as const
 
-const MODERN_MOOD_TO_LEGACY = {
+const MODERN_MOOD_TO_LEGACY: Record<JournalMood, string> = {
   happy: '开心',
   calm: '平静',
   anxious: '焦虑',
@@ -22,7 +22,7 @@ const MODERN_MOOD_TO_LEGACY = {
   angry: '低落'
 } as const
 
-const MOOD_COLOR_MAP = {
+const MOOD_COLOR_MAP: Record<JournalMood, string> = {
   happy: '#F59E0B',
   calm: '#60A5FA',
   anxious: '#F87171',
@@ -52,9 +52,9 @@ class JournalsService {
     return [Permission.read(Role.user(userId)), Permission.update(Role.user(userId)), Permission.delete(Role.user(userId))]
   }
 
-  private normalizeMood(mood?: unknown): Journal['mood'] {
-    if (typeof mood === 'string' && JOURNAL_MOOD_SET.has(mood)) {
-      return mood as Journal['mood']
+  private normalizeMood(mood?: unknown): JournalMood {
+    if (typeof mood === 'string' && JOURNAL_MOOD_SET.has(mood as JournalMood)) {
+      return mood as JournalMood
     }
     if (typeof mood === 'string' && mood in LEGACY_MOOD_TO_MODERN) {
       return LEGACY_MOOD_TO_MODERN[mood as keyof typeof LEGACY_MOOD_TO_MODERN]
@@ -105,7 +105,7 @@ class JournalsService {
     return MODERN_MOOD_TO_LEGACY[normalized]
   }
 
-  private normalizeLegacyMoodIntensity(mood?: Journal['mood'], riskLevel?: unknown) {
+  private normalizeLegacyMoodIntensity(mood?: JournalMood, riskLevel?: unknown) {
     const normalizedMood = this.normalizeMood(mood)
     const normalizedRiskLevel = this.normalizeRiskLevel(riskLevel)
     if (normalizedRiskLevel >= 3) {
@@ -117,7 +117,7 @@ class JournalsService {
     return normalizedMood === 'happy' ? 4 : 2
   }
 
-  private normalizeLegacyMoodColor(mood?: Journal['mood']) {
+  private normalizeLegacyMoodColor(mood?: JournalMood) {
     const normalizedMood = this.normalizeMood(mood)
     return MOOD_COLOR_MAP[normalizedMood]
   }
@@ -230,7 +230,7 @@ class JournalsService {
     queries.push(Query.offset(options.offset ?? 0))
 
     const result = await tablesDB.listRows(databaseId, tableId, queries)
-    return (result?.rows || []).map((row) => this.normalizeJournalRow(row as Journal & Record<string, unknown>))
+    return (result?.rows || []).map((row: unknown) => this.normalizeJournalRow(row as Journal & Record<string, unknown>))
   }
 
   async getJournalById(rowId: string) {
@@ -293,7 +293,7 @@ class JournalsService {
       Query.orderDesc('$createdAt'),
       Query.limit(50)
     ])
-    return (result?.rows || []).map((row) => this.normalizeJournalRow(row as Journal & Record<string, unknown>))
+    return (result?.rows || []).map((row: unknown) => this.normalizeJournalRow(row as Journal & Record<string, unknown>))
   }
 
   async createMyJournal(input: JournalCreateData) {

@@ -7,6 +7,7 @@ describe('theme integration', () => {
   it('defines all section theme colors', () => {
     expect(SECTION_THEME_COLORS.study).toBe('#4A90E2')
     expect(SECTION_THEME_COLORS.life).toBe('#f49d25')
+    expect(SECTION_THEME_COLORS.teaching).toBe('#C00000')
     expect(SECTION_THEME_COLORS.psychology).toBe('#886fde')
     expect(SECTION_THEME_COLORS.mine).toBe('#6fde81')
   })
@@ -23,6 +24,7 @@ describe('theme integration', () => {
     const scss = readFileSync(resolve(process.cwd(), 'src/uni.scss'), 'utf8')
     expect(scss).toContain('--study-primary: #4A90E2')
     expect(scss).toContain('--life-primary: #f49d25')
+    expect(scss).toContain('--teaching-primary: #C00000')
     expect(scss).toContain('--psychology-primary: #886fde')
     expect(scss).toContain('--mine-primary: #6fde81')
   })
@@ -34,4 +36,3 @@ describe('theme integration', () => {
     expect(feedCard).toContain('@media (prefers-color-scheme: dark)')
   })
 })
-

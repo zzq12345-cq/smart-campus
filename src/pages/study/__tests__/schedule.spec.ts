@@ -38,7 +38,7 @@ const mockAuthStore = {
   init: vi.fn().mockResolvedValue(undefined)
 }
 
-const mockRequireAuth = vi.fn(() => true)
+const mockRequireAuth = vi.fn((_path?: unknown) => true)
 
 vi.mock('@/stores/ui-preferences', () => ({
   useUiPreferencesStore: () => mockUiStore
@@ -49,7 +49,7 @@ vi.mock('@/stores/auth', () => ({
 }))
 
 vi.mock('@/utils/auth-guard', () => ({
-  requireAuth: (...args: unknown[]) => mockRequireAuth(...args)
+  requireAuth: (path?: unknown) => mockRequireAuth(path)
 }))
 
 vi.mock('@/services/education-function', () => ({

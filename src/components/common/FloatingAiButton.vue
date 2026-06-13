@@ -135,6 +135,7 @@ let nextPushTimer: ReturnType<typeof setTimeout> | null = null
 const sectionColors: Record<TabSection, string> = {
   study: '#4A90E2',
   life: '#f49d25',
+  teaching: '#C00000',
   psychology: '#886fde',
   mine: '#6fde81'
 }

@@ -5,6 +5,7 @@ import type { TabSection, ThemeMode } from '@/types/ui'
 export const SECTION_THEME_COLORS: Record<TabSection, string> = {
   study: '#4A90E2',
   life: '#f49d25',
+  teaching: '#C00000',
   psychology: '#886fde',
   mine: '#6fde81'
 }
@@ -60,4 +61,3 @@ export function useTheme(defaultSection: TabSection = 'psychology') {
     toggleDark
   }
 }
-

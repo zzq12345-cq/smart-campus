@@ -185,7 +185,7 @@ describe('mine posts page', () => {
 
   it('supports adding and removing images during inline editing', async () => {
     mockUploadPostImage.mockResolvedValueOnce('/static/posts/uploaded-new.jpg')
-    ;(globalThis as any).uni.chooseImage.mockImplementationOnce(({ success }) =>
+    ;(globalThis as any).uni.chooseImage.mockImplementationOnce(({ success }: { success?: (result: unknown) => void }) =>
       success?.({
         tempFilePaths: ['/tmp/new-image.jpg'],
         tempFiles: [{ path: '/tmp/new-image.jpg' }]

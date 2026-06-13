@@ -16,7 +16,7 @@ const { mockUiStore, mockAuthStore, mockPostsService, mockUploadPostImage, mockR
     createPost: vi.fn()
   },
   mockUploadPostImage: vi.fn(),
-  mockRequireAuth: vi.fn(() => true)
+  mockRequireAuth: vi.fn((_path?: unknown) => true)
 }))
 
 vi.mock('@/stores/ui-preferences', () => ({
@@ -32,11 +32,11 @@ vi.mock('@/services/posts', () => ({
 }))
 
 vi.mock('@/services/storage', () => ({
-  uploadPostImage: (...args: unknown[]) => mockUploadPostImage(...args)
+  uploadPostImage: (...args: unknown[]) => mockUploadPostImage.apply(null, args)
 }))
 
 vi.mock('@/utils/auth-guard', () => ({
-  requireAuth: (...args: unknown[]) => mockRequireAuth(...args)
+  requireAuth: (path?: unknown) => mockRequireAuth(path)
 }))
 
 vi.mock('@/stores/points', () => ({

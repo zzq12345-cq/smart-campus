@@ -64,12 +64,13 @@ export function getElementRect(context: object | undefined, selector: string): P
       const query = context ? uni.createSelectorQuery().in(context) : uni.createSelectorQuery()
       query
         .select(selector)
-        .boundingClientRect((rect: CaptchaImageRect | null) => {
-          if (!rect || typeof rect.width !== 'number' || typeof rect.height !== 'number') {
+        .boundingClientRect((result) => {
+          const rect = Array.isArray(result) ? result[0] : result
+          if (!rect || typeof rect.left !== 'number' || typeof rect.top !== 'number' || typeof rect.width !== 'number' || typeof rect.height !== 'number') {
             resolve(null)
             return
           }
-          resolve(rect)
+          resolve(rect as CaptchaImageRect)
         })
         .exec()
     } catch {

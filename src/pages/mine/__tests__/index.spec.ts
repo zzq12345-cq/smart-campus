@@ -26,8 +26,8 @@ const mockUiStore = {
 
 const mockAuthStore = {
   isLoggedIn: false,
-  user: null,
-  dbUser: null,
+  user: null as null | { $id: string; name: string; email?: string; avatar?: string },
+  dbUser: null as null | { $id: string; name: string; email?: string; avatar?: string },
   init: vi.fn(),
   refreshProfile: vi.fn(),
   updateProfile: vi.fn(),

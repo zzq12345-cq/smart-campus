@@ -17,7 +17,7 @@ export interface CampusEvent {
   contactInfo: string
 }
 
-export type EventCategory = 'competition' | 'lecture' | 'club' | 'entertainment' | 'other'
+export type EventCategory = 'competition' | 'lecture' | 'club' | 'volunteer' | 'entertainment' | 'other'
 export type EventStatus = 'upcoming' | 'ongoing' | 'ended' | 'cancelled'
 
 export interface EventCreateData {

@@ -33,7 +33,7 @@ function clearClientSession() {
     delete mutableClient.headers['X-Appwrite-Session']
   }
   if (mutableClient.config) {
-    delete mutableClient.config.session
+    Reflect.deleteProperty(mutableClient.config, 'session')
   }
 }
 

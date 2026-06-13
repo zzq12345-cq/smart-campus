@@ -33,7 +33,7 @@
  *
  * 2x2 quick access grid for main features
  * Displays circular icon containers with bold titles
- * Supports theme color switching per section (study/life/psychology/mine)
+ * Supports theme color switching per section (study/life/teaching/psychology/mine)
  *
  * @example
  * <QuickAccessCard
@@ -124,6 +124,10 @@ watch(
 
   .quick-access-card[data-theme="life"] & {
     background: rgba(244, 157, 37, 0.1);
+  }
+
+  .quick-access-card[data-theme="teaching"] & {
+    background: rgba(192, 0, 0, 0.1);
   }
 
   .quick-access-card[data-theme="psychology"] & {

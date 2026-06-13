@@ -22,10 +22,10 @@ vi.mock('@/stores/auth', () => ({
   useAuthStore: () => mockAuthStore
 }))
 
-const mockRequireAuth = vi.fn(() => true)
+const mockRequireAuth = vi.fn((_path?: unknown) => true)
 
 vi.mock('@/utils/auth-guard', () => ({
-  requireAuth: (...args: unknown[]) => mockRequireAuth(...args)
+  requireAuth: (path?: unknown) => mockRequireAuth(path)
 }))
 
 vi.mock('@dcloudio/uni-app', () => ({

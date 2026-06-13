@@ -1,8 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import FeedCard from '@/components/common/FeedCard.vue'
+import type { FeedPost } from '@/types/components'
 
-const basePost = {
+const basePost: FeedPost = {
   id: 1,
   user: '匿名松鼠',
   time: '2h ago',
@@ -13,7 +14,7 @@ const basePost = {
   isLiked: false
 }
 
-function mountComponent(post = basePost) {
+function mountComponent(post: FeedPost = basePost) {
   return mount(FeedCard, {
     props: {
       post
@@ -89,4 +90,3 @@ describe('FeedCard', () => {
     expect(wrapper.emitted('tap')?.[0]).toEqual([1])
   })
 })
-

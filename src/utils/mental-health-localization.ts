@@ -34,15 +34,15 @@ const SOURCE_LABELS: Record<string, LocalizedLabel> = {
   exam_plan: { 'zh-CN': '考试计划', 'en-US': 'Exam plan' }
 }
 
-function cleanString(value: unknown) {
+function cleanString(value: unknown): string {
   return String(value || '').replace(/\s+/g, ' ').trim()
 }
 
-function getLabel(map: LocalizedLabel | undefined, locale: LocaleCode) {
+function getLabel(map: LocalizedLabel | undefined, locale: LocaleCode): string {
   return map?.[locale] || map?.['zh-CN'] || ''
 }
 
-function humanizeToken(token: string) {
+function humanizeToken(token: string): string {
   return token
     .split(/[_-]+/)
     .filter(Boolean)
@@ -57,7 +57,7 @@ function formatCount(
   zhUnit: string,
   enSingular: string,
   enPlural = `${enSingular}s`
-) {
+): string {
   const normalized = cleanString(value)
   if (!normalized) {
     return locale === 'zh-CN' ? zhLabel : humanizeToken(enPlural)
@@ -72,7 +72,7 @@ function formatCount(
   return `${normalized} ${Math.abs(amount) === 1 ? enSingular : enPlural}`
 }
 
-function localizeSourceDetail(detail: string, locale: LocaleCode) {
+function localizeSourceDetail(detail: string, locale: LocaleCode): string {
   const normalized = cleanString(detail)
   const separatorIndex = normalized.indexOf(':')
   if (separatorIndex <= 0) {
@@ -89,7 +89,7 @@ function localizeSourceDetail(detail: string, locale: LocaleCode) {
     : `${sourceLabel}: ${localizeMentalHealthText(rest, locale)}`
 }
 
-function formatEvidenceItem(value: string, locale: LocaleCode) {
+function formatEvidenceItem(value: string, locale: LocaleCode): string {
   const normalized = cleanString(value)
   const separatorIndex = normalized.indexOf(':')
   if (separatorIndex <= 0) {
@@ -139,7 +139,7 @@ function formatEvidenceItem(value: string, locale: LocaleCode) {
   }
 }
 
-function localizeToken(token: string, locale: LocaleCode) {
+function localizeToken(token: string, locale: LocaleCode): string {
   const normalized = cleanString(token)
   if (!normalized) {
     return ''
@@ -160,7 +160,7 @@ function localizeToken(token: string, locale: LocaleCode) {
   })
 }
 
-function localizeSegment(value: string, locale: LocaleCode) {
+function localizeSegment(value: string, locale: LocaleCode): string {
   const normalized = cleanString(value)
   if (!normalized) {
     return ''
@@ -182,7 +182,7 @@ function localizeSegment(value: string, locale: LocaleCode) {
   return localizeToken(normalized, locale)
 }
 
-export function localizeMentalHealthText(value: unknown, locale: LocaleCode) {
+export function localizeMentalHealthText(value: unknown, locale: LocaleCode): string {
   const normalized = cleanString(value)
   if (!normalized) {
     return ''

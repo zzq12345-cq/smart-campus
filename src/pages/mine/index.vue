@@ -38,7 +38,9 @@
         <view class="avatar-wrap" @tap="handleAvatarUpload">
           <image class="avatar" :src="profileAvatar" mode="aspectFill" lazy-load />
           <view class="avatar-mask" :class="{ visible: avatarUploading }">
-            <text class="avatar-mask-text">{{ avatarUploading ? avatarUploadingText : avatarEditText }}</text>
+            <text class="avatar-mask-text">{{
+              avatarUploading ? avatarUploadingText : avatarEditText
+            }}</text>
           </view>
           <!-- 亮绿色编辑图标 -->
           <view class="edit-dot" @tap.stop="handleAvatarUpload">
@@ -55,7 +57,12 @@
       </view>
 
       <view class="stats-card">
-        <view v-for="(item, index) in statsCards" :key="index" class="stat-item" :class="{ bordered: index === 1 }">
+        <view
+          v-for="(item, index) in statsCards"
+          :key="index"
+          class="stat-item"
+          :class="{ bordered: index === 1 }"
+        >
           <text class="stat-value">{{ item.value }}</text>
           <text class="stat-label">{{ item.label }}</text>
         </view>
@@ -73,6 +80,7 @@
           v-for="item in serviceCards"
           :key="item.key"
           class="quick-card"
+          :data-service-key="item.key"
           @tap="handleServiceTap(item)"
         >
           <!-- 圆形背景图标框 -->
@@ -86,7 +94,6 @@
           <Icon name="chevron_right" :size="16" color="#cbd5e1" />
         </view>
       </view>
-
     </template>
 
     <view class="section-title">
@@ -167,16 +174,23 @@ interface ChooseImageTempFile {
 
 const uiPreferencesStore = useUiPreferencesStore()
 const authStore = useAuthStore()
-const { totalUnreadCount, refreshUnreadCount, startAutoRefresh, stopAutoRefresh } = useConversations()
-const { totalUnreadCount: notifUnreadCount, startCountPolling, stopCountPolling } = useNotifications()
+const { totalUnreadCount, refreshUnreadCount, startAutoRefresh, stopAutoRefresh } =
+  useConversations()
+const {
+  totalUnreadCount: notifUnreadCount,
+  startCountPolling,
+  stopCountPolling,
+} = useNotifications()
 
 const themeClass = computed(() => `theme-${uiPreferencesStore.theme}`)
 const pageData = computed(() => getMinePageData(uiPreferencesStore.locale))
 const iconColor = computed(() => (uiPreferencesStore.theme === 'light' ? '#64748b' : '#94a3b8'))
 const isTabBarVisible = ref(false)
-const visibleUnreadCount = computed(() => (authStore.isLoggedIn ? totalUnreadCount.value + notifUnreadCount.value : 0))
+const visibleUnreadCount = computed(() =>
+  authStore.isLoggedIn ? totalUnreadCount.value + notifUnreadCount.value : 0,
+)
 const notificationBadgeText = computed(() =>
-  visibleUnreadCount.value > 99 ? '99+' : String(visibleUnreadCount.value)
+  visibleUnreadCount.value > 99 ? '99+' : String(visibleUnreadCount.value),
 )
 const myPostCount = ref(0)
 const myLikeCount = ref(0)
@@ -184,7 +198,9 @@ const avatarUploading = ref(false)
 const educationAuthSnapshot = ref(educationSessionService.getSnapshot())
 const isZh = computed(() => uiPreferencesStore.locale === 'zh-CN')
 
-const profileName = computed(() => String(authStore.dbUser?.name || authStore.user?.name || pageData.value.name))
+const profileName = computed(() =>
+  String(authStore.dbUser?.name || authStore.user?.name || pageData.value.name),
+)
 const profileMeta = computed(() => {
   const school = String(authStore.dbUser?.school || '').trim()
   return school || pageData.value.meta
@@ -204,7 +220,9 @@ const loginLabel = computed(() => t(I18N_KEYS.mineLoginAction, uiPreferencesStor
 const registerLabel = computed(() => t(I18N_KEYS.mineRegisterAction, uiPreferencesStore.locale))
 const logoutLabel = computed(() => t(I18N_KEYS.mineLogoutAction, uiPreferencesStore.locale))
 const statsPostsLabel = computed(() => t(I18N_KEYS.mineStatsPosts, uiPreferencesStore.locale))
-const statsFollowersLabel = computed(() => t(I18N_KEYS.mineStatsFollowers, uiPreferencesStore.locale))
+const statsFollowersLabel = computed(() =>
+  t(I18N_KEYS.mineStatsFollowers, uiPreferencesStore.locale),
+)
 const statsLikesLabel = computed(() => t(I18N_KEYS.mineStatsLikes, uiPreferencesStore.locale))
 const avatarEditText = computed(() => (isZh.value ? '更换头像' : 'Change avatar'))
 const avatarUploadingText = computed(() => (isZh.value ? '上传中...' : 'Uploading...'))
@@ -216,23 +234,23 @@ const statsCards = computed(() =>
     if (item.label === statsPostsLabel.value) {
       return {
         ...item,
-        value: String(myPostCount.value)
+        value: String(myPostCount.value),
       }
     }
     if (item.label === statsFollowersLabel.value) {
       return {
         ...item,
-        value: String(myFollowersCount.value)
+        value: String(myFollowersCount.value),
       }
     }
     if (item.label === statsLikesLabel.value) {
       return {
         ...item,
-        value: String(myLikeCount.value)
+        value: String(myLikeCount.value),
       }
     }
     return item
-  })
+  }),
 )
 
 const getPostsServiceSubtitle = (count: number) => {
@@ -256,47 +274,56 @@ const getIdentityServiceSubtitle = () =>
 
 const serviceCards = computed(() => {
   const isZh = uiPreferencesStore.locale === 'zh-CN'
-  
+
   // 找出需要的 3 个基础服务
-  const postsCard = pageData.value.services.find(item => item.key === 'posts')
-  const ordersCard = pageData.value.services.find(item => item.key === 'orders')
-  const collectionsCard = pageData.value.services.find(item => item.key === 'collections')
-  
+  const postsCard = pageData.value.services.find((item) => item.key === 'posts')
+  const ordersCard = pageData.value.services.find((item) => item.key === 'orders')
+  const collectionsCard = pageData.value.services.find((item) => item.key === 'collections')
+
   const cards: any[] = []
-  
+
   if (postsCard) {
     cards.push({
       ...postsCard,
       subtitle: getPostsServiceSubtitle(myPostCount.value),
-      badgeText: ''
+      badgeText: '',
     })
   }
-  
+
   if (ordersCard) {
     cards.push({
       ...ordersCard,
       subtitle: isZh ? '校园商城记录' : 'Campus store records',
-      badgeText: ''
+      badgeText: '',
     })
   }
-  
+
   // 消息中心
   cards.push({
     key: 'messages',
     icon: 'mail',
     title: isZh ? '消息中心' : 'Message Center',
     subtitle: getMessagesServiceSubtitle(visibleUnreadCount.value),
-    badgeText: visibleUnreadCount.value > 0 ? notificationBadgeText.value : ''
+    badgeText: visibleUnreadCount.value > 0 ? notificationBadgeText.value : '',
   })
-  
+
   if (collectionsCard) {
     cards.push({
       ...collectionsCard,
       subtitle: isZh ? '保存的资源' : 'Saved resources',
-      badgeText: ''
+      badgeText: '',
     })
   }
-  
+
+  const identityCard = pageData.value.services.find((item) => item.key === 'identity')
+  if (identityCard) {
+    cards.push({
+      ...identityCard,
+      subtitle: getIdentityServiceSubtitle(),
+      badgeText: '',
+    })
+  }
+
   return cards
 })
 
@@ -311,8 +338,16 @@ const ROBOT_SETTINGS_STORAGE_KEY = 'mine.robot-settings'
 
 const robotSkin = ref<RobotSkinId>('default')
 
-const VALID_ROBOT_SKIN_IDS = new Set<string>(['default', 'nebula', 'mint', 'sunset', 'ocean', 'golden'])
-const isRobotSkin = (value: unknown): value is RobotSkinId => typeof value === 'string' && VALID_ROBOT_SKIN_IDS.has(value)
+const VALID_ROBOT_SKIN_IDS = new Set<string>([
+  'default',
+  'nebula',
+  'mint',
+  'sunset',
+  'ocean',
+  'golden',
+])
+const isRobotSkin = (value: unknown): value is RobotSkinId =>
+  typeof value === 'string' && VALID_ROBOT_SKIN_IDS.has(value)
 
 const SKIN_NAME_KEYS: Record<RobotSkinId, string> = {
   default: I18N_KEYS.mineRobotSkinDefault,
@@ -320,7 +355,7 @@ const SKIN_NAME_KEYS: Record<RobotSkinId, string> = {
   mint: I18N_KEYS.mineRobotSkinMint,
   sunset: I18N_KEYS.mineRobotSkinSunset,
   ocean: I18N_KEYS.mineRobotSkinOcean,
-  golden: I18N_KEYS.mineRobotSkinGolden
+  golden: I18N_KEYS.mineRobotSkinGolden,
 }
 
 const getRobotSkinLabel = (value: RobotSkinId) => {
@@ -341,13 +376,15 @@ const loadRobotSettings = () => {
 
 const saveRobotSettings = () => {
   const payload: RobotSettings = {
-    skin: robotSkin.value
+    skin: robotSkin.value,
   }
   uni.setStorageSync(ROBOT_SETTINGS_STORAGE_KEY, payload)
 }
 
 const settingsWithValue = computed(() => {
-  const list = pageData.value.settings.filter(item => item.key === 'theme' || item.key === 'language')
+  const list = pageData.value.settings.filter(
+    (item) => item.key === 'theme' || item.key === 'language',
+  )
   return list.map((item) => {
     if (item.key === 'theme') {
       return {
@@ -355,33 +392,37 @@ const settingsWithValue = computed(() => {
         icon: 'light_mode',
         value:
           uiPreferencesStore.theme === 'light'
-            ? (uiPreferencesStore.locale === 'zh-CN' ? '亮' : 'Light')
-            : (uiPreferencesStore.locale === 'zh-CN' ? '暗' : 'Dark')
+            ? uiPreferencesStore.locale === 'zh-CN'
+              ? '亮'
+              : 'Light'
+            : uiPreferencesStore.locale === 'zh-CN'
+              ? '暗'
+              : 'Dark',
       }
     }
     if (item.key === 'language') {
       return {
         ...item,
         icon: 'forum',
-        value: getLocaleLabel(uiPreferencesStore.locale, uiPreferencesStore.locale)
+        value: getLocaleLabel(uiPreferencesStore.locale, uiPreferencesStore.locale),
       }
     }
     return {
       ...item,
-      value: ''
+      value: '',
     }
   })
 })
 
 function navigateToLogin() {
   uni.navigateTo({
-    url: '/pages/mine/login?redirect=' + encodeURIComponent('/pages/mine/index')
+    url: '/pages/mine/login?redirect=' + encodeURIComponent('/pages/mine/index'),
   })
 }
 
 function navigateToRegister() {
   uni.navigateTo({
-    url: '/pages/mine/register?redirect=' + encodeURIComponent('/pages/mine/index')
+    url: '/pages/mine/register?redirect=' + encodeURIComponent('/pages/mine/index'),
   })
 }
 
@@ -396,7 +437,7 @@ const onSearchSelectPost = (payload: { postId: string; section: PostSection }) =
   showSearch.value = false
   if (!payload.postId) return
   uni.navigateTo({
-    url: `/pages/${payload.section}/post-detail?id=${payload.postId}`
+    url: `/pages/${payload.section}/post-detail?id=${payload.postId}`,
   })
 }
 
@@ -411,7 +452,7 @@ const onSkinChanged = (skinId: RobotSkinId) => {
 const handleCommonAction = () => {
   uni.showToast({
     title: t(I18N_KEYS.commonComingSoon, uiPreferencesStore.locale),
-    icon: 'none'
+    icon: 'none',
   })
 }
 
@@ -421,7 +462,7 @@ const openMessagesCenter = () => {
     return
   }
   uni.navigateTo({
-    url: '/pages/messages/index'
+    url: '/pages/messages/index',
   })
 }
 
@@ -442,7 +483,7 @@ const normalizeChosenImage = (item: unknown) => {
   }
   return {
     localPath,
-    file: typeof File !== 'undefined' && source.file instanceof File ? source.file : undefined
+    file: typeof File !== 'undefined' && source.file instanceof File ? source.file : undefined,
   }
 }
 
@@ -458,12 +499,14 @@ async function handleAvatarUpload() {
         sizeType: ['compressed'],
         sourceType: ['album', 'camera'],
         success: resolve,
-        fail: reject
+        fail: reject,
       })
     })
 
     const normalized =
-      (Array.isArray(result.tempFiles) ? result.tempFiles.map((item) => normalizeChosenImage(item)).find(Boolean) : null) ||
+      (Array.isArray(result.tempFiles)
+        ? result.tempFiles.map((item) => normalizeChosenImage(item)).find(Boolean)
+        : null) ||
       (Array.isArray(result.tempFilePaths)
         ? (() => {
             const localPath = String(result.tempFilePaths[0] || '').trim()
@@ -478,14 +521,14 @@ async function handleAvatarUpload() {
     avatarUploading.value = true
     const avatarUrl = await uploadAvatarImage({
       localPath: normalized.localPath,
-      file: normalized.file
+      file: normalized.file,
     })
     await authStore.updateProfile({
-      avatar: avatarUrl
+      avatar: avatarUrl,
     })
     uni.showToast({
       title: isZh.value ? '头像已更新' : 'Avatar updated',
-      icon: 'success'
+      icon: 'success',
     })
   } catch (error) {
     if (isCancelError(error)) {
@@ -493,8 +536,9 @@ async function handleAvatarUpload() {
     }
     console.error('upload avatar failed:', error)
     uni.showToast({
-      title: extractErrorMessage(error) || (isZh.value ? '头像上传失败' : 'Failed to upload avatar'),
-      icon: 'none'
+      title:
+        extractErrorMessage(error) || (isZh.value ? '头像上传失败' : 'Failed to upload avatar'),
+      icon: 'none',
     })
   } finally {
     avatarUploading.value = false
@@ -530,7 +574,7 @@ const loadMyLikeCount = async () => {
 const handleServiceTap = (item: { key?: string }) => {
   if (item.key === 'posts') {
     uni.navigateTo({
-      url: '/pages/mine/posts'
+      url: '/pages/mine/posts',
     })
     return
   }
@@ -542,21 +586,21 @@ const handleServiceTap = (item: { key?: string }) => {
 
   if (item.key === 'collections') {
     uni.navigateTo({
-      url: '/pages/mine/collections'
+      url: '/pages/mine/collections',
     })
     return
   }
 
   if (item.key === 'identity') {
     uni.navigateTo({
-      url: '/pages/mine/identity'
+      url: '/pages/mine/identity',
     })
     return
   }
 
   if (item.key === 'points') {
     uni.navigateTo({
-      url: '/pages/mine/points'
+      url: '/pages/mine/points',
     })
     return
   }
@@ -571,13 +615,13 @@ async function handleLogout() {
     myLikeCount.value = 0
     uni.showToast({
       title: t(I18N_KEYS.mineLogoutSuccess, uiPreferencesStore.locale),
-      icon: 'success'
+      icon: 'success',
     })
   } catch (error) {
     console.error('logout failed:', error)
     uni.showToast({
       title: t(I18N_KEYS.mineLogoutFailed, uiPreferencesStore.locale),
-      icon: 'none'
+      icon: 'none',
     })
   }
 }
@@ -607,7 +651,7 @@ const hideNativeTabBar = () => {
     return
   }
   uni.hideTabBar({
-    animation: false
+    animation: false,
   })
 }
 
@@ -620,9 +664,15 @@ onShow(async () => {
   await authStore.init()
 
   if (authStore.isLoggedIn) {
-    educationAuthSnapshot.value = educationSessionService.getSnapshot(String(authStore.user?.$id || '').trim())
+    educationAuthSnapshot.value = educationSessionService.getSnapshot(
+      String(authStore.user?.$id || '').trim(),
+    )
     await authStore.refreshProfile()
-    await Promise.all([loadMyPostCount(), loadMyLikeCount(), refreshUnreadCount().catch(() => undefined)])
+    await Promise.all([
+      loadMyPostCount(),
+      loadMyLikeCount(),
+      refreshUnreadCount().catch(() => undefined),
+    ])
     // Initialize points store for robot skin selector
     const userId = String(authStore.user?.$id || '').trim()
     if (userId && !pointsStore.initialized) {
@@ -690,13 +740,13 @@ onHide(() => {
 .theme-dark {
   --page-bg: linear-gradient(180deg, #131f15 0%, #15251a 35%, #15131f 100%);
   --glass-bg: rgba(30, 41, 59, 0.55);
-  --glass-border: rgba(255, 255, 255, 0.10);
-  --glass-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.20);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.2);
   --surface: rgba(30, 41, 59, 0.55);
   --text-main: #f8fafc;
   --text-sub: #cbd5e1;
   --text-soft: #94a3b8;
-  --line: rgba(255, 255, 255, 0.10);
+  --line: rgba(255, 255, 255, 0.1);
   --topbar-bg: transparent;
   --avatar-ring: rgba(30, 41, 59, 0.55);
 }

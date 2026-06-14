@@ -5,14 +5,14 @@ import MinePage from '@/pages/mine/index.vue'
 const { mockPostsService, mockUploadAvatarImage, mockEducationSessionService } = vi.hoisted(() => ({
   mockPostsService: {
     getMyPostsCount: vi.fn(),
-    getMyPostsLikeCount: vi.fn()
+    getMyPostsLikeCount: vi.fn(),
   },
   mockUploadAvatarImage: vi.fn(),
   mockEducationSessionService: {
     getSnapshot: vi.fn(),
     saveSnapshot: vi.fn(),
-    clearSnapshot: vi.fn()
-  }
+    clearSnapshot: vi.fn(),
+  },
 }))
 
 const mockUiStore = {
@@ -21,7 +21,7 @@ const mockUiStore = {
   initFromSystem: vi.fn(),
   setActiveSection: vi.fn(),
   toggleTheme: vi.fn(),
-  setLocale: vi.fn()
+  setLocale: vi.fn(),
 }
 
 const mockAuthStore = {
@@ -31,27 +31,27 @@ const mockAuthStore = {
   init: vi.fn(),
   refreshProfile: vi.fn(),
   updateProfile: vi.fn(),
-  logout: vi.fn()
+  logout: vi.fn(),
 }
 
 vi.mock('@/stores/ui-preferences', () => ({
-  useUiPreferencesStore: () => mockUiStore
+  useUiPreferencesStore: () => mockUiStore,
 }))
 
 vi.mock('@/stores/auth', () => ({
-  useAuthStore: () => mockAuthStore
+  useAuthStore: () => mockAuthStore,
 }))
 
 vi.mock('@/services/posts', () => ({
-  default: mockPostsService
+  default: mockPostsService,
 }))
 
 vi.mock('@/services/storage', () => ({
-  uploadAvatarImage: mockUploadAvatarImage
+  uploadAvatarImage: mockUploadAvatarImage,
 }))
 
 vi.mock('@/services/education-session', () => ({
-  default: mockEducationSessionService
+  default: mockEducationSessionService,
 }))
 
 vi.mock('@/composables/useConversations', () => ({
@@ -59,16 +59,16 @@ vi.mock('@/composables/useConversations', () => ({
     totalUnreadCount: { value: 0 },
     refreshUnreadCount: vi.fn().mockResolvedValue(undefined),
     startAutoRefresh: vi.fn(),
-    stopAutoRefresh: vi.fn()
-  })
+    stopAutoRefresh: vi.fn(),
+  }),
 }))
 
 vi.mock('@/composables/useNotifications', () => ({
   useNotifications: () => ({
     totalUnreadCount: { value: 0 },
     startCountPolling: vi.fn(),
-    stopCountPolling: vi.fn()
-  })
+    stopCountPolling: vi.fn(),
+  }),
 }))
 
 vi.mock('@/stores/points', () => ({
@@ -76,13 +76,13 @@ vi.mock('@/stores/points', () => ({
     balance: 0,
     initialized: false,
     init: vi.fn().mockResolvedValue(undefined),
-    addPoints: vi.fn().mockResolvedValue(undefined)
-  })
+    addPoints: vi.fn().mockResolvedValue(undefined),
+  }),
 }))
 
 vi.mock('@dcloudio/uni-app', () => ({
   onShow: (callback: () => void | Promise<void>) => callback(),
-  onHide: vi.fn()
+  onHide: vi.fn(),
 }))
 
 function mountPage() {
@@ -90,20 +90,20 @@ function mountPage() {
     global: {
       stubs: {
         'scroll-view': {
-          template: '<div class="scroll-view-stub"><slot /></div>'
+          template: '<div class="scroll-view-stub"><slot /></div>',
         },
         Icon: {
           props: ['name'],
-          template: '<i class="icon-stub">{{ name }}</i>'
+          template: '<i class="icon-stub">{{ name }}</i>',
         },
         AppTabBar: {
-          template: '<div class="app-tab-bar-stub"></div>'
+          template: '<div class="app-tab-bar-stub"></div>',
         },
         FloatingAiButton: {
-          template: '<div class="fab-stub"></div>'
-        }
-      }
-    }
+          template: '<div class="fab-stub"></div>',
+        },
+      },
+    },
   })
 }
 
@@ -117,13 +117,13 @@ describe('mine page', () => {
         ...(mockAuthStore.dbUser || {
           $id: 'user_1234567890',
           name: 'Test User',
-          email: 'test@example.com'
+          email: 'test@example.com',
         }),
-        avatar: input?.avatar || ''
+        avatar: input?.avatar || '',
       }
       return {
         user: mockAuthStore.user,
-        dbUser: mockAuthStore.dbUser
+        dbUser: mockAuthStore.dbUser,
       }
     })
     mockAuthStore.logout.mockResolvedValue(undefined)
@@ -143,11 +143,11 @@ describe('mine page', () => {
       chooseImage: vi.fn(({ success }) =>
         success?.({
           tempFilePaths: ['/tmp/avatar.jpg'],
-          tempFiles: [{ path: '/tmp/avatar.jpg' }]
-        })
+          tempFiles: [{ path: '/tmp/avatar.jpg' }],
+        }),
       ),
       getStorageSync: vi.fn(),
-      setStorageSync: vi.fn()
+      setStorageSync: vi.fn(),
     }
   })
 
@@ -169,9 +169,9 @@ describe('mine page', () => {
     mockAuthStore.isLoggedIn = true
     const wrapper = mountPage()
     await flushPromises()
-    await wrapper.find('.service-card').trigger('tap')
+    await wrapper.find('[data-service-key="posts"]').trigger('tap')
     expect((globalThis as any).uni.navigateTo).toHaveBeenCalledWith({
-      url: '/pages/mine/posts'
+      url: '/pages/mine/posts',
     })
   })
 
@@ -181,7 +181,7 @@ describe('mine page', () => {
     await flushPromises()
     await wrapper.find('[data-service-key="collections"]').trigger('tap')
     expect((globalThis as any).uni.navigateTo).toHaveBeenCalledWith({
-      url: '/pages/mine/collections'
+      url: '/pages/mine/collections',
     })
   })
 
@@ -201,7 +201,7 @@ describe('mine page', () => {
     const wrapper = mountPage()
     await flushPromises()
 
-    expect(wrapper.findAll('.service-subtitle')[0].text()).toContain('7')
+    expect(wrapper.findAll('.quick-subtitle')[0].text()).toContain('7')
   })
 
   it('uploads avatar and updates profile from avatar area', async () => {
@@ -211,7 +211,7 @@ describe('mine page', () => {
       $id: 'user_1234567890',
       name: 'Test User',
       email: 'test@example.com',
-      avatar: '/static/avatars/user1.jpg'
+      avatar: '/static/avatars/user1.jpg',
     }
 
     const wrapper = mountPage()
@@ -223,10 +223,10 @@ describe('mine page', () => {
     expect((globalThis as any).uni.chooseImage).toHaveBeenCalledTimes(1)
     expect(mockUploadAvatarImage).toHaveBeenCalledWith({
       localPath: '/tmp/avatar.jpg',
-      file: undefined
+      file: undefined,
     })
     expect(mockAuthStore.updateProfile).toHaveBeenCalledWith({
-      avatar: 'https://example.com/avatar-new.jpg'
+      avatar: 'https://example.com/avatar-new.jpg',
     })
   })
 
@@ -236,7 +236,7 @@ describe('mine page', () => {
     await flushPromises()
     await wrapper.find('[data-service-key="identity"]').trigger('tap')
     expect((globalThis as any).uni.navigateTo).toHaveBeenCalledWith({
-      url: '/pages/mine/identity'
+      url: '/pages/mine/identity',
     })
   })
 })

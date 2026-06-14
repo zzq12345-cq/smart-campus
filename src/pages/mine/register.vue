@@ -15,6 +15,24 @@
 
     <view class="form-card">
       <view class="input-group">
+        <text class="input-label">{{ roleLabel }}</text>
+        <view class="role-row">
+          <view
+            :class="['role-chip', { active: role === 'student' }]"
+            @tap="role = 'student'"
+          >
+            <text class="role-chip-text">{{ studentLabel }}</text>
+          </view>
+          <view
+            :class="['role-chip', { active: role === 'teacher' }]"
+            @tap="role = 'teacher'"
+          >
+            <text class="role-chip-text">{{ teacherLabel }}</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="input-group">
         <text class="input-label">{{ nameLabel }}</text>
         <input
           v-model="name"
@@ -87,6 +105,8 @@ import { computed, ref } from 'vue'
 import { onLoad, onShow } from '@dcloudio/uni-app'
 import { useAuthStore } from '@/stores/auth'
 import { useUiPreferencesStore } from '@/stores/ui-preferences'
+import { roleHomeUrl } from '@/utils/auth-guard'
+import type { UserRole } from '@/types/auth'
 
 const uiPreferencesStore = useUiPreferencesStore()
 const authStore = useAuthStore()
@@ -95,6 +115,7 @@ const name = ref('')
 const email = ref('')
 const password = ref('')
 const confirmPassword = ref('')
+const role = ref<UserRole>('student')
 const loading = ref(false)
 
 const showPassword = ref(false)
@@ -121,6 +142,9 @@ const loadingText = computed(() => (isZh.value ? '注册中...' : 'Registering..
 const registerLabel = computed(() => (isZh.value ? '注册' : 'Register'))
 const hasAccountText = computed(() => (isZh.value ? '已有账号？' : 'Already have an account?'))
 const loginLabel = computed(() => (isZh.value ? '立即登录' : 'Login now'))
+const roleLabel = computed(() => (isZh.value ? '我是' : 'I am a'))
+const studentLabel = computed(() => (isZh.value ? '学生' : 'Student'))
+const teacherLabel = computed(() => (isZh.value ? '教师' : 'Teacher'))
 
 function isEmailValid(value: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
@@ -143,8 +167,15 @@ function navigateToLogin() {
 }
 
 function redirectAfterAuth() {
-  const target = redirectUrl.value || '/pages/mine/index'
-  const tabPages = ['/pages/study/index', '/pages/life/index', '/pages/psychology/index', '/pages/mine/index']
+  const explicit = redirectUrl.value && redirectUrl.value !== '/pages/mine/index'
+  const target = explicit ? redirectUrl.value : roleHomeUrl(authStore.isTeacher)
+  const tabPages = [
+    '/pages/study/index',
+    '/pages/teaching/index',
+    '/pages/life/index',
+    '/pages/psychology/index',
+    '/pages/mine/index'
+  ]
   const targetPath = target.split('?')[0]
   if (tabPages.includes(targetPath)) {
     uni.switchTab({
@@ -203,6 +234,7 @@ async function handleRegister() {
   loading.value = true
   try {
     await authStore.register(normalizedEmail, password.value, normalizedName)
+    authStore.setRole(role.value)
     uni.showToast({
       title: isZh.value ? '注册成功' : 'Register successful',
       icon: 'success'
@@ -414,6 +446,34 @@ onShow(async () => {
   color: #2cbb63;
   font-size: 24rpx;
   font-weight: 700;
+}
+
+.role-row {
+  margin-top: 8rpx;
+  display: flex;
+  gap: 16rpx;
+}
+
+.role-chip {
+  flex: 1;
+  min-height: 84rpx;
+  border-radius: 16rpx;
+  border: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.role-chip.active {
+  border-color: #2cbb63;
+  background: rgba(111, 222, 129, 0.16);
+}
+
+.role-chip-text {
+  color: var(--text-main);
+  font-size: 28rpx;
+  font-weight: 600;
 }
 </style>
 

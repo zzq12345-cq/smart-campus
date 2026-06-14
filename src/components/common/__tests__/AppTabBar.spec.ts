@@ -12,6 +12,12 @@ vi.mock('@/stores/ui-preferences', () => ({
   useUiPreferencesStore: () => mockUiStore
 }))
 
+const mockAuthStore = { isTeacher: false }
+
+vi.mock('@/stores/auth', () => ({
+  useAuthStore: () => mockAuthStore
+}))
+
 const createTabBarStub = (nextValue?: string) =>
   defineComponent({
     props: {
@@ -61,15 +67,34 @@ function mountComponent(currentValue: string, nextValue?: string) {
 describe('AppTabBar', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    mockAuthStore.isTeacher = false
     ;(globalThis as any).uni = {
       switchTab: vi.fn(),
       showToast: vi.fn()
     }
   })
 
-  it('renders five tab items', () => {
+  it('renders four tab items for student (study + shared three)', () => {
     const wrapper = mountComponent('/pages/study/index')
-    expect(wrapper.findAll('.tab-item-stub')).toHaveLength(5)
+    const values = wrapper.findAll('.tab-item-stub').map((i) => i.attributes('data-value'))
+    expect(values).toEqual([
+      '/pages/study/index',
+      '/pages/life/index',
+      '/pages/psychology/index',
+      '/pages/mine/index'
+    ])
+  })
+
+  it('renders teaching as first tab for teacher', () => {
+    mockAuthStore.isTeacher = true
+    const wrapper = mountComponent('/pages/teaching/index')
+    const values = wrapper.findAll('.tab-item-stub').map((i) => i.attributes('data-value'))
+    expect(values).toEqual([
+      '/pages/teaching/index',
+      '/pages/life/index',
+      '/pages/psychology/index',
+      '/pages/mine/index'
+    ])
   })
 
   it('switches tab when selected value changes', async () => {
@@ -91,10 +116,10 @@ describe('AppTabBar', () => {
     const wrapper = mountComponent('/pages/life/index')
     const items = wrapper.findAll('.tab-item-stub')
 
+    // 学生端：study / life / psychology / mine
     expect(items[0].attributes('data-icon')).toBe('ai-education')
     expect(items[1].attributes('data-icon')).toBe('app-filled')
-    expect(items[2].attributes('data-icon')).toBe('ai-book-open')
-    expect(items[3].attributes('data-icon')).toBe('heart')
-    expect(items[4].attributes('data-icon')).toBe('user')
+    expect(items[2].attributes('data-icon')).toBe('heart')
+    expect(items[3].attributes('data-icon')).toBe('user')
   })
 })

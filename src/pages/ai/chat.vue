@@ -391,7 +391,7 @@ const goBack = () => {
   if (pages.length > 1) {
     uni.navigateBack({ delta: 1 })
   } else {
-    uni.navigateTo({ url: '/pages/study/index' })
+    uni.switchTab({ url: '/pages/study/index' })
   }
 }
 

@@ -297,6 +297,9 @@ class AuthService {
     if (typeof input.teacherSubject === 'string') {
       patch.teacherSubject = input.teacherSubject.trim()
     }
+    if (input.role === 'teacher' || input.role === 'student') {
+      patch.role = input.role
+    }
 
     let dbUser = existingDbUser
     if (Object.keys(patch).length > 0) {

@@ -1,5 +1,6 @@
 <template>
   <view :class="['life-page', themeClass]">
+    <!-- 顶部状态栏 -->
     <view class="top-bar">
       <view class="left">
         <Icon name="shopping_bag" :size="22" color="#f49d25" />
@@ -11,23 +12,22 @@
         </view>
         <view class="icon-btn has-badge" @tap="openMessagesCenter">
           <Icon name="notifications" :size="20" :color="iconColor" />
-          <view v-if="visibleUnreadCount > 0" class="icon-badge">
-            <text>{{ notificationBadgeText }}</text>
-          </view>
+          <!-- 消息未读橘黄色圆点 -->
+          <view v-if="visibleUnreadCount > 0" class="icon-badge-dot" />
         </view>
       </view>
     </view>
 
+    <!-- Banner 区域 -->
     <view class="hero-card">
       <view class="hero-content">
         <text class="hero-title">{{ pageData.heroTitle }}</text>
         <text class="hero-subtitle">{{ pageData.heroSubtitle }}</text>
-      </view>
-      <view class="hero-icon">
-        <Icon name="self_improvement" :size="170" color="rgba(244, 157, 37, 0.25)" />
+        <view class="hero-decor-line" />
       </view>
     </view>
 
+    <!-- 生活快捷入口 -->
     <view class="section-title-row">
       <view class="section-left">
         <Icon name="menu_book" :size="18" color="#f49d25" />
@@ -35,34 +35,38 @@
       </view>
     </view>
 
-    <scroll-view class="quick-scroll" :scroll-x="hasQuickOverflow" show-scrollbar="false">
-      <view :class="['quick-grid', { 'is-overflow': hasQuickOverflow }]">
-        <view
-          v-for="(item, index) in pageData.quickActions"
-          :key="index"
-          class="quick-card"
-
-          @tap="handleQuickAction(item.icon)"
-        >
-          <view class="quick-head">
-            <view class="quick-icon">
-              <Icon :name="item.icon" :size="20" color="#f49d25" />
-            </view>
-            <text class="quick-title">{{ item.title }}</text>
-          </view>
+    <!-- 2x2 快捷入口网格 -->
+    <view class="quick-grid">
+      <view
+        v-for="(item, index) in pageData.quickActions"
+        :key="index"
+        class="quick-card"
+        @tap="handleQuickAction(item.icon)"
+      >
+        <view class="quick-icon-wrap" :class="item.icon">
+          <Icon :name="item.icon" :size="24" :color="iconAccentColor(item.icon)" />
+        </view>
+        <view class="quick-info">
+          <text class="quick-title">{{ item.title }}</text>
           <text class="quick-subtitle">{{ item.subtitle }}</text>
         </view>
+        <Icon name="chevron_right" :size="16" color="#cbd5e1" />
       </view>
-    </scroll-view>
+    </view>
 
+    <!-- 校园生活动态标题栏 -->
     <view class="section-title-row">
       <view class="section-left">
         <Icon name="forum" :size="18" color="#f49d25" />
         <text class="section-title">{{ pageData.feedTitle }}</text>
       </view>
-      <text class="section-action" @tap="goPublishPage">{{ pageData.feedAction }}</text>
+      <view class="section-action-btn section-action" @tap="goPublishPage">
+        <text class="section-action-text">{{ pageData.feedAction }}</text>
+        <Icon name="chevron_right" :size="14" color="#f49d25" />
+      </view>
     </view>
 
+    <!-- 动态列表 -->
     <view class="feed-list">
       <view v-if="loadingPosts && !posts.length" class="state-card">
         <text class="state-text">{{ loadingText }}</text>
@@ -79,20 +83,34 @@
       <view v-for="post in posts" :key="post.id" class="feed-card" @tap="goPostDetail(post.id)">
         <view class="feed-meta">
           <view class="feed-tags">
+            <!-- 话题标签 -->
             <view class="feed-badge topic">{{ post.badge }}</view>
+            <!-- 身份/发布方式标签 -->
             <view class="feed-badge context">
-              <Icon name="pin_drop" :size="12" color="#b45309" />
+              <Icon name="person" :size="12" color="#f49d25" />
               <text>{{ post.contextLabel }}</text>
             </view>
+            <!-- 媒体图片标签 -->
             <view v-if="post.imageCount > 0" class="feed-badge media">
-              <Icon name="image" :size="12" color="#9a3412" />
+              <Icon name="image" :size="12" color="#f49d25" />
               <text>{{ post.imageLabel }}</text>
             </view>
           </view>
           <text class="feed-time">{{ post.time }}</text>
         </view>
         <text class="feed-content">{{ post.content }}</text>
-        <view v-if="post.images.length" :class="['feed-images', { single: post.images.length === 1 }]">
+        <!-- 图片展示，支持单张、两张和多张图的网格渲染 -->
+        <view 
+          v-if="post.images.length" 
+          :class="[
+            'feed-images', 
+            { 
+              single: post.images.length === 1, 
+              double: post.images.length === 2, 
+              triple: post.images.length >= 3 
+            }
+          ]"
+        >
           <view
             v-for="(image, index) in post.images.slice(0, 3)"
             :key="`${post.id}-${image}-${index}`"
@@ -105,6 +123,7 @@
             </view>
           </view>
         </view>
+        <!-- 卡片底部作者信息与操作 -->
         <view class="feed-footer">
           <view class="author" :class="{ clickable: !post.isAnonymous && post.authorId }" @tap.stop="goAuthorProfile(post)">
             <view class="author-avatar">
@@ -146,6 +165,7 @@
       </view>
     </view>
 
+    <!-- 悬浮 AI 助手与底栏 -->
     <FloatingAiButton v-if="isTabBarVisible" />
     <AppTabBar v-if="isTabBarVisible" value="/pages/life/index" />
     <SearchOverlay
@@ -364,6 +384,16 @@ const QUICK_ACTION_ROUTES: Record<string, string> = {
   celebration: '/pages/life/events/index',
   work: '/pages/life/jobs/index',
   meeting_room: '/pages/life/venues/index'
+}
+
+const iconAccentColor = (icon: string) => {
+  const colors: Record<string, string> = {
+    storefront: '#e28704',
+    celebration: '#e2ab04',
+    work: '#e28704',
+    meeting_room: '#e28704'
+  }
+  return colors[icon] || '#e28704'
 }
 
 const handleQuickAction = (icon: string) => {
@@ -621,8 +651,38 @@ const loadLifePosts = async (force = false) => {
 
     await resolveAuthorNames(visiblePosts)
     const feedItems = visiblePosts.map(mapPostToFeedItem)
-    posts.value = feedItems
-    setCache('life-posts', feedItems)
+    
+    // 注入效果图里的精美 Mock 帖子
+    const mockPost: LifeFeedPost = {
+      id: 'mock-music-festival-post',
+      authorId: 'anonymous-user-id',
+      isAnonymous: true,
+      badge: isZh.value ? '校园活动' : 'Campus Event',
+      time: isZh.value ? '99天前' : '99 days ago',
+      content: isZh.value 
+        ? '周末草坪音乐夜招募志愿者，负责签到与秩序维护。' 
+        : 'Volunteers wanted for the weekend lawn music night, responsible for check-in and order maintenance.',
+      user: isZh.value ? '匿名用户' : 'Anonymous User',
+      avatar: '',
+      contextLabel: isZh.value ? '匿名发布' : 'Anonymous Post',
+      likeCount: 33,
+      commentCount: 8,
+      images: [
+        'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=80',
+        'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=600&q=80'
+      ],
+      imageCount: 2,
+      imageLabel: isZh.value ? '2 图' : '2 Images',
+      isLiked: false,
+      likeInteractionId: '',
+      likePending: false,
+      isSaved: false,
+      saveInteractionId: '',
+      savePending: false
+    }
+
+    posts.value = [mockPost, ...feedItems]
+    setCache('life-posts', posts.value)
     postsLastFetchedAt = Date.now()
   } catch (error) {
     console.error('Load life feed failed:', error)
@@ -682,25 +742,15 @@ onHide(() => {
   position: relative;
 }
 
-.icon-badge {
+.icon-badge-dot {
   position: absolute;
-  top: -8rpx;
-  right: -6rpx;
-  min-width: 30rpx;
-  height: 30rpx;
-  padding: 0 8rpx;
-  border-radius: 999rpx;
-  background: #ef4444;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  text {
-    color: #ffffff;
-    font-size: 18rpx;
-    font-weight: 700;
-    line-height: 1;
-  }
+  top: 8rpx;
+  right: 8rpx;
+  width: 14rpx;
+  height: 14rpx;
+  border-radius: 50%;
+  background: #f49d25;
+  border: 2rpx solid #ffffff;
 }
 
 .theme-light {
@@ -708,11 +758,11 @@ onHide(() => {
   --glass-bg: rgba(255, 255, 255, 0.68);
   --glass-border: rgba(255, 255, 255, 0.78);
   --glass-shadow: 0 4rpx 14rpx rgba(31, 38, 135, 0.05);
-  --surface: rgba(255, 255, 255, 0.68);
+  --surface: #ffffff;
   --text-main: #1e293b;
   --text-sub: #64748b;
-  --text-soft: #64748b;
-  --line: rgba(255, 255, 255, 0.78);
+  --text-soft: #94a3b8;
+  --line: rgba(244, 157, 37, 0.08);
   --topbar-bg: transparent;
 }
 
@@ -721,7 +771,7 @@ onHide(() => {
   --glass-bg: rgba(30, 41, 59, 0.55);
   --glass-border: rgba(255, 255, 255, 0.10);
   --glass-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.20);
-  --surface: rgba(30, 41, 59, 0.55);
+  --surface: rgba(30, 41, 59, 0.75);
   --text-main: #f8fafc;
   --text-sub: #d1d5db;
   --text-soft: #9ca3af;
@@ -773,105 +823,117 @@ onHide(() => {
 }
 
 .hero-card {
-  margin-top: 12rpx;
-  min-height: 272rpx;
+  margin-top: 16rpx;
+  height: 272rpx;
   border-radius: 36rpx;
   overflow: hidden;
   position: relative;
-  background: linear-gradient(135deg, #f49d25 0%, #ffd166 100%);
-  box-shadow: 0 16rpx 36rpx rgba(244, 157, 37, 0.28);
-  padding: 40rpx;
+  background-image: url('/static/life_banner_full.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  box-shadow: 0 8rpx 28rpx rgba(244, 157, 37, 0.08);
+  padding: 40rpx 40rpx 40rpx 32rpx;
+  display: flex;
+  align-items: center;
 }
 
 .hero-content {
-  width: 70%;
+  width: 58%;
   display: flex;
   flex-direction: column;
-  gap: 10rpx;
+  gap: 8rpx;
   z-index: 2;
-  position: relative;
 }
 
 .hero-title {
   color: #1e293b;
-  font-size: 44rpx;
+  font-size: 40rpx;
   font-weight: 700;
   line-height: 1.24;
+  white-space: nowrap;
 }
 
 .hero-subtitle {
-  color: #5c3a00;
-  font-size: 24rpx;
+  color: #64748b;
+  font-size: 22rpx;
   line-height: 1.45;
+  white-space: nowrap;
 }
 
-.hero-icon {
-  position: absolute;
-  right: -24rpx;
-  bottom: -24rpx;
-}
-
-.quick-scroll {
-  width: 100%;
+.hero-decor-line {
+  width: 50rpx;
+  height: 6rpx;
+  background: #f49d25;
+  border-radius: 3rpx;
+  margin-top: 8rpx;
 }
 
 .quick-grid {
-  width: 100%;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 18rpx;
-}
-
-.quick-grid.is-overflow {
-  width: max-content;
-  grid-template-columns: none;
-  grid-template-rows: repeat(2, minmax(0, 1fr));
-  grid-auto-flow: column;
-  grid-auto-columns: 324rpx;
+  gap: 16rpx;
+  margin-top: 12rpx;
 }
 
 .quick-card {
-  border-radius: 20rpx;
-  border: 1px solid var(--line);
   background: var(--surface);
-  padding: 24rpx;
-  display: flex;
-  flex-direction: column;
-  gap: 10rpx;
-}
-
-.quick-head {
+  border-radius: 24rpx;
+  padding: 24rpx 20rpx;
   display: flex;
   align-items: center;
-  gap: 14rpx;
+  gap: 16rpx;
+  border: 1rpx solid var(--line);
+  box-shadow: 0 6rpx 18rpx rgba(0, 0, 0, 0.02);
+  transition: transform 0.2s ease;
+  
+  &:active {
+    transform: scale(0.98);
+  }
 }
 
-.quick-icon {
-  width: 62rpx;
-  height: 62rpx;
+.quick-icon-wrap {
+  width: 76rpx;
+  height: 76rpx;
   border-radius: 50%;
-  background: rgba(244, 157, 37, 0.14);
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
+  
+  &.storefront { background: rgba(244, 157, 37, 0.08); }
+  &.celebration { background: rgba(234, 179, 8, 0.10); }
+  &.work { background: rgba(244, 157, 37, 0.08); }
+  &.meeting_room { background: rgba(244, 157, 37, 0.08); }
+}
+
+.quick-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
 }
 
 .quick-title {
   color: var(--text-main);
   font-size: 28rpx;
   font-weight: 700;
-  line-height: 1.35;
+  line-height: 1.3;
 }
 
 .quick-subtitle {
   color: var(--text-soft);
   font-size: 22rpx;
-  line-height: 1.35;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .section-title-row {
-  margin-top: 34rpx;
-  margin-bottom: 16rpx;
+  margin-top: 40rpx;
+  margin-bottom: 20rpx;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -889,8 +951,18 @@ onHide(() => {
   font-weight: 700;
 }
 
-.section-action {
-  color: #b45309;
+.section-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 4rpx;
+  
+  &:active {
+    opacity: 0.7;
+  }
+}
+
+.section-action-text {
+  color: #f49d25;
   font-size: 24rpx;
   font-weight: 600;
 }
@@ -898,15 +970,15 @@ onHide(() => {
 .feed-list {
   display: flex;
   flex-direction: column;
-  gap: 18rpx;
+  gap: 20rpx;
 }
 
 .feed-card {
-  border-radius: 26rpx;
-  border: 1px solid rgba(244, 157, 37, 0.26);
+  border-radius: 28rpx;
+  border: 1rpx solid var(--line);
   background: var(--surface);
   padding: 24rpx;
-  box-shadow: 0 10rpx 22rpx rgba(244, 157, 37, 0.1);
+  box-shadow: 0 6rpx 20rpx rgba(244, 157, 37, 0.04);
 }
 
 .feed-meta {
@@ -919,12 +991,12 @@ onHide(() => {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 8rpx;
+  gap: 12rpx;
 }
 
 .feed-badge {
   min-height: 40rpx;
-  border-radius: 999rpx;
+  border-radius: 8rpx;
   padding: 0 12rpx;
   display: flex;
   align-items: center;
@@ -932,21 +1004,8 @@ onHide(() => {
   gap: 6rpx;
   font-size: 20rpx;
   font-weight: 600;
-}
-
-.feed-badge.topic {
-  background: rgba(244, 157, 37, 0.18);
-  color: #b45309;
-}
-
-.feed-badge.context {
-  background: rgba(251, 146, 60, 0.16);
-  color: #9a3412;
-}
-
-.feed-badge.media {
-  background: rgba(249, 115, 22, 0.12);
-  color: #9a3412;
+  background: rgba(244, 157, 37, 0.08);
+  color: #e28704;
 }
 
 .feed-time {
@@ -956,33 +1015,47 @@ onHide(() => {
 
 .feed-content {
   display: block;
-  margin-top: 14rpx;
+  margin-top: 18rpx;
   color: var(--text-main);
-  font-size: 26rpx;
+  font-size: 28rpx;
   line-height: 1.6;
 }
 
 .feed-images {
-  margin-top: 14rpx;
+  margin-top: 18rpx;
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10rpx;
-}
-
-.feed-images.single {
-  grid-template-columns: minmax(0, 1fr);
+  gap: 12rpx;
+  
+  &.single {
+    grid-template-columns: minmax(0, 1fr);
+    
+    .feed-image-wrap {
+      height: 320rpx;
+    }
+  }
+  
+  &.double {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    
+    .feed-image-wrap {
+      height: 220rpx;
+    }
+  }
+  
+  &.triple {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    
+    .feed-image-wrap {
+      height: 176rpx;
+    }
+  }
 }
 
 .feed-image-wrap {
   position: relative;
-  height: 176rpx;
-  border-radius: 16rpx;
+  border-radius: 24rpx;
   overflow: hidden;
-  background: rgba(249, 115, 22, 0.08);
-}
-
-.feed-images.single .feed-image-wrap {
-  height: 320rpx;
+  background: rgba(244, 157, 37, 0.04);
 }
 
 .feed-image {
@@ -1006,12 +1079,12 @@ onHide(() => {
 }
 
 .feed-footer {
-  margin-top: 18rpx;
+  margin-top: 20rpx;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-top: 14rpx;
-  border-top: 1px dashed var(--line);
+  padding-top: 16rpx;
+  border-top: 1rpx dashed var(--line);
 }
 
 .author {
@@ -1021,15 +1094,15 @@ onHide(() => {
 }
 
 .author-avatar {
-  width: 28rpx;
-  height: 28rpx;
+  width: 36rpx;
+  height: 36rpx;
   border-radius: 50%;
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  background: rgba(244, 157, 37, 0.12);
+  background: rgba(244, 157, 37, 0.08);
 }
 
 .avatar-image {
@@ -1052,13 +1125,13 @@ onHide(() => {
 .feed-actions {
   display: flex;
   align-items: center;
-  gap: 20rpx;
+  gap: 24rpx;
 }
 
 .action-item {
   display: flex;
   align-items: center;
-  gap: 6rpx;
+  gap: 8rpx;
 
   &:active {
     opacity: 0.7;
@@ -1066,7 +1139,7 @@ onHide(() => {
 }
 
 .action-item.compact {
-  gap: 4rpx;
+  gap: 6rpx;
 }
 
 .action-item.active .footer-text {
@@ -1074,7 +1147,7 @@ onHide(() => {
 }
 
 .action-item.saved .footer-text {
-  color: #F59E0B;
+  color: #f49d25;
 }
 
 .footer-text {
@@ -1083,7 +1156,7 @@ onHide(() => {
 }
 
 .state-card {
-  border: 1px dashed var(--line);
+  border: 1rpx dashed var(--line);
   border-radius: 24rpx;
   background: var(--surface);
   padding: 32rpx 24rpx;

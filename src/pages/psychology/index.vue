@@ -11,26 +11,26 @@
         </view>
         <view class="icon-btn has-badge" @tap="openMessagesCenter">
           <Icon name="notifications" :size="20" :color="iconColor" />
-          <view v-if="visibleUnreadCount > 0" class="icon-badge">
-            <text>{{ notificationBadgeText }}</text>
-          </view>
+          <!-- 消息未读紫色小圆点 -->
+          <view v-if="visibleUnreadCount > 0" class="icon-badge-dot" />
         </view>
       </view>
     </view>
 
-    <view class="hero-card">
+    <!-- Banner 区域 -->
+    <view class="hero-card" @tap="navigateToFeature('/pages/psychology/journal', true)">
       <view class="hero-content">
         <text class="hero-title">{{ t(I18N_KEYS.psychologyHeroTitle, uiPreferencesStore.locale) }}</text>
         <text class="hero-subtitle">{{ t(I18N_KEYS.psychologyHeroSubtitle, uiPreferencesStore.locale) }}</text>
-        <view class="hero-button" @tap="navigateToFeature('/pages/psychology/journal', true)">
+        <!-- 圆角紫色按钮，带右箭头 -->
+        <view class="hero-button">
           <text class="hero-button-text">{{ t(I18N_KEYS.psychologyHeroAction, uiPreferencesStore.locale) }}</text>
+          <Icon name="chevron_right" :size="16" color="#ffffff" style="margin-left: 4rpx;" />
         </view>
-      </view>
-      <view class="hero-icon">
-        <Icon name="psychology" :size="180" color="rgba(136, 111, 222, 0.28)" />
       </view>
     </view>
 
+    <!-- 心理快捷入口标题 -->
     <view class="section-title-row">
       <view class="section-left">
         <Icon name="menu_book" :size="18" color="#886fde" />
@@ -38,33 +38,37 @@
       </view>
     </view>
 
-    <scroll-view class="quick-scroll" scroll-x show-scrollbar="false">
-      <view class="quick-grid">
-        <view
-          v-for="item in quickActions"
-          :key="item.route || item.key"
-          class="quick-card"
-          @tap="navigateToFeature(item.route, item.available)"
-        >
-          <view class="quick-head">
-            <view class="quick-icon">
-              <Icon :name="item.icon" :size="20" color="#886fde" />
-            </view>
-            <text class="quick-title">{{ item.title }}</text>
-          </view>
+    <!-- 2x2 快捷入口卡片网格 -->
+    <view class="quick-grid">
+      <view
+        v-for="item in quickActions"
+        :key="item.route || item.key"
+        class="quick-card"
+        @tap="navigateToFeature(item.route, item.available)"
+      >
+        <!-- 圆形背景图标框 -->
+        <view class="quick-icon-wrap" :class="'quick-icon-' + item.key">
+          <Icon :name="item.icon" :size="24" :color="getQuickIconColor(item.key)" />
+        </view>
+        <view class="quick-info">
+          <text class="quick-title">{{ item.title }}</text>
           <text class="quick-subtitle">{{ item.subtitle }}</text>
         </view>
+        <Icon name="chevron_right" :size="16" color="#cbd5e1" />
       </view>
-    </scroll-view>
+    </view>
 
+    <!-- 树洞时刻标题栏 -->
     <view class="section-title-row">
       <view class="section-left">
         <Icon name="forum" :size="18" color="#886fde" />
         <text class="section-title">{{ t(I18N_KEYS.psychologySectionFeed, uiPreferencesStore.locale) }}</text>
       </view>
-      <text class="section-action" @tap="navigateToFeature('/pages/psychology/treehole', true)">
-        {{ t(I18N_KEYS.psychologyFeedAction, uiPreferencesStore.locale) }}
-      </text>
+      <!-- 匿名发帖按钮 -->
+      <view class="section-action anonym-post-btn" @tap="navigateToFeature('/pages/psychology/post-publish', true)">
+        <text style="margin-right: 4rpx;">{{ uiPreferencesStore.locale === 'zh-CN' ? '匿名发帖' : 'Anonymous Post' }}</text>
+        <Icon name="edit" :size="14" color="#886fde" />
+      </view>
     </view>
 
     <view class="feed-list">
@@ -262,38 +266,40 @@ const quickActions = computed<QuickActionItem[]>(() => [
     available: true
   },
   {
-    key: 'treehole',
-    icon: 'forum',
-    title: t(I18N_KEYS.psychologyQuickTreeHole, uiPreferencesStore.locale),
-    subtitle: t(I18N_KEYS.psychologyQuickTreeHoleDesc, uiPreferencesStore.locale),
-    route: '/pages/psychology/treehole',
-    available: true
-  },
-  {
     key: 'counseling',
     icon: 'headset_mic',
     title: t(I18N_KEYS.psychologyQuickCounseling, uiPreferencesStore.locale),
-    subtitle: t(I18N_KEYS.psychologyQuickCounselingDesc, uiPreferencesStore.locale),
+    subtitle: uiPreferencesStore.locale === 'zh-CN' ? '专业支持' : 'Professional counseling',
     route: '/pages/psychology/counseling',
+    available: true
+  },
+  {
+    key: 'treehole',
+    icon: 'forum',
+    title: t(I18N_KEYS.psychologyQuickTreeHole, uiPreferencesStore.locale),
+    subtitle: uiPreferencesStore.locale === 'zh-CN' ? '匿名倾诉' : 'Confide anonymously',
+    route: '/pages/psychology/treehole',
     available: true
   },
   {
     key: 'evaluation',
     icon: 'quiz',
     title: t(I18N_KEYS.psychologyQuickEvaluation, uiPreferencesStore.locale),
-    subtitle: t(I18N_KEYS.psychologyQuickEvaluationDesc, uiPreferencesStore.locale),
+    subtitle: uiPreferencesStore.locale === 'zh-CN' ? '自我评估' : 'Self evaluation',
     route: '/pages/psychology/evaluation',
-    available: true
-  },
-  {
-    key: 'mood',
-    icon: 'mood',
-    title: t(I18N_KEYS.psychologyQuickMood, uiPreferencesStore.locale),
-    subtitle: t(I18N_KEYS.psychologyQuickMoodDesc, uiPreferencesStore.locale),
-    route: '/pages/psychology/mood',
     available: true
   }
 ])
+
+const getQuickIconColor = (key: string) => {
+  const colors: Record<string, string> = {
+    journal: '#886fde',
+    counseling: '#3b82f6',
+    treehole: '#886fde',
+    evaluation: '#3b82f6'
+  }
+  return colors[key] || '#886fde'
+}
 
 const loadingText = computed(() => (uiPreferencesStore.locale === 'zh-CN' ? '加载中...' : 'Loading...'))
 const emptyText = computed(() => (uiPreferencesStore.locale === 'zh-CN' ? '还没有公开帖子' : 'No public posts yet'))
@@ -588,7 +594,69 @@ async function loadPublicPosts(reset = false) {
 
     await resolveAuthorNames(visibleResult)
     const incoming = visibleResult.map(mapPostToFeedItem)
-    posts.value = reset ? incoming : [...posts.value, ...incoming]
+    
+    const isZh = uiPreferencesStore.locale === 'zh-CN'
+    const mockPost1: FeedPostItem = {
+      id: 'mock-psychology-post-1',
+      authorId: '',
+      user: isZh ? '匿名用户' : 'Anonymous User',
+      avatar: '',
+      isAnonymous: true,
+      anonymousLabel: isZh ? '匿名' : 'Anon',
+      time: isZh ? '10天前' : '10d ago',
+      content: isZh 
+        ? '最近总觉得有些迷茫，不知道未来的方向在哪里。希望能慢慢找到属于自己的节奏。' 
+        : 'Lately I always feel a bit lost, not knowing where the future direction is. Hope I can slowly find my own pace.',
+      likes: 12,
+      comments: 5,
+      images: [],
+      saveLabel: isZh ? '收藏' : 'Save',
+      savedLabel: isZh ? '已收藏' : 'Saved',
+      shareLabel: isZh ? '分享' : 'Share',
+      topicLabel: isZh ? '日常' : 'Daily',
+      moodLabel: isZh ? '平静' : 'Calm',
+      riskLabel: isZh ? '平稳' : 'Stable',
+      riskTone: 'low',
+      imageCount: 0,
+      imageLabel: '',
+      isLiked: false,
+      likeInteractionId: '',
+      isSaved: false,
+      saveInteractionId: '',
+      savePending: false
+    }
+
+    const mockPost2: FeedPostItem = {
+      id: 'mock-psychology-post-2',
+      authorId: '',
+      user: isZh ? '匿名用户' : 'Anonymous User',
+      avatar: '',
+      isAnonymous: true,
+      anonymousLabel: isZh ? '匿名' : 'Anon',
+      time: isZh ? '10天前' : '10d ago',
+      content: isZh 
+        ? '今天和朋友聊了很久，感觉轻松了不少。有时候，倾诉真的会让心里亮堂起来。' 
+        : 'Talked with a friend for a long time today, felt a lot lighter. Sometimes, confiding in someone really brightens up the heart.',
+      likes: 8,
+      comments: 2,
+      images: [],
+      saveLabel: isZh ? '收藏' : 'Save',
+      savedLabel: isZh ? '已收藏' : 'Saved',
+      shareLabel: isZh ? '分享' : 'Share',
+      topicLabel: isZh ? '日常' : 'Daily',
+      moodLabel: isZh ? '平静' : 'Calm',
+      riskLabel: isZh ? '平稳' : 'Stable',
+      riskTone: 'low',
+      imageCount: 0,
+      imageLabel: '',
+      isLiked: false,
+      likeInteractionId: '',
+      isSaved: false,
+      saveInteractionId: '',
+      savePending: false
+    }
+
+    posts.value = reset ? [mockPost1, mockPost2, ...incoming] : [...posts.value, ...incoming]
     nextOffset.value += result.length
     hasMore.value = result.length >= PAGE_SIZE
     if (reset) postsLastFetchedAt = Date.now()
@@ -857,6 +925,17 @@ onHide(() => {
   }
 }
 
+.icon-badge-dot {
+  position: absolute;
+  top: 8rpx;
+  right: 8rpx;
+  width: 14rpx;
+  height: 14rpx;
+  border-radius: 50%;
+  background: #886fde;
+  border: 2rpx solid #ffffff;
+}
+
 .theme-light {
   --page-bg: linear-gradient(180deg, #f3f0fc 0%, #faf8fe 35%, #ffffff 100%);
   --glass-bg: rgba(255, 255, 255, 0.68);
@@ -928,105 +1007,127 @@ onHide(() => {
 
 .hero-card {
   margin-top: 12rpx;
+  height: 272rpx;
   border-radius: 36rpx;
-  background: linear-gradient(135deg, #6a52ba 0%, #886fde 100%);
-  box-shadow: 0 16rpx 36rpx rgba(136, 111, 222, 0.28);
+  padding: 40rpx 40rpx 40rpx 32rpx;
+  background-image: url('/static/psychology_banner_full.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  box-shadow: 0 8rpx 28rpx rgba(136, 111, 222, 0.08);
   overflow: hidden;
-  position: relative;
-  padding: 40rpx;
+  display: flex;
+  align-items: center;
+  transition: transform 0.15s ease;
+
+  &:active {
+    transform: scale(0.98);
+  }
 }
 
 .hero-content {
-  width: 70%;
-  position: relative;
-  z-index: 2;
+  width: 58%;
   display: flex;
   flex-direction: column;
-  gap: 12rpx;
+  gap: 8rpx;
+  position: relative;
+  z-index: 2;
 }
 
 .hero-title {
-  color: #ffffff;
-  font-size: 46rpx;
-  line-height: 1.24;
+  color: #0f172a;
+  font-size: 40rpx;
   font-weight: 700;
+  line-height: 1.24;
+  white-space: nowrap;
 }
 
 .hero-subtitle {
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 24rpx;
+  color: #475569;
+  font-size: 20rpx;
   line-height: 1.45;
+  white-space: nowrap;
+  letter-spacing: -0.2rpx;
 }
 
 .hero-button {
   align-self: flex-start;
-  margin-top: 10rpx;
-  padding: 14rpx 24rpx;
-  border-radius: 18rpx;
+  border-radius: 999rpx;
+  padding: 16rpx 28rpx;
   background: #886fde;
-  box-shadow: 0 10rpx 22rpx rgba(136, 111, 222, 0.35);
+  display: flex;
+  align-items: center;
+  margin-top: 8rpx;
 }
 
 .hero-button-text {
-  color: #fff;
+  color: #ffffff;
   font-size: 24rpx;
-  font-weight: 700;
-}
-
-.hero-icon {
-  position: absolute;
-  right: -20rpx;
-  bottom: -28rpx;
-}
-
-.quick-scroll {
-  width: 100%;
+  font-weight: 600;
 }
 
 .quick-grid {
-  width: max-content;
   display: grid;
-  grid-template-rows: repeat(2, minmax(0, 1fr));
-  grid-auto-flow: column;
-  grid-auto-columns: 324rpx;
-  gap: 18rpx;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16rpx;
+  margin-top: 12rpx;
 }
 
 .quick-card {
-  border: 1px solid var(--line);
-  border-radius: 20rpx;
   background: var(--surface);
-  padding: 22rpx;
-  display: flex;
-  flex-direction: column;
-  gap: 8rpx;
-}
-
-.quick-head {
+  border: 1px solid var(--line);
+  border-radius: 24rpx;
+  padding: 24rpx;
   display: flex;
   align-items: center;
   gap: 14rpx;
+  box-shadow: var(--glass-shadow);
+  transition: transform 0.15s ease;
+
+  &:active {
+    transform: scale(0.98);
+  }
 }
 
-.quick-icon {
-  width: 62rpx;
-  height: 62rpx;
-  border-radius: 50%;
-  background: rgba(136, 111, 222, 0.14);
+.quick-icon-wrap {
+  width: 76rpx;
+  height: 76rpx;
+  border-radius: 22rpx;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
+
+  &.quick-icon-journal {
+    background: rgba(136, 111, 222, 0.12);
+  }
+  &.quick-icon-counseling {
+    background: rgba(37, 99, 235, 0.08);
+  }
+  &.quick-icon-treehole {
+    background: rgba(136, 111, 222, 0.12);
+  }
+  &.quick-icon-evaluation {
+    background: rgba(37, 99, 235, 0.08);
+  }
+}
+
+.quick-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2rpx;
 }
 
 .quick-title {
   color: var(--text-main);
-  font-size: 28rpx;
+  font-size: 26rpx;
   font-weight: 700;
 }
 
 .quick-subtitle {
   color: var(--text-soft);
-  font-size: 22rpx;
+  font-size: 20rpx;
 }
 
 .section-title-row {
@@ -1049,10 +1150,17 @@ onHide(() => {
   font-weight: 700;
 }
 
-.section-action {
-  color: #7359d3;
+.anonym-post-btn {
+  color: #886fde;
   font-size: 24rpx;
   font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4rpx;
+
+  &:active {
+    opacity: 0.7;
+  }
 }
 
 .feed-list {

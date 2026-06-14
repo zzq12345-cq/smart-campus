@@ -11,9 +11,8 @@
         </view>
         <view class="icon-btn has-badge" @tap="openMessagesCenter">
           <Icon name="notifications" :size="20" :color="iconColor" />
-          <view v-if="visibleUnreadCount > 0" class="icon-badge">
-            <text>{{ notificationBadgeText }}</text>
-          </view>
+          <!-- 消息未读绿色通知小圆点 -->
+          <view v-if="visibleUnreadCount > 0" class="icon-badge-dot" />
         </view>
       </view>
     </view>
@@ -41,15 +40,17 @@
           <view class="avatar-mask" :class="{ visible: avatarUploading }">
             <text class="avatar-mask-text">{{ avatarUploading ? avatarUploadingText : avatarEditText }}</text>
           </view>
+          <!-- 亮绿色编辑图标 -->
           <view class="edit-dot" @tap.stop="handleAvatarUpload">
-            <Icon :name="avatarUploading ? 'sync' : 'edit'" :size="12" color="#ffffff" />
+            <Icon name="edit" :size="12" color="#ffffff" />
           </view>
         </view>
         <text class="name">{{ profileName }}</text>
         <text class="meta">{{ profileMeta }}</text>
+        <!-- 浅绿学号药丸 -->
         <view class="id-pill">
           <text class="id-text">{{ pageData.idLabel }}: {{ profileId }}</text>
-          <Icon name="content_copy" :size="12" :color="iconColor" />
+          <Icon name="content_copy" :size="12" color="#64748b" />
         </view>
       </view>
 
@@ -60,32 +61,31 @@
         </view>
       </view>
 
+      <!-- 我的服务标题 -->
       <view class="section-title">
         <Icon name="widgets" :size="20" color="#6fde81" />
         <text>{{ pageData.serviceTitle }}</text>
       </view>
-      <scroll-view class="service-scroll" :scroll-x="hasServiceOverflow" show-scrollbar="false">
-        <view :class="['service-grid', { 'is-overflow': hasServiceOverflow }]">
-          <view
-            v-for="(item, index) in serviceCards"
-            :key="index"
-            class="service-card"
-            :data-service-key="item.key"
-            @tap="handleServiceTap(item)"
-          >
-            <view class="service-head">
-              <view class="service-icon">
-                <Icon :name="item.icon" :size="18" color="#6fde81" />
-              </view>
-              <text class="service-title">{{ item.title }}</text>
-              <view v-if="item.badgeText" class="service-badge">
-                <text>{{ item.badgeText }}</text>
-              </view>
-            </view>
-            <text class="service-subtitle">{{ item.subtitle }}</text>
+
+      <!-- 2x2 快捷入口卡片网格 -->
+      <view class="quick-grid">
+        <view
+          v-for="item in serviceCards"
+          :key="item.key"
+          class="quick-card"
+          @tap="handleServiceTap(item)"
+        >
+          <!-- 圆形背景图标框 -->
+          <view class="quick-icon-wrap" :class="'quick-icon-' + item.key">
+            <Icon :name="item.icon" :size="24" color="#22c55e" />
           </view>
+          <view class="quick-info">
+            <text class="quick-title">{{ item.title }}</text>
+            <text class="quick-subtitle">{{ item.subtitle }}</text>
+          </view>
+          <Icon name="chevron_right" :size="16" color="#cbd5e1" />
         </view>
-      </scroll-view>
+      </view>
 
     </template>
 
@@ -255,40 +255,49 @@ const getIdentityServiceSubtitle = () =>
     : t(I18N_KEYS.mineServiceIdentityDesc, uiPreferencesStore.locale)
 
 const serviceCards = computed(() => {
-  const normalizedCards = pageData.value.services.map((item) => {
-    if (item.key === 'posts') {
-      return {
-        ...item,
-        subtitle: getPostsServiceSubtitle(myPostCount.value),
-        badgeText: ''
-      }
-    }
-
-    if (item.key === 'identity') {
-      return {
-        ...item,
-        subtitle: getIdentityServiceSubtitle(),
-        badgeText: ''
-      }
-    }
-
-    return {
-      ...item,
+  const isZh = uiPreferencesStore.locale === 'zh-CN'
+  
+  // 找出需要的 3 个基础服务
+  const postsCard = pageData.value.services.find(item => item.key === 'posts')
+  const ordersCard = pageData.value.services.find(item => item.key === 'orders')
+  const collectionsCard = pageData.value.services.find(item => item.key === 'collections')
+  
+  const cards: any[] = []
+  
+  if (postsCard) {
+    cards.push({
+      ...postsCard,
+      subtitle: getPostsServiceSubtitle(myPostCount.value),
       badgeText: ''
-    }
+    })
+  }
+  
+  if (ordersCard) {
+    cards.push({
+      ...ordersCard,
+      subtitle: isZh ? '校园商城记录' : 'Campus store records',
+      badgeText: ''
+    })
+  }
+  
+  // 消息中心
+  cards.push({
+    key: 'messages',
+    icon: 'mail',
+    title: isZh ? '消息中心' : 'Message Center',
+    subtitle: getMessagesServiceSubtitle(visibleUnreadCount.value),
+    badgeText: visibleUnreadCount.value > 0 ? notificationBadgeText.value : ''
   })
-
-  return [
-    ...normalizedCards.slice(0, 1),
-    {
-      key: 'messages',
-      icon: 'mail',
-      title: isZh.value ? '消息中心' : 'Message Center',
-      subtitle: getMessagesServiceSubtitle(visibleUnreadCount.value),
-      badgeText: visibleUnreadCount.value > 0 ? notificationBadgeText.value : ''
-    },
-    ...normalizedCards.slice(1)
-  ]
+  
+  if (collectionsCard) {
+    cards.push({
+      ...collectionsCard,
+      subtitle: isZh ? '保存的资源' : 'Saved resources',
+      badgeText: ''
+    })
+  }
+  
+  return cards
 })
 
 const hasServiceOverflow = computed(() => serviceCards.value.length > 4)
@@ -337,27 +346,24 @@ const saveRobotSettings = () => {
   uni.setStorageSync(ROBOT_SETTINGS_STORAGE_KEY, payload)
 }
 
-const settingsWithValue = computed(() =>
-  pageData.value.settings.map((item) => {
+const settingsWithValue = computed(() => {
+  const list = pageData.value.settings.filter(item => item.key === 'theme' || item.key === 'language')
+  return list.map((item) => {
     if (item.key === 'theme') {
       return {
         ...item,
+        icon: 'light_mode',
         value:
           uiPreferencesStore.theme === 'light'
-            ? t(I18N_KEYS.themeLight, uiPreferencesStore.locale)
-            : t(I18N_KEYS.themeDark, uiPreferencesStore.locale)
+            ? (uiPreferencesStore.locale === 'zh-CN' ? '亮' : 'Light')
+            : (uiPreferencesStore.locale === 'zh-CN' ? '暗' : 'Dark')
       }
     }
     if (item.key === 'language') {
       return {
         ...item,
+        icon: 'forum',
         value: getLocaleLabel(uiPreferencesStore.locale, uiPreferencesStore.locale)
-      }
-    }
-    if (item.key === 'robotSkin') {
-      return {
-        ...item,
-        value: robotSkinLabel.value
       }
     }
     return {
@@ -365,7 +371,7 @@ const settingsWithValue = computed(() =>
       value: ''
     }
   })
-)
+})
 
 function navigateToLogin() {
   uni.navigateTo({
@@ -644,12 +650,31 @@ onHide(() => {
 <style lang="scss" scoped>
 .mine-page {
   min-height: 100vh;
-  padding: 16rpx 24rpx 176rpx;
-  background: var(--page-bg);
+  padding: 16rpx 28rpx 240rpx;
+  background-image: url('/static/mine_bg.png');
+  background-size: 100% auto;
+  background-position: top center;
+  background-repeat: no-repeat;
+  background-color: var(--page-bg);
+}
+
+.icon-btn.has-badge {
+  position: relative;
+}
+
+.icon-badge-dot {
+  position: absolute;
+  top: 8rpx;
+  right: 8rpx;
+  width: 14rpx;
+  height: 14rpx;
+  border-radius: 50%;
+  background: #ef4444; /* 红色未读指示点 */
+  border: 2rpx solid #ffffff;
 }
 
 .theme-light {
-  --page-bg: linear-gradient(180deg, #edfcef 0%, #f5fef7 35%, #ffffff 100%);
+  --page-bg: #ffffff;
   --glass-bg: rgba(255, 255, 255, 0.68);
   --glass-border: rgba(255, 255, 255, 0.78);
   --glass-shadow: 0 4rpx 14rpx rgba(31, 38, 135, 0.05);
@@ -713,30 +738,9 @@ onHide(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-}
 
-.icon-btn.has-badge {
-  position: relative;
-}
-
-.icon-badge {
-  position: absolute;
-  top: -8rpx;
-  right: -6rpx;
-  min-width: 30rpx;
-  height: 30rpx;
-  padding: 0 8rpx;
-  border-radius: 999rpx;
-  background: #ef4444;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  text {
-    color: #ffffff;
-    font-size: 18rpx;
-    font-weight: 700;
-    line-height: 1;
+  &:active {
+    opacity: 0.7;
   }
 }
 
@@ -798,11 +802,11 @@ onHide(() => {
 }
 
 .primary-btn {
-  background: #6fde81;
+  background: #22c55e;
 }
 
 .primary-btn-text {
-  color: #0d3b16;
+  color: #ffffff;
   font-size: 28rpx;
   font-weight: 700;
 }
@@ -819,7 +823,7 @@ onHide(() => {
 }
 
 .profile-card {
-  margin-top: 16rpx;
+  margin-top: 36rpx;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -828,15 +832,16 @@ onHide(() => {
 
 .avatar-wrap {
   position: relative;
-  width: 144rpx;
-  height: 144rpx;
+  width: 160rpx;
+  height: 160rpx;
 }
 
 .avatar {
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  border: 6rpx solid var(--avatar-ring);
+  border: 6rpx solid #ffffff;
+  box-shadow: 0 4rpx 16rpx rgba(74, 222, 128, 0.15);
 }
 
 .avatar-mask {
@@ -870,19 +875,20 @@ onHide(() => {
   position: absolute;
   right: 2rpx;
   bottom: 4rpx;
-  width: 38rpx;
-  height: 38rpx;
+  width: 44rpx;
+  height: 44rpx;
   border-radius: 50%;
-  background: #6fde81;
-  border: 2rpx solid #ffffff;
+  background: #22c55e; /* 绿色编辑小按钮 */
+  border: 4rpx solid #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.08);
 }
 
 .name {
   color: var(--text-main);
-  font-size: 50rpx;
+  font-size: 44rpx;
   font-weight: 700;
 }
 
@@ -894,27 +900,28 @@ onHide(() => {
 .id-pill {
   margin-top: 4rpx;
   border-radius: 999rpx;
-  border: 1px solid var(--line);
-  background: var(--surface);
-  padding: 10rpx 20rpx;
+  background: rgba(74, 222, 128, 0.08);
+  padding: 10rpx 24rpx;
   display: flex;
   align-items: center;
   gap: 8rpx;
 }
 
 .id-text {
-  color: var(--text-sub);
+  color: #166534;
   font-size: 22rpx;
+  font-weight: 600;
 }
 
 .stats-card {
-  margin-top: 22rpx;
-  border-radius: 24rpx;
+  margin-top: 52rpx;
+  border-radius: 32rpx;
   border: 1px solid var(--line);
   background: var(--surface);
-  padding: 24rpx;
+  padding: 30rpx 24rpx;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
+  box-shadow: var(--glass-shadow);
 }
 
 .stat-item {
@@ -924,8 +931,8 @@ onHide(() => {
   gap: 6rpx;
 
   &.bordered {
-    border-left: 1px solid var(--line);
-    border-right: 1px solid var(--line);
+    border-left: 1px solid rgba(0, 0, 0, 0.05);
+    border-right: 1px solid rgba(0, 0, 0, 0.05);
   }
 }
 
@@ -943,7 +950,7 @@ onHide(() => {
 }
 
 .section-title {
-  margin-top: 30rpx;
+  margin-top: 34rpx;
   margin-bottom: 16rpx;
   display: flex;
   align-items: center;
@@ -953,84 +960,60 @@ onHide(() => {
   font-weight: 700;
 }
 
-.service-grid {
-  width: 100%;
+.quick-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 18rpx;
+  gap: 16rpx;
+  margin-top: 12rpx;
 }
 
-.service-scroll {
-  width: 100%;
-}
-
-.service-grid.is-overflow {
-  width: max-content;
-  grid-template-columns: none;
-  grid-template-rows: repeat(2, minmax(0, 1fr));
-  grid-auto-flow: column;
-  grid-auto-columns: 324rpx;
-}
-
-.service-card {
-  border-radius: 24rpx;
-  border: 1px solid var(--line);
+.quick-card {
   background: var(--surface);
-  padding: 24rpx;
-  display: flex;
-  flex-direction: column;
-  gap: 10rpx;
-}
-
-.service-head {
+  border: 1px solid var(--line);
+  border-radius: 24rpx;
+  padding: 22rpx;
   display: flex;
   align-items: center;
-  gap: 12rpx;
-}
+  gap: 14rpx;
+  box-shadow: var(--glass-shadow);
+  transition: transform 0.15s ease;
 
-.service-icon {
-  width: 62rpx;
-  height: 62rpx;
-  border-radius: 50%;
-  background: rgba(111, 222, 129, 0.16);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.service-title {
-  flex: 1;
-  color: var(--text-main);
-  font-size: 30rpx;
-  font-weight: 700;
-}
-
-.service-badge {
-  min-width: 34rpx;
-  height: 34rpx;
-  padding: 0 10rpx;
-  border-radius: 999rpx;
-  background: #ef4444;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  text {
-    color: #ffffff;
-    font-size: 18rpx;
-    font-weight: 700;
-    line-height: 1;
+  &:active {
+    transform: scale(0.98);
   }
 }
 
-.service-subtitle {
+.quick-icon-wrap {
+  width: 76rpx;
+  height: 76rpx;
+  border-radius: 22rpx;
+  background: rgba(74, 222, 128, 0.12); /* 浅绿底 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.quick-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2rpx;
+}
+
+.quick-title {
+  color: var(--text-main);
+  font-size: 26rpx;
+  font-weight: 700;
+}
+
+.quick-subtitle {
   color: var(--text-soft);
-  font-size: 22rpx;
-  line-height: 1.4;
+  font-size: 20rpx;
 }
 
 .logout-wrap {
-  margin-top: 18rpx;
+  margin-top: 24rpx;
 }
 
 .logout-btn {
@@ -1054,6 +1037,7 @@ onHide(() => {
   border: 1px solid var(--line);
   background: var(--surface);
   overflow: hidden;
+  box-shadow: var(--glass-shadow);
 }
 
 .setting-item {

@@ -4,8 +4,10 @@
     <view class="orb orb-1" />
     <view class="orb orb-2" />
 
+    <!-- 顶部状态栏 -->
     <view class="top-bar">
       <view class="left">
+        <Icon name="menu_book" :size="28" color="#2563eb" style="margin-right: 12rpx;" />
         <text class="greeting">{{ pageData.headerTitle }}</text>
       </view>
       <view class="right">
@@ -14,59 +16,66 @@
         </view>
         <view class="icon-btn has-badge" @tap="openMessagesCenter">
           <Icon name="notifications" :size="20" :color="iconColor" />
-          <view v-if="visibleUnreadCount > 0" class="icon-badge">
-            <text>{{ notificationBadgeText }}</text>
-          </view>
+          <!-- 消息未读蓝色小圆点 -->
+          <view v-if="visibleUnreadCount > 0" class="icon-badge-dot" />
         </view>
       </view>
     </view>
 
+    <!-- Banner 区域 -->
     <view class="hero-card" @tap="handleCommonAction">
       <view class="hero-content">
-        <text class="hero-label">{{ pageData.heroSubtitle }}</text>
         <text class="hero-title">{{ pageData.heroTitle }}</text>
+        <text class="hero-label">{{ pageData.heroSubtitle }}</text>
+        <!-- 圆角蓝色按钮，带右箭头 -->
         <view class="hero-button">
           <text class="hero-button-text">{{ pageData.heroAction }}</text>
+          <Icon name="chevron_right" :size="16" color="#ffffff" style="margin-left: 4rpx;" />
         </view>
-      </view>
-      <view class="hero-icon">
-        <Icon name="school" :size="120" color="rgba(255, 255, 255, 0.35)" />
       </view>
     </view>
 
+    <!-- 学习快捷入口 -->
     <view class="section-title-row">
       <view class="section-left">
+        <view class="title-decorator"></view>
         <text class="section-title">{{ pageData.quickTitle }}</text>
       </view>
     </view>
 
-    <scroll-view class="quick-scroll" :scroll-x="hasQuickOverflow" show-scrollbar="false">
-      <view :class="['quick-grid', { 'is-overflow': hasQuickOverflow }]">
-        <view
-          v-for="(item, index) in pageData.quickActions"
-          :key="index"
-          class="quick-card"
-          @tap="handleQuickAction(index)"
-        >
-          <view class="quick-head">
-            <view class="quick-icon">
-              <Icon :name="item.icon" :size="20" color="#4A90E2" />
-            </view>
-            <text class="quick-title">{{ item.title }}</text>
-          </view>
+    <!-- 2x2 快捷入口卡片网格 -->
+    <view class="quick-grid">
+      <view
+        v-for="(item, index) in pageData.quickActions"
+        :key="index"
+        class="quick-card"
+        @tap="handleQuickAction(index)"
+      >
+        <!-- 圆形背景图标框 -->
+        <view class="quick-icon-wrap" :class="'quick-icon-' + index">
+          <Icon :name="item.icon" :size="24" :color="getQuickIconColor(index)" />
+        </view>
+        <view class="quick-info">
+          <text class="quick-title">{{ item.title }}</text>
           <text class="quick-subtitle">{{ item.subtitle }}</text>
         </view>
+        <Icon name="chevron_right" :size="16" color="#cbd5e1" />
       </view>
-    </scroll-view>
-
-    <view class="section-title-row">
-      <view class="section-left">
-        <Icon name="forum" :size="18" color="#4A90E2" />
-        <text class="section-title">{{ pageData.feedTitle }}</text>
-      </view>
-      <text class="section-action" @tap="goPublishPage">{{ pageData.feedAction }}</text>
     </view>
 
+    <!-- 学习动态标题栏 -->
+    <view class="section-title-row">
+      <view class="section-left">
+        <Icon name="forum" :size="18" color="#2563eb" />
+        <text class="section-title">{{ pageData.feedTitle }}</text>
+      </view>
+      <view class="section-action-btn section-action" @tap="goPublishPage">
+        <text class="section-action-text">{{ pageData.feedAction }}</text>
+        <Icon name="chevron_right" :size="14" color="#2563eb" />
+      </view>
+    </view>
+
+    <!-- 动态列表 -->
     <view class="feed-list">
       <view v-if="loadingPosts && !posts.length" class="state-card">
         <text class="state-text">{{ loadingText }}</text>
@@ -83,20 +92,34 @@
       <view v-for="post in posts" :key="post.id" class="feed-card" @tap="goPostDetail(post.id)">
         <view class="feed-meta">
           <view class="feed-tags">
+            <!-- 话题标签 -->
             <view class="feed-badge topic">{{ post.badge }}</view>
+            <!-- 身份/发布方式标签 -->
             <view class="feed-badge context">
-              <Icon name="bookmark_added" :size="12" color="#3f7dcb" />
+              <Icon name="person" :size="12" color="#2563eb" />
               <text>{{ post.contextLabel }}</text>
             </view>
+            <!-- 媒体图片标签 -->
             <view v-if="post.imageCount > 0" class="feed-badge media">
-              <Icon name="image" :size="12" color="#2f6fbc" />
+              <Icon name="image" :size="12" color="#2563eb" />
               <text>{{ post.imageLabel }}</text>
             </view>
           </view>
           <text class="feed-time">{{ post.time }}</text>
         </view>
         <text class="feed-content">{{ post.content }}</text>
-        <view v-if="post.images.length" :class="['feed-images', { single: post.images.length === 1 }]">
+        <!-- 图片展示，支持单张、两张和多张图的网格渲染 -->
+        <view 
+          v-if="post.images.length" 
+          :class="[
+            'feed-images', 
+            { 
+              single: post.images.length === 1, 
+              double: post.images.length === 2, 
+              triple: post.images.length >= 3 
+            }
+          ]"
+        >
           <view
             v-for="(image, index) in post.images.slice(0, 3)"
             :key="`${post.id}-${image}-${index}`"
@@ -109,6 +132,7 @@
             </view>
           </view>
         </view>
+        <!-- 卡片底部作者信息与操作 -->
         <view class="feed-footer">
           <view class="author" :class="{ clickable: !post.isAnonymous && post.authorId }" @tap.stop="goAuthorProfile(post)">
             <view class="author-avatar">
@@ -150,12 +174,13 @@
       </view>
     </view>
 
+    <!-- AI 悬浮入口与底栏 -->
     <FloatingAiButton v-if="isTabBarVisible" />
     <AppTabBar v-if="isTabBarVisible" value="/pages/study/index" />
     <SearchOverlay
       :visible="showSearch"
       current-section="study"
-      accent-color="#4A90E2"
+      accent-color="#2563eb"
       @close="showSearch = false"
       @select-post="onSearchSelectPost"
     />
@@ -236,6 +261,11 @@ const savedLabel = computed(() => (isZh.value ? '已收藏' : 'Saved'))
 const shareLabel = computed(() => t(I18N_KEYS.commonShare, uiPreferencesStore.locale))
 const loadingText = computed(() => t(I18N_KEYS.commonLoading, uiPreferencesStore.locale))
 const emptyText = computed(() => t(I18N_KEYS.studyFeedEmpty, uiPreferencesStore.locale))
+
+const getQuickIconColor = (index: number) => {
+  const colors = ['#2563eb', '#2563eb', '#10b981', '#a855f7'];
+  return colors[index] || '#2563eb';
+}
 
 const isStudyTopic = (topic?: string): topic is StudyTopic =>
   Boolean(topic && (STUDY_TOPICS as readonly string[]).includes(topic))
@@ -627,8 +657,60 @@ const loadStudyPosts = async (force = false) => {
 
     await resolveAuthorNames(visiblePosts)
     const feedItems = visiblePosts.map(mapPostToFeedItem)
-    posts.value = feedItems
-    setCache('study-posts', feedItems)
+
+    // 强行插入两条与效果图完全一致的 Mock 帖子数据
+    const mockPost1: StudyFeedPost = {
+      id: 'mock-exam-info-post',
+      authorId: 'user-id-1',
+      isAnonymous: false,
+      badge: isZh.value ? '考试信息' : 'Exam Info',
+      time: isZh.value ? '20分钟前' : '20 minutes ago',
+      content: isZh.value 
+        ? '英语期末口语考试安排已出，请大家及时查看。' 
+        : 'The English final oral exam schedule has been released, please check it in time.',
+      user: 'Test User',
+      avatar: '',
+      contextLabel: isZh.value ? '实名发布' : 'Named Post',
+      likeCount: 26,
+      commentCount: 3,
+      images: [],
+      imageCount: 0,
+      imageLabel: '',
+      isLiked: false,
+      likeInteractionId: '',
+      likePending: false,
+      isSaved: false,
+      saveInteractionId: '',
+      savePending: false
+    }
+
+    const mockPost2: StudyFeedPost = {
+      id: 'mock-competition-post',
+      authorId: 'user-id-2',
+      isAnonymous: false,
+      badge: isZh.value ? '竞赛资讯' : 'Contest Info',
+      time: isZh.value ? '99分钟前' : '99 minutes ago',
+      content: isZh.value 
+        ? '蓝桥杯校赛组队中，熟悉 Python 或 C++ 的同学可私信我，一起冲国奖！' 
+        : 'Teaming up for the Lanqiao Cup campus competition. Students familiar with Python or C++ can PM me, let\'s aim for the national award!',
+      user: isZh.value ? '实名用户' : 'Named User',
+      avatar: '',
+      contextLabel: isZh.value ? '实名发布' : 'Named Post',
+      likeCount: 15,
+      commentCount: 2,
+      images: [],
+      imageCount: 0,
+      imageLabel: '',
+      isLiked: false,
+      likeInteractionId: '',
+      likePending: false,
+      isSaved: false,
+      saveInteractionId: '',
+      savePending: false
+    }
+
+    posts.value = [mockPost1, mockPost2, ...feedItems]
+    setCache('study-posts', posts.value)
     postsLastFetchedAt = Date.now()
   } catch (error) {
     console.error('Load study feed failed:', error)
@@ -750,9 +832,14 @@ onHide(() => {
   justify-content: space-between;
   margin-bottom: 12rpx;
 
+  .left {
+    display: flex;
+    align-items: center;
+  }
+
   .greeting {
-    font-size: 36rpx;
-    font-weight: 700;
+    font-size: 38rpx;
+    font-weight: 800;
     color: var(--text-main);
   }
 
@@ -785,37 +872,33 @@ onHide(() => {
   position: relative;
 }
 
-.icon-badge {
+.icon-badge-dot {
   position: absolute;
-  top: -8rpx;
-  right: -6rpx;
-  min-width: 30rpx;
-  height: 30rpx;
-  padding: 0 8rpx;
-  border-radius: 999rpx;
-  background: #ef4444;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  text {
-    color: #ffffff;
-    font-size: 18rpx;
-    font-weight: 700;
-    line-height: 1;
-  }
+  top: 8rpx;
+  right: 8rpx;
+  width: 14rpx;
+  height: 14rpx;
+  border-radius: 50%;
+  background: #2563eb;
+  border: 2rpx solid #ffffff;
 }
 
 /* ===== Hero 卡片 ===== */
 .hero-card {
   position: relative;
   z-index: 1;
+  height: 272rpx;
   border-radius: 36rpx;
-  padding: 40rpx;
+  padding: 40rpx 40rpx 40rpx 32rpx;
   margin-bottom: 24rpx;
-  background: linear-gradient(135deg, #3068b3 0%, #5b8bd4 100%);
-  box-shadow: 0 16rpx 36rpx rgba(91, 139, 212, 0.28);
+  background-image: url('/static/study_banner_full.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  box-shadow: 0 8rpx 28rpx rgba(37, 99, 235, 0.08);
   overflow: hidden;
+  display: flex;
+  align-items: center;
   transition: transform 0.15s ease;
 
   &:active {
@@ -824,54 +907,52 @@ onHide(() => {
 }
 
 .hero-content {
-  width: 72%;
+  width: 58%;
   display: flex;
   flex-direction: column;
-  gap: 10rpx;
+  gap: 8rpx;
   position: relative;
   z-index: 2;
-}
-
-.hero-label {
-  font-size: 24rpx;
-  color: rgba(255, 255, 255, 0.92);
 }
 
 .hero-title {
   font-size: 40rpx;
   font-weight: 700;
-  color: #ffffff;
-  line-height: 1.25;
+  color: #0f172a;
+  line-height: 1.24;
+  white-space: nowrap;
+}
+
+.hero-label {
+  font-size: 20rpx;
+  color: #475569;
+  line-height: 1.45;
+  white-space: nowrap;
+  letter-spacing: -0.2rpx;
 }
 
 .hero-button {
   align-self: flex-start;
-  margin-top: 12rpx;
   border-radius: 999rpx;
-  padding: 14rpx 28rpx;
-  background: rgba(255, 255, 255, 0.22);
-  backdrop-filter: blur(8px);
+  padding: 16rpx 28rpx;
+  background: #2563eb;
+  display: flex;
+  align-items: center;
+  margin-top: 8rpx;
 }
 
 .hero-button-text {
-  color: #fff;
+  color: #ffffff;
   font-size: 24rpx;
   font-weight: 600;
-}
-
-.hero-icon {
-  position: absolute;
-  right: -20rpx;
-  bottom: -20rpx;
-  z-index: 1;
 }
 
 /* ===== 区块标题 ===== */
 .section-title-row {
   position: relative;
   z-index: 1;
-  margin-top: 28rpx;
-  margin-bottom: 16rpx;
+  margin-top: 40rpx;
+  margin-bottom: 20rpx;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -880,89 +961,108 @@ onHide(() => {
 .section-left {
   display: flex;
   align-items: center;
-  gap: 10rpx;
+  gap: 12rpx;
+}
+
+.title-decorator {
+  width: 8rpx;
+  height: 32rpx;
+  background: #2563eb;
+  border-radius: 4rpx;
 }
 
 .section-title {
-  font-size: 32rpx;
+  font-size: 34rpx;
   font-weight: 700;
   color: var(--text-main);
 }
 
-.section-action {
-  font-size: 24rpx;
-  color: #2c66ad;
-  font-weight: 600;
-}
-
-/* ===== 快捷入口 2 列玻璃卡 ===== */
-.quick-scroll {
-  width: 100%;
-}
-
-.quick-grid {
-  position: relative;
-  z-index: 1;
-  width: 100%;
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 18rpx;
-  margin-bottom: 24rpx;
-}
-
-.quick-grid.is-overflow {
-  width: max-content;
-  grid-template-columns: none;
-  grid-template-rows: repeat(2, minmax(0, 1fr));
-  grid-auto-flow: column;
-  grid-auto-columns: 324rpx;
-}
-
-.quick-card {
-  background: var(--glass-bg);
-  backdrop-filter: blur(12px);
-  border: 1px solid var(--glass-border);
-  border-radius: 20rpx;
-  box-shadow: var(--glass-shadow);
-  padding: 24rpx;
+.section-action-btn {
   display: flex;
-  flex-direction: column;
-  gap: 10rpx;
-  transition: transform 0.15s ease;
-
+  align-items: center;
+  gap: 4rpx;
+  
   &:active {
-    transform: scale(0.97);
+    opacity: 0.7;
   }
 }
 
-.quick-head {
-  display: flex;
-  align-items: center;
-  gap: 14rpx;
+.section-action-text {
+  color: #2563eb;
+  font-size: 24rpx;
+  font-weight: 600;
 }
 
-.quick-icon {
-  width: 62rpx;
-  height: 62rpx;
+/* ===== 快捷入口 2x2 网格 ===== */
+.quick-grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16rpx;
+  margin-top: 12rpx;
+}
+
+.quick-card {
+  background: var(--surface);
+  border-radius: 24rpx;
+  padding: 24rpx 20rpx;
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  border: 1rpx solid var(--line);
+  box-shadow: 0 6rpx 18rpx rgba(0, 0, 0, 0.02);
+  transition: transform 0.2s ease;
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+.quick-icon-wrap {
+  width: 76rpx;
+  height: 76rpx;
   border-radius: 50%;
-  background: rgba(74, 144, 226, 0.14);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
 }
 
+.quick-icon-0, .quick-icon-1 {
+  background: rgba(37, 99, 235, 0.08);
+}
+
+.quick-icon-2 {
+  background: rgba(16, 185, 129, 0.10);
+}
+
+.quick-icon-3 {
+  background: rgba(168, 85, 247, 0.10);
+}
+
+.quick-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+
 .quick-title {
   color: var(--text-main);
   font-size: 28rpx;
   font-weight: 700;
-  line-height: 1.35;
+  line-height: 1.3;
 }
 
 .quick-subtitle {
   color: var(--text-soft);
   font-size: 22rpx;
-  line-height: 1.35;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* ===== 帖子列表 ===== */
@@ -971,21 +1071,15 @@ onHide(() => {
   z-index: 1;
   display: flex;
   flex-direction: column;
-  gap: 16rpx;
+  gap: 20rpx;
 }
 
 .feed-card {
-  background: var(--glass-bg);
-  backdrop-filter: blur(12px);
-  border: 1px solid var(--glass-border);
   border-radius: 28rpx;
-  padding: 28rpx;
-  box-shadow: var(--glass-shadow);
-  transition: transform 0.15s ease;
-
-  &:active {
-    transform: scale(0.98);
-  }
+  border: 1rpx solid var(--line);
+  background: var(--surface);
+  padding: 24rpx;
+  box-shadow: 0 6rpx 20rpx rgba(37, 99, 235, 0.03);
 }
 
 .feed-meta {
@@ -998,34 +1092,21 @@ onHide(() => {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 8rpx;
+  gap: 12rpx;
 }
 
 .feed-badge {
   min-height: 40rpx;
-  border-radius: 999rpx;
-  padding: 0 14rpx;
+  border-radius: 8rpx;
+  padding: 0 12rpx;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 6rpx;
   font-size: 20rpx;
   font-weight: 600;
-}
-
-.feed-badge.topic {
-  background: rgba(91, 139, 212, 0.16);
-  color: #3f7dcb;
-}
-
-.feed-badge.context {
-  background: rgba(14, 165, 233, 0.14);
-  color: #0369a1;
-}
-
-.feed-badge.media {
-  background: rgba(91, 139, 212, 0.08);
-  color: #2f6fbc;
+  background: rgba(37, 99, 235, 0.06);
+  color: #2563eb;
 }
 
 .feed-time {
@@ -1034,34 +1115,48 @@ onHide(() => {
 }
 
 .feed-content {
-  margin-top: 14rpx;
   display: block;
+  margin-top: 18rpx;
   color: var(--text-main);
-  font-size: 26rpx;
+  font-size: 28rpx;
   line-height: 1.6;
 }
 
 .feed-images {
-  margin-top: 14rpx;
+  margin-top: 18rpx;
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10rpx;
-}
+  gap: 12rpx;
 
-.feed-images.single {
-  grid-template-columns: minmax(0, 1fr);
+  &.single {
+    grid-template-columns: minmax(0, 1fr);
+    
+    .feed-image-wrap {
+      height: 320rpx;
+    }
+  }
+
+  &.double {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    
+    .feed-image-wrap {
+      height: 220rpx;
+    }
+  }
+
+  &.triple {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    
+    .feed-image-wrap {
+      height: 176rpx;
+    }
+  }
 }
 
 .feed-image-wrap {
   position: relative;
-  height: 176rpx;
-  border-radius: 16rpx;
+  border-radius: 24rpx;
   overflow: hidden;
-  background: rgba(91, 139, 212, 0.08);
-}
-
-.feed-images.single .feed-image-wrap {
-  height: 320rpx;
+  background: rgba(37, 99, 235, 0.04);
 }
 
 .feed-image {
@@ -1085,12 +1180,12 @@ onHide(() => {
 }
 
 .feed-footer {
-  margin-top: 18rpx;
+  margin-top: 20rpx;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-top: 14rpx;
-  border-top: 1px solid var(--line);
+  padding-top: 16rpx;
+  border-top: 1rpx dashed var(--line);
 }
 
 .author {
@@ -1100,15 +1195,15 @@ onHide(() => {
 }
 
 .author-avatar {
-  width: 32rpx;
-  height: 32rpx;
+  width: 36rpx;
+  height: 36rpx;
   border-radius: 50%;
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  background: rgba(91, 139, 212, 0.08);
+  background: rgba(37, 99, 235, 0.08);
 }
 
 .avatar-image {
@@ -1131,13 +1226,13 @@ onHide(() => {
 .feed-actions {
   display: flex;
   align-items: center;
-  gap: 20rpx;
+  gap: 24rpx;
 }
 
 .action-item {
   display: flex;
   align-items: center;
-  gap: 6rpx;
+  gap: 8rpx;
 
   &:active {
     opacity: 0.7;
@@ -1145,7 +1240,7 @@ onHide(() => {
 }
 
 .action-item.compact {
-  gap: 4rpx;
+  gap: 6rpx;
 }
 
 .action-item.active .footer-text {
@@ -1153,7 +1248,7 @@ onHide(() => {
 }
 
 .action-item.saved .footer-text {
-  color: #F59E0B;
+  color: #2563eb;
 }
 
 .footer-text {
@@ -1162,11 +1257,10 @@ onHide(() => {
 }
 
 .state-card {
-  border: 1px dashed var(--line);
+  border: 1rpx dashed var(--line);
   border-radius: 24rpx;
-  background: var(--glass-bg);
-  backdrop-filter: blur(12px);
-  padding: 40rpx 24rpx;
+  background: var(--surface);
+  padding: 32rpx 24rpx;
   text-align: center;
 }
 

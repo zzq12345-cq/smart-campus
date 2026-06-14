@@ -1,9 +1,10 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import authService from '@/services/auth'
-import type { DbUser, LoginResult, ProfileUpdateInput, RegisterResult, Session } from '@/types/auth'
+import type { DbUser, LoginResult, ProfileUpdateInput, RegisterResult, Session, UserRole } from '@/types/auth'
 
 const TEACHER_SUBJECT_KEY = 'teacher.subject'
+const USER_ROLE_KEY = 'user.role'
 
 export const useAuthStore = defineStore('auth', () => {
   const isLoggedIn = ref(false)
@@ -24,6 +25,14 @@ export const useAuthStore = defineStore('auth', () => {
       || String(dbUser.value?.teacherSubject || '').trim()
   })
 
+  // role: 优先 localStorage，其次 dbUser；任何非 teacher 值归一为 student
+  const _localRole = ref<UserRole | ''>('')
+  const role = computed<UserRole>(() => {
+    const raw = _localRole.value || String(dbUser.value?.role || '')
+    return raw === 'teacher' ? 'teacher' : 'student'
+  })
+  const isTeacher = computed(() => role.value === 'teacher')
+
   async function init() {
     if (initialized.value) {
       return
@@ -38,6 +47,14 @@ export const useAuthStore = defineStore('auth', () => {
       const stored = uni.getStorageSync(TEACHER_SUBJECT_KEY)
       if (typeof stored === 'string' && stored) {
         _localTeacherSubject.value = stored
+      }
+    } catch {}
+
+    // 恢复角色
+    try {
+      const storedRole = uni.getStorageSync(USER_ROLE_KEY)
+      if (storedRole === 'teacher' || storedRole === 'student') {
+        _localRole.value = storedRole
       }
     } catch {}
 
@@ -90,6 +107,8 @@ export const useAuthStore = defineStore('auth', () => {
       user.value = null
       dbUser.value = null
       session.value = null
+      _localRole.value = ''
+      try { uni.removeStorageSync(USER_ROLE_KEY) } catch {}
     } finally {
       loading.value = false
     }
@@ -143,6 +162,19 @@ export const useAuthStore = defineStore('auth', () => {
     try { uni.setStorageSync(TEACHER_SUBJECT_KEY, subject) } catch {}
   }
 
+  /** 设置角色：localStorage 优先，best-effort 同步到 DB（字段可能不存在，失败不影响） */
+  function setRole(nextRole: UserRole) {
+    _localRole.value = nextRole
+    try { uni.setStorageSync(USER_ROLE_KEY, nextRole) } catch {}
+    if (dbUser.value) {
+      dbUser.value = { ...dbUser.value, role: nextRole }
+    }
+    // Promise.resolve 包裹：兼容同步/异步返回，避免非 Promise 时 .catch 抛错
+    Promise.resolve(authService.updateProfile({ role: nextRole } as ProfileUpdateInput)).catch((e) => {
+      console.warn('[Auth] role sync to DB failed (field may not exist):', e)
+    })
+  }
+
   return {
     isLoggedIn,
     user,
@@ -154,6 +186,8 @@ export const useAuthStore = defineStore('auth', () => {
     userEmail,
     avatar,
     teacherSubject,
+    role,
+    isTeacher,
     init,
     login,
     register,
@@ -161,6 +195,7 @@ export const useAuthStore = defineStore('auth', () => {
     logout,
     refreshProfile,
     updateProfile,
-    setTeacherSubject
+    setTeacherSubject,
+    setRole
   }
 })

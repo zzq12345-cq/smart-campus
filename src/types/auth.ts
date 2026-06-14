@@ -1,3 +1,5 @@
+export type UserRole = 'student' | 'teacher'
+
 export interface AuthUser {
   $id: string
   email: string
@@ -17,6 +19,8 @@ export interface DbUser {
   school?: string
   /** 教师主教科目（chinese / math / english / politics） */
   teacherSubject?: string
+  /** 用户角色：student（学生端）/ teacher（教师端）；缺省视为 student */
+  role?: UserRole
   level?: number
   streakDays?: number
   totalCheckins?: number
@@ -59,6 +63,8 @@ export interface ProfileUpdateInput {
   school?: string
   /** 教师主教科目 */
   teacherSubject?: string
+  /** 用户角色 */
+  role?: UserRole
 }
 
 export interface DeviceInfoSnapshot {

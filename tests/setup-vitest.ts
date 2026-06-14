@@ -44,7 +44,11 @@ Object.assign((globalThis as Record<string, any>).uni, {
   showTabBar: vi.fn(),
   showToast: vi.fn(),
   switchTab: vi.fn(),
-  navigateTo: vi.fn()
+  navigateTo: vi.fn(),
+  reLaunch: vi.fn(),
+  getStorageSync: vi.fn(() => ''),
+  setStorageSync: vi.fn(),
+  removeStorageSync: vi.fn()
 })
 
 vi.mock('@/uni_modules/tdesign-uniapp/components/tab-bar/tab-bar.vue', () => ({

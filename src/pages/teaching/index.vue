@@ -195,6 +195,10 @@ const hideNativeTabBar = () => {
 }
 
 onShow(async () => {
+  if (authStore.isLoggedIn && !authStore.isTeacher) {
+    uni.reLaunch({ url: '/pages/study/index' })
+    return
+  }
   isTabBarVisible.value = true
   hideNativeTabBar()
   uiPreferencesStore.initFromSystem()

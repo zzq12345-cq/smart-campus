@@ -40,19 +40,24 @@
       </view>
     </view>
 
-    <view class="quick-grid">
-      <view
-        v-for="(item, index) in pageData.quickActions"
-        :key="index"
-        class="quick-item"
-        @tap="handleQuickAction(index)"
-      >
-        <view class="quick-icon">
-          <Icon :name="item.icon" :size="18" color="#ffffff" />
+    <scroll-view class="quick-scroll" :scroll-x="hasQuickOverflow" show-scrollbar="false">
+      <view :class="['quick-grid', { 'is-overflow': hasQuickOverflow }]">
+        <view
+          v-for="(item, index) in pageData.quickActions"
+          :key="index"
+          class="quick-card"
+          @tap="handleQuickAction(index)"
+        >
+          <view class="quick-head">
+            <view class="quick-icon">
+              <Icon :name="item.icon" :size="20" color="#4A90E2" />
+            </view>
+            <text class="quick-title">{{ item.title }}</text>
+          </view>
+          <text class="quick-subtitle">{{ item.subtitle }}</text>
         </view>
-        <text class="quick-label">{{ item.title }}</text>
       </view>
-    </view>
+    </scroll-view>
 
     <view class="section-title-row">
       <view class="section-left">
@@ -649,6 +654,10 @@ const hideNativeTabBar = () => {
 }
 
 onShow(async () => {
+  if (authStore.isLoggedIn && authStore.isTeacher) {
+    uni.reLaunch({ url: '/pages/teaching/index' })
+    return
+  }
   isTabBarVisible.value = true
   hideNativeTabBar()
   uiPreferencesStore.initFromSystem()
@@ -886,49 +895,74 @@ onHide(() => {
   font-weight: 600;
 }
 
-/* ===== 快捷入口 4 列网格 ===== */
+/* ===== 快捷入口 2 列玻璃卡 ===== */
+.quick-scroll {
+  width: 100%;
+}
+
 .quick-grid {
   position: relative;
   z-index: 1;
+  width: 100%;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16rpx;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18rpx;
   margin-bottom: 24rpx;
 }
 
-.quick-item {
+.quick-grid.is-overflow {
+  width: max-content;
+  grid-template-columns: none;
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  grid-auto-flow: column;
+  grid-auto-columns: 324rpx;
+}
+
+.quick-card {
   background: var(--glass-bg);
   backdrop-filter: blur(12px);
   border: 1px solid var(--glass-border);
-  border-radius: 24rpx;
-  padding: 20rpx 8rpx;
+  border-radius: 20rpx;
+  box-shadow: var(--glass-shadow);
+  padding: 24rpx;
   display: flex;
   flex-direction: column;
-  align-items: center;
   gap: 10rpx;
-  box-shadow: var(--glass-shadow);
   transition: transform 0.15s ease;
 
   &:active {
-    transform: scale(0.95);
+    transform: scale(0.97);
   }
 }
 
+.quick-head {
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+}
+
 .quick-icon {
-  width: 64rpx;
-  height: 64rpx;
-  border-radius: 20rpx;
+  width: 62rpx;
+  height: 62rpx;
+  border-radius: 50%;
+  background: rgba(74, 144, 226, 0.14);
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #5b8bd4, #8ab4e8);
+  flex-shrink: 0;
 }
 
-.quick-label {
+.quick-title {
+  color: var(--text-main);
+  font-size: 28rpx;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.quick-subtitle {
+  color: var(--text-soft);
   font-size: 22rpx;
-  color: var(--text-sub);
-  font-weight: 500;
-  text-align: center;
+  line-height: 1.35;
 }
 
 /* ===== 帖子列表 ===== */

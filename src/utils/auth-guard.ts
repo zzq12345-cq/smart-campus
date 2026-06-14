@@ -107,6 +107,11 @@ export function getCurrentUser() {
   return authStore.user
 }
 
+/** 按角色返回该端首页 tab 路径（学生→学习，教师→教学） */
+export function roleHomeUrl(isTeacher: boolean): string {
+  return isTeacher ? '/pages/teaching/index' : '/pages/study/index'
+}
+
 export async function logout(redirectUrl?: string) {
   const authStore = useAuthStore()
   await authStore.logout()

@@ -24,8 +24,9 @@
         <view class="bubble-tail" :style="{ '--tail-bg': bubbleBg, '--tail-border': bubbleBorderColor }"></view>
       </view>
 
-      <view class="button-wrapper" :style="{ background: sectionColor, boxShadow: buttonShadow }">
-        <RobotAvatar :skin-id="pointsStore.equippedSkinId" size="medium" />
+      <view class="button-wrapper" :style="wrapperStyle">
+        <Icon v-if="uiPreferencesStore.activeSection === 'teaching'" name="smart_toy" :size="28" color="#e14d2a" />
+        <RobotAvatar v-else :skin-id="pointsStore.equippedSkinId" size="medium" />
       </view>
     </view>
   </teleport>
@@ -52,6 +53,7 @@ import type { MentalHealthTooltipMessage } from '@/types/mental-health'
 import { useUiPreferencesStore } from '@/stores/ui-preferences'
 import { usePointsStore } from '@/stores/points'
 import RobotAvatar from '@/components/common/RobotAvatar.vue'
+import Icon from '@/components/common/Icon.vue'
 import type { TabSection } from '@/types/ui'
 import { localizeMentalHealthText } from '@/utils/mental-health-localization'
 
@@ -135,7 +137,7 @@ let nextPushTimer: ReturnType<typeof setTimeout> | null = null
 const sectionColors: Record<TabSection, string> = {
   study: '#4A90E2',
   life: '#f49d25',
-  teaching: '#C00000',
+  teaching: '#e14d2a',
   psychology: '#886fde',
   mine: '#6fde81'
 }
@@ -156,6 +158,20 @@ const bubbleBorderColor = computed(() =>
 )
 const bubbleTextColor = computed(() => (isLight.value ? '#334155' : '#e2e8f0'))
 const accentSoft = computed(() => `${sectionColor.value}18`)
+
+const wrapperStyle = computed(() => {
+  if (uiPreferencesStore.activeSection === 'teaching') {
+    return {
+      background: '#ffffff',
+      boxShadow: '0 8px 30px rgba(225, 77, 42, 0.25)',
+      border: '1px solid rgba(225, 77, 42, 0.08)'
+    }
+  }
+  return {
+    background: sectionColor.value,
+    boxShadow: buttonShadow.value
+  }
+})
 
 function pickRandomPushMessage() {
   const source = availablePushMessages.value.length ? availablePushMessages.value : mockAiPushMessages

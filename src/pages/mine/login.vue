@@ -2,33 +2,46 @@
   <view :class="['auth-page', themeClass]">
     <view class="top-bar">
       <view class="icon-btn" @tap="goBack">
-        <Icon name="arrow_back" :size="20" :color="iconColor" />
+        <Icon name="chevron_left" :size="24" :color="iconColor" />
       </view>
       <text class="title">{{ loginTitle }}</text>
       <view class="icon-btn"></view>
     </view>
 
+    <!-- Banner 卡片 -->
     <view class="hero-card">
-      <text class="hero-title">{{ loginTitle }}</text>
-      <text class="hero-subtitle">{{ loginSubtitle }}</text>
+      <view class="hero-content">
+        <text class="hero-title">{{ loginTitle }}</text>
+        <text class="hero-subtitle">{{ loginSubtitle }}</text>
+      </view>
     </view>
 
+    <!-- 主表单 -->
     <view class="form-card">
       <view class="input-group">
         <text class="input-label">{{ emailLabel }}</text>
-        <input
-          v-model="email"
-          class="input-field"
-          type="text"
-          :placeholder="emailPlaceholder"
-          placeholder-class="placeholder-style"
-        />
+        <view class="input-with-icon">
+          <!-- 浅绿底圆角矩形 Icon 包裹盒 -->
+          <view class="input-icon-wrap">
+            <Icon name="mail" :size="18" color="#22c55e" />
+          </view>
+          <input
+            v-model="email"
+            class="input-field"
+            type="text"
+            :placeholder="emailPlaceholder"
+            placeholder-class="placeholder-style"
+          />
+        </view>
       </view>
 
       <view class="input-group">
         <text class="input-label">{{ passwordLabel }}</text>
-
-        <view class="input-with-eye">
+        <view class="input-with-icon input-with-eye">
+          <!-- 浅绿底圆角矩形 Icon 包裹盒 -->
+          <view class="input-icon-wrap">
+            <Icon name="lock" :size="18" color="#22c55e" />
+          </view>
           <input
             v-model="password"
             class="input-field"
@@ -37,7 +50,7 @@
             placeholder-class="placeholder-style"
           />
           <view class="eye-btn" @tap="showPassword = !showPassword">
-            <Icon :name="showPassword ? 'visibility' : 'visibility_off'" :size="20" color="#94a3b8" />
+            <Icon :name="showPassword ? 'visibility' : 'visibility_off'" :size="20" color="#22c55e" />
           </view>
         </view>
       </view>
@@ -50,9 +63,13 @@
         <text class="submit-text">{{ loading ? loadingText : loginLabel }}</text>
       </view>
 
+      <!-- 立即注册链接 -->
       <view class="switch-row" @tap="navigateToRegister">
         <text class="switch-prefix">{{ noAccountText }}</text>
-        <text class="switch-link">{{ registerLabel }}</text>
+        <view class="switch-link-wrap">
+          <text class="switch-link">{{ registerLabel }}</text>
+          <view class="switch-link-decor" />
+        </view>
       </view>
     </view>
   </view>
@@ -214,26 +231,34 @@ onShow(async () => {
 <style lang="scss" scoped>
 .auth-page {
   min-height: 100vh;
-  padding: 16rpx 24rpx 48rpx;
-  background: var(--page-bg);
+  padding: 16rpx 28rpx 80rpx;
+  background-image: url('/static/login_page_bg.png');
+  background-size: 100% auto;
+  background-position: bottom center;
+  background-repeat: no-repeat;
+  background-color: var(--page-bg);
 }
 
 .theme-light {
-  --page-bg: #f6f8f6;
+  --page-bg: #ffffff;
   --surface: #ffffff;
-  --line: rgba(111, 222, 129, 0.18);
+  --line: rgba(34, 197, 94, 0.08);
   --text-main: #0f172a;
   --text-sub: #64748b;
-  --topbar-bg: rgba(246, 248, 246, 0.92);
+  --topbar-bg: transparent;
+  --input-bg: #ffffff;
+  --input-border: rgba(34, 197, 94, 0.16);
 }
 
 .theme-dark {
   --page-bg: #131f15;
   --surface: rgba(15, 30, 20, 0.78);
-  --line: rgba(111, 222, 129, 0.3);
+  --line: rgba(34, 197, 94, 0.16);
   --text-main: #f8fafc;
   --text-sub: #cbd5e1;
-  --topbar-bg: rgba(19, 31, 21, 0.92);
+  --topbar-bg: transparent;
+  --input-bg: rgba(15, 30, 20, 0.9);
+  --input-border: rgba(34, 197, 94, 0.24);
 }
 
 .top-bar {
@@ -266,78 +291,109 @@ onShow(async () => {
 
 .hero-card {
   margin-top: 14rpx;
-  border-radius: 28rpx;
-  border: 1px solid var(--line);
-  padding: 34rpx;
-  background: linear-gradient(135deg, rgba(111, 222, 129, 0.22), rgba(111, 222, 129, 0.07));
+  height: 272rpx;
+  border-radius: 36rpx;
+  padding: 40rpx 40rpx 40rpx 32rpx;
+  background-image: url('/static/login_banner_full.png');
+  background-size: cover;
+  background-position: right bottom;
+  background-repeat: no-repeat;
+  box-shadow: 0 8rpx 28rpx rgba(34, 197, 94, 0.08);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+}
+
+.hero-content {
+  width: 55%;
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+  position: relative;
+  z-index: 2;
 }
 
 .hero-title {
-  color: var(--text-main);
+  color: #14532d;
   display: block;
-  font-size: 46rpx;
+  font-size: 44rpx;
   font-weight: 700;
 }
 
 .hero-subtitle {
-  margin-top: 8rpx;
-  color: var(--text-sub);
+  margin-top: 4rpx;
+  color: #166534;
   display: block;
-  font-size: 24rpx;
+  font-size: 20rpx;
 }
 
 .form-card {
-  margin-top: 22rpx;
-  border-radius: 24rpx;
+  margin-top: 28rpx;
+  border-radius: 32rpx;
   border: 1px solid var(--line);
   background: var(--surface);
-  padding: 24rpx;
+  padding: 40rpx 32rpx;
+  box-shadow: 0 16rpx 36rpx rgba(34, 197, 94, 0.05);
 }
 
 .input-group {
-  margin-bottom: 16rpx;
+  margin-bottom: 24rpx;
 }
 
 .input-label {
   color: var(--text-main);
   font-size: 24rpx;
   font-weight: 600;
+  display: block;
+  margin-bottom: 8rpx;
+}
+
+.input-with-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--input-border);
+  border-radius: 24rpx;
+  background: var(--input-bg);
+  padding: 0 20rpx 0 104rpx;
+  min-height: 96rpx;
+}
+
+.input-icon-wrap {
+  position: absolute;
+  left: 20rpx;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 16rpx;
+  background: rgba(34, 197, 94, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .input-field {
-  margin-top: 8rpx;
   width: 100%;
-  min-height: 84rpx;
-  border-radius: 16rpx;
-  border: 1px solid var(--line);
-  padding: 0 20rpx;
+  height: 84rpx;
+  border: none;
+  background: transparent;
   color: var(--text-main);
   font-size: 28rpx;
-  background: transparent;
-}
-
-
-.input-with-eye {
-  position: relative;
-  margin-top: 8rpx;
+  padding: 0;
 }
 
 .input-with-eye .input-field {
-  margin-top: 0;
   padding-right: 80rpx;
-
-  &::-ms-reveal,
-  &::-webkit-credentials-auto-fill-button {
-    display: none;
-  }
 }
 
 .eye-btn {
   position: absolute;
-  right: 0;
-  top: 0;
+  right: 12rpx;
+  top: 50%;
+  transform: translateY(-50%);
   width: 80rpx;
-  height: 84rpx;
+  height: 80rpx;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -348,13 +404,19 @@ onShow(async () => {
 }
 
 .submit-btn {
-  margin-top: 8rpx;
-  min-height: 88rpx;
-  border-radius: 16rpx;
-  background: #6fde81;
+  margin-top: 24rpx;
+  min-height: 96rpx;
+  border-radius: 24rpx;
+  background: linear-gradient(135deg, #22c55e 0%, #10b981 100%);
+  box-shadow: 0 8rpx 20rpx rgba(34, 197, 94, 0.15);
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: transform 0.15s ease;
+
+  &:active {
+    transform: scale(0.98);
+  }
 }
 
 .submit-text {
@@ -370,13 +432,13 @@ onShow(async () => {
 }
 
 .forgot-link {
-  color: #2cbb63;
+  color: #22c55e;
   font-size: 24rpx;
   font-weight: 600;
 }
 
 .switch-row {
-  margin-top: 18rpx;
+  margin-top: 28rpx;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -388,9 +450,50 @@ onShow(async () => {
   font-size: 24rpx;
 }
 
+.switch-link-wrap {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 .switch-link {
-  color: #2cbb63;
+  color: #22c55e;
   font-size: 24rpx;
   font-weight: 700;
+}
+
+.switch-link-decor {
+  position: absolute;
+  bottom: -10rpx;
+  left: 0;
+  width: 100%;
+  height: 12rpx;
+  background: transparent;
+  pointer-events: none;
+
+  &::before {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 2%;
+    width: 96%;
+    height: 8rpx;
+    border-bottom: 3rpx solid #22c55e;
+    border-radius: 50%;
+    transform: rotate(-1.5deg);
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    bottom: -3rpx;
+    left: 15%;
+    width: 70%;
+    height: 6rpx;
+    border-bottom: 2rpx solid rgba(34, 197, 94, 0.7);
+    border-radius: 50%;
+    transform: rotate(-0.5deg);
+  }
 }
 </style>

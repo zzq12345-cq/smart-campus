@@ -2,33 +2,38 @@
   <view :class="['teaching-page', themeClass]">
     <view class="top-bar">
       <view class="left">
-        <Icon name="menu_book" :size="22" :color="subjectColor" />
+        <Icon name="menu_book" :size="22" color="#e14d2a" />
         <text class="title">{{ pageData.headerTitle }}</text>
       </view>
       <view class="right">
         <view class="subject-pill" @tap="goSubjectSelect">
           <text class="subject-pill-text">{{ subjectLabel }}</text>
-          <Icon name="expand_more" :size="14" :color="subjectColor" />
+          <Icon name="expand_more" :size="14" color="#e14d2a" />
         </view>
       </view>
     </view>
 
-    <view class="hero-card" :style="{ background: heroGradient }">
+    <!-- Banner 卡片 -->
+    <view class="hero-card">
       <view class="hero-content">
-        <text class="hero-title">{{ pageData.heroTitle }}</text>
-        <text class="hero-subtitle">{{ pageData.heroSubtitle }}</text>
-        <view class="hero-button" :style="{ background: subjectColor }" @tap="goPreparation">
-          <text class="hero-button-text">{{ pageData.heroAction }}</text>
+        <view class="hero-title-wrap">
+          <text class="hero-title-main">{{ isZh ? '智慧备课，' : 'Smart prep, ' }}</text>
+          <text class="hero-title-highlight">{{ isZh ? '高效教学' : 'efficient teaching' }}</text>
         </view>
-      </view>
-      <view class="hero-icon">
-        <Icon :name="subjectIcon" :size="164" :color="heroIconColor" />
+        <text class="hero-subtitle">{{ pageData.heroSubtitle }}</text>
+        <view class="hero-button" @tap="goPreparation">
+          <text class="hero-button-text">{{ pageData.heroAction }}</text>
+          <view class="hero-btn-arrow">
+            <Icon name="chevron_right" :size="14" color="#e14d2a" />
+          </view>
+        </view>
       </view>
     </view>
 
+    <!-- 教学工具 -->
     <view class="section-title-row">
       <view class="section-left">
-        <Icon name="widgets" :size="18" :color="subjectColor" />
+        <Icon name="widgets" :size="18" color="#e14d2a" />
         <text class="section-title">{{ pageData.quickTitle }}</text>
       </view>
     </view>
@@ -42,22 +47,30 @@
           @tap="handleQuickAction(item)"
         >
           <view class="quick-head">
-            <view class="quick-icon" :style="{ background: subjectColorLight }">
-              <Icon :name="item.icon" :size="20" :color="subjectColor" />
+            <view class="quick-icon">
+              <Icon :name="item.icon" :size="20" color="#e14d2a" />
             </view>
             <text class="quick-title">{{ item.title }}</text>
           </view>
           <text class="quick-subtitle">{{ item.subtitle }}</text>
+          <!-- 卡片右下角小箭头 -->
+          <view class="quick-card-arrow">
+            <Icon name="chevron_right" :size="12" color="#e14d2a" />
+          </view>
         </view>
       </view>
     </scroll-view>
 
+    <!-- 最近教案 -->
     <view class="section-title-row">
       <view class="section-left">
-        <Icon name="history" :size="18" :color="subjectColor" />
+        <Icon name="history" :size="18" color="#e14d2a" />
         <text class="section-title">{{ pageData.recentTitle }}</text>
       </view>
-      <text class="section-action" @tap="goLessonPlans">{{ isZh ? '查看全部' : 'View All' }}</text>
+      <view class="section-action-wrap" @tap="goLessonPlans">
+        <text class="section-action">{{ isZh ? '查看全部' : 'View All' }}</text>
+        <Icon name="chevron_right" :size="14" color="#94a3b8" />
+      </view>
     </view>
 
     <view class="feed-list">
@@ -66,18 +79,19 @@
       </view>
 
       <view v-else-if="!recentPlans.length" class="state-card">
-        <view class="empty-icon">
-          <Icon name="note_add" :size="40" :color="subjectColor" />
+        <view class="empty-icon-wrap">
+          <!-- 橙红色大加号文件 -->
+          <Icon name="post_add" :size="60" color="#e14d2a" />
         </view>
         <text class="state-text">{{ isZh ? '还没有教案，开始创建吧' : 'No plans yet' }}</text>
-        <view class="empty-btn" :style="{ background: subjectColor }" @tap="goPreparation">
-          <text class="empty-btn-text">{{ isZh ? 'AI 智能备课' : 'AI Preparation' }}</text>
+        <view class="empty-btn" @tap="goPreparation">
+          <text class="empty-btn-text">{{ isZh ? 'AI智能备课' : 'AI Preparation' }}</text>
         </view>
       </view>
 
       <view v-for="plan in recentPlans" :key="plan.$id" class="plan-card" @tap="goEditPlan(plan.$id)">
         <view class="plan-head">
-          <view class="plan-badge" :style="{ background: subjectColorLight, color: subjectColor }">
+          <view class="plan-badge">
             <text>{{ plan.subject || subjectLabel }}</text>
           </view>
           <view :class="['status-dot', `status-${plan.status}`]" />
@@ -222,41 +236,49 @@ onHide(() => {
 <style lang="scss" scoped>
 .teaching-page {
   min-height: 100vh;
-  padding: 16rpx 24rpx 176rpx;
+  padding: 16rpx 28rpx 176rpx;
   background: var(--page-bg);
   transition: background-color 0.2s ease;
 }
 
 .theme-light {
-  --page-bg: #f8f6f6;
+  --page-bg: linear-gradient(180deg, #fff8f6 0%, #ffffff 100%);
   --surface: #ffffff;
   --text-main: #0f172a;
   --text-sub: #64748b;
   --text-soft: #94a3b8;
-  --line: rgba(192, 0, 0, 0.12);
-  --topbar-bg: rgba(248, 246, 246, 0.9);
+  --line: rgba(225, 77, 42, 0.08);
+  --topbar-bg: rgba(255, 248, 246, 0.95);
+  --accent: #e14d2a;
+  --accent-soft: rgba(225, 77, 42, 0.08);
+  --card-shadow: 0 8rpx 24rpx rgba(225, 77, 42, 0.04), 0 2rpx 8rpx rgba(0, 0, 0, 0.01);
 }
 
 .theme-dark {
-  --page-bg: #1a1315;
-  --surface: rgba(26, 19, 21, 0.78);
+  --page-bg: linear-gradient(180deg, #1f1412 0%, #150f0e 100%);
+  --surface: #1e1513;
   --text-main: #f8fafc;
   --text-sub: #cbd5e1;
-  --text-soft: #94a3b8;
-  --line: rgba(192, 0, 0, 0.24);
-  --topbar-bg: rgba(26, 19, 21, 0.9);
+  --text-soft: #64748b;
+  --line: rgba(225, 77, 42, 0.16);
+  --topbar-bg: rgba(31, 20, 18, 0.95);
+  --accent: #ff6e4e;
+  --accent-soft: rgba(255, 110, 78, 0.12);
+  --card-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.16);
 }
 
 .top-bar {
   position: sticky;
   top: 0;
   z-index: 20;
-  height: 88rpx;
+  height: 96rpx;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  backdrop-filter: blur(14px);
+  backdrop-filter: blur(16px);
   background: var(--topbar-bg);
+  border-bottom: 1px solid rgba(225, 77, 42, 0.04);
+  margin-bottom: 12rpx;
 
   .left {
     display: flex;
@@ -266,8 +288,8 @@ onHide(() => {
 
   .title {
     color: var(--text-main);
-    font-size: 34rpx;
-    font-weight: 700;
+    font-size: 36rpx;
+    font-weight: 800;
   }
 
   .right {
@@ -279,78 +301,127 @@ onHide(() => {
 .subject-pill {
   display: flex;
   align-items: center;
-  gap: 4rpx;
-  padding: 8rpx 16rpx;
+  gap: 6rpx;
+  padding: 10rpx 24rpx;
   border-radius: 999rpx;
   background: var(--surface);
   border: 1px solid var(--line);
+  box-shadow: 0 2rpx 8rpx rgba(225, 77, 42, 0.03);
 
-  &:active { opacity: 0.7; }
+  &:active {
+    opacity: 0.8;
+  }
 }
 
 .subject-pill-text {
-  font-size: 24rpx;
+  font-size: 26rpx;
   font-weight: 600;
   color: var(--text-main);
 }
 
 .hero-card {
-  margin-top: 12rpx;
   position: relative;
-  overflow: hidden;
-  border-radius: 28rpx;
+  z-index: 1;
+  height: 272rpx;
+  border-radius: 36rpx;
+  padding: 32rpx 32rpx 32rpx 36rpx;
+  margin-bottom: 24rpx;
+  background-image: url('/static/teaching_banner_full.png');
+  background-size: cover;
+  background-position: right center;
+  background-repeat: no-repeat;
+  box-shadow: 0 8rpx 28rpx rgba(225, 77, 42, 0.08);
   border: 1px solid var(--line);
-  padding: 40rpx;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  transition: transform 0.15s ease;
+
+  &:active {
+    transform: scale(0.98);
+  }
 }
 
 .hero-content {
-  width: 70%;
+  width: 52%;
   display: flex;
   flex-direction: column;
-  gap: 14rpx;
   position: relative;
   z-index: 2;
 }
 
-.hero-title {
-  font-size: 44rpx;
-  line-height: 1.25;
-  font-weight: 700;
+.hero-title-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4rpx;
+  margin-bottom: 8rpx;
+}
+
+.hero-title-main {
+  font-size: 38rpx;
+  font-weight: 800;
   color: var(--text-main);
+  line-height: 1.2;
+}
+
+.hero-title-highlight {
+  font-size: 38rpx;
+  font-weight: 800;
+  color: var(--accent);
+  line-height: 1.2;
 }
 
 .hero-subtitle {
-  font-size: 24rpx;
+  font-size: 20rpx;
   color: var(--text-sub);
-  line-height: 1.5;
+  line-height: 1.4;
+  margin-bottom: 18rpx;
+  font-weight: 500;
+  white-space: nowrap;
 }
 
 .hero-button {
-  margin-top: 12rpx;
-  align-self: flex-start;
-  padding: 16rpx 40rpx;
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  padding: 10rpx 24rpx 10rpx 30rpx;
+  background: var(--accent);
   border-radius: 999rpx;
+  align-self: flex-start;
+  box-shadow: 0 6rpx 16rpx rgba(225, 77, 42, 0.2);
+  transition: all 0.2s ease;
+  height: 52rpx;
+  box-sizing: border-box;
 
-  &:active { opacity: 0.85; transform: scale(0.97); }
+  &:active {
+    transform: scale(0.96);
+    opacity: 0.9;
+  }
 }
 
 .hero-button-text {
   color: #ffffff;
-  font-size: 26rpx;
+  font-size: 24rpx;
   font-weight: 600;
+  line-height: 1;
 }
 
-.hero-icon {
-  position: absolute;
-  right: -20rpx;
-  top: 50%;
-  transform: translateY(-50%);
-  opacity: 0.35;
+.hero-btn-arrow {
+  width: 30rpx;
+  height: 30rpx;
+  border-radius: 50%;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
 .section-title-row {
-  margin-top: 32rpx;
-  margin-bottom: 16rpx;
+  margin-top: 44rpx;
+  margin-bottom: 24rpx;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -359,145 +430,211 @@ onHide(() => {
 .section-left {
   display: flex;
   align-items: center;
-  gap: 8rpx;
+  gap: 12rpx;
 }
 
 .section-title {
-  font-size: 30rpx;
-  font-weight: 700;
+  font-size: 32rpx;
+  font-weight: 800;
   color: var(--text-main);
+}
+
+.section-action-wrap {
+  display: flex;
+  align-items: center;
+  gap: 4rpx;
+  padding: 4rpx 8rpx;
+
+  &:active {
+    opacity: 0.7;
+  }
 }
 
 .section-action {
   font-size: 24rpx;
   color: var(--text-sub);
-
-  &:active { opacity: 0.7; }
+  font-weight: 500;
 }
 
 .quick-scroll {
   white-space: nowrap;
+  width: 100%;
 }
 
 .quick-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16rpx;
-
-  &.is-overflow {
-    display: flex;
-    gap: 16rpx;
-  }
+  display: flex;
+  gap: 20rpx;
+  padding: 4rpx 4rpx 20rpx 4rpx;
 }
 
 .quick-card {
-  border-radius: 20rpx;
-  border: 1px solid var(--line);
-  padding: 24rpx;
+  position: relative;
+  flex-shrink: 0;
+  width: 220rpx;
   background: var(--surface);
-  white-space: normal;
-  min-width: 200rpx;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  border-radius: 28rpx;
+  padding: 32rpx 24rpx 36rpx;
+  box-shadow: var(--card-shadow);
+  border: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
 
   &:active {
-    transform: scale(0.97);
+    transform: translateY(2rpx);
+    box-shadow: 0 4rpx 12rpx rgba(225, 77, 42, 0.02);
   }
 }
 
 .quick-head {
   display: flex;
-  align-items: center;
-  gap: 12rpx;
-  margin-bottom: 12rpx;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16rpx;
+  margin-bottom: 10rpx;
+  width: 100%;
 }
 
 .quick-icon {
-  width: 56rpx;
-  height: 56rpx;
-  border-radius: 14rpx;
+  width: 76rpx;
+  height: 76rpx;
+  border-radius: 20rpx;
+  background: var(--accent-soft);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .quick-title {
-  font-size: 26rpx;
-  font-weight: 600;
+  font-size: 28rpx;
+  font-weight: 700;
   color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
 }
 
 .quick-subtitle {
   font-size: 22rpx;
   color: var(--text-sub);
   line-height: 1.4;
+  white-space: normal;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  margin-bottom: 12rpx;
+  min-height: 62rpx;
+}
+
+.quick-card-arrow {
+  position: absolute;
+  right: 16rpx;
+  bottom: 16rpx;
+  width: 36rpx;
+  height: 36rpx;
+  border-radius: 50%;
+  background: rgba(225, 77, 42, 0.04);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease;
+}
+
+.quick-card:active .quick-card-arrow {
+  background: rgba(225, 77, 42, 0.12);
 }
 
 .feed-list {
   display: flex;
   flex-direction: column;
-  gap: 16rpx;
+  gap: 18rpx;
 }
 
 .state-card {
-  padding: 60rpx 24rpx;
-  border-radius: 20rpx;
-  border: 1px solid var(--line);
+  padding: 80rpx 40rpx;
+  border-radius: 32rpx;
   background: var(--surface);
+  box-shadow: var(--card-shadow);
+  border: 1px solid var(--line);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16rpx;
+  justify-content: center;
+  gap: 24rpx;
 }
 
-.state-text {
-  font-size: 26rpx;
-  color: var(--text-sub);
-}
-
-.empty-icon {
-  width: 80rpx;
-  height: 80rpx;
+.empty-icon-wrap {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  background: var(--accent-soft);
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-bottom: 8rpx;
+}
+
+.state-text {
+  font-size: 28rpx;
+  color: var(--text-sub);
+  font-weight: 500;
 }
 
 .empty-btn {
-  margin-top: 8rpx;
-  padding: 14rpx 36rpx;
+  margin-top: 12rpx;
+  padding: 20rpx 64rpx;
+  background: var(--accent);
   border-radius: 999rpx;
+  box-shadow: 0 8rpx 20rpx rgba(225, 77, 42, 0.25);
+  transition: all 0.2s ease;
 
-  &:active { opacity: 0.85; }
+  &:active {
+    transform: scale(0.96);
+    opacity: 0.9;
+  }
 }
 
 .empty-btn-text {
-  color: #fff;
-  font-size: 26rpx;
+  color: #ffffff;
+  font-size: 28rpx;
   font-weight: 600;
+  letter-spacing: 1rpx;
 }
 
 .plan-card {
-  padding: 24rpx;
-  border-radius: 20rpx;
-  border: 1px solid var(--line);
+  padding: 32rpx;
+  border-radius: 28rpx;
   background: var(--surface);
-  transition: transform 0.15s ease;
+  border: 1px solid var(--line);
+  box-shadow: var(--card-shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+  transition: all 0.2s ease;
 
-  &:active { transform: scale(0.98); }
+  &:active {
+    transform: translateY(2rpx);
+    box-shadow: 0 4rpx 12rpx rgba(225, 77, 42, 0.02);
+  }
 }
 
 .plan-head {
   display: flex;
   align-items: center;
-  gap: 8rpx;
-  margin-bottom: 10rpx;
+  gap: 12rpx;
 }
 
 .plan-badge {
   font-size: 20rpx;
-  font-weight: 600;
-  padding: 4rpx 14rpx;
-  border-radius: 999rpx;
+  font-weight: 700;
+  padding: 6rpx 16rpx;
+  border-radius: 8rpx;
+  background: var(--accent-soft);
+  color: var(--accent);
 
   text {
     font-size: 20rpx;
@@ -508,7 +645,6 @@ onHide(() => {
   width: 12rpx;
   height: 12rpx;
   border-radius: 50%;
-  margin-left: 8rpx;
 
   &.status-draft { background: #f59e0b; }
   &.status-published { background: #10b981; }
@@ -516,15 +652,16 @@ onHide(() => {
 }
 
 .plan-status {
-  font-size: 20rpx;
+  font-size: 22rpx;
   color: var(--text-soft);
+  font-weight: 500;
 }
 
 .plan-title {
   font-size: 30rpx;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--text-main);
-  margin-bottom: 8rpx;
+  line-height: 1.4;
 }
 
 .plan-meta {

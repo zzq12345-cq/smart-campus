@@ -63,6 +63,7 @@ import { computed, ref } from 'vue'
 import { onLoad, onShow } from '@dcloudio/uni-app'
 import { useAuthStore } from '@/stores/auth'
 import { useUiPreferencesStore } from '@/stores/ui-preferences'
+import { roleHomeUrl } from '@/utils/auth-guard'
 
 const uiPreferencesStore = useUiPreferencesStore()
 const authStore = useAuthStore()
@@ -119,8 +120,15 @@ function navigateToForgotPassword() {
 }
 
 function redirectAfterAuth() {
-  const target = redirectUrl.value || '/pages/mine/index'
-  const tabPages = ['/pages/study/index', '/pages/life/index', '/pages/psychology/index', '/pages/mine/index']
+  const explicit = redirectUrl.value && redirectUrl.value !== '/pages/mine/index'
+  const target = explicit ? redirectUrl.value : roleHomeUrl(authStore.isTeacher)
+  const tabPages = [
+    '/pages/study/index',
+    '/pages/teaching/index',
+    '/pages/life/index',
+    '/pages/psychology/index',
+    '/pages/mine/index'
+  ]
   const targetPath = target.split('?')[0]
   if (tabPages.includes(targetPath)) {
     uni.switchTab({

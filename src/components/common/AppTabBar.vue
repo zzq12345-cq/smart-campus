@@ -31,6 +31,7 @@ import { computed } from 'vue'
 import { t } from '@/i18n'
 import { I18N_KEYS } from '@/i18n/keys'
 import { useUiPreferencesStore } from '@/stores/ui-preferences'
+import { useAuthStore } from '@/stores/auth'
 import TTabBar from '@/uni_modules/tdesign-uniapp/components/tab-bar/tab-bar.vue'
 import TTabBarItem from '@/uni_modules/tdesign-uniapp/components/tab-bar-item/tab-bar-item.vue'
 
@@ -58,6 +59,7 @@ const emit = defineEmits<{
 }>()
 
 const uiPreferencesStore = useUiPreferencesStore()
+const authStore = useAuthStore()
 
 const activeColor = computed(() => SECTION_ACTIVE_COLOR[props.value] || '#4A90E2')
 
@@ -91,38 +93,44 @@ const tabBarVars = computed(() => {
   }
 })
 
-const list = computed<TabBarItemConfig[]>(() => [
-  {
+const list = computed<TabBarItemConfig[]>(() => {
+  const studyItem: TabBarItemConfig = {
     value: '/pages/study/index',
     icon: props.value === '/pages/study/index' ? 'ai-education-filled' : 'ai-education',
     ariaLabel: t(I18N_KEYS.tabStudy, uiPreferencesStore.locale),
     label: t(I18N_KEYS.tabStudy, uiPreferencesStore.locale)
-  },
-  {
-    value: '/pages/life/index',
-    icon: props.value === '/pages/life/index' ? 'app-filled' : 'app',
-    ariaLabel: t(I18N_KEYS.tabLife, uiPreferencesStore.locale),
-    label: t(I18N_KEYS.tabLife, uiPreferencesStore.locale)
-  },
-  {
+  }
+  const teachingItem: TabBarItemConfig = {
     value: '/pages/teaching/index',
     icon: props.value === '/pages/teaching/index' ? 'ai-book-open-filled' : 'ai-book-open',
     ariaLabel: uiPreferencesStore.locale === 'zh-CN' ? '教学' : 'Teaching',
     label: uiPreferencesStore.locale === 'zh-CN' ? '教学' : 'Teaching'
-  },
-  {
-    value: '/pages/psychology/index',
-    icon: props.value === '/pages/psychology/index' ? 'heart-filled' : 'heart',
-    ariaLabel: t(I18N_KEYS.tabPsychology, uiPreferencesStore.locale),
-    label: t(I18N_KEYS.tabPsychology, uiPreferencesStore.locale)
-  },
-  {
-    value: '/pages/mine/index',
-    icon: props.value === '/pages/mine/index' ? 'user-filled' : 'user',
-    ariaLabel: t(I18N_KEYS.tabMine, uiPreferencesStore.locale),
-    label: t(I18N_KEYS.tabMine, uiPreferencesStore.locale)
   }
-])
+  const sharedItems: TabBarItemConfig[] = [
+    {
+      value: '/pages/life/index',
+      icon: props.value === '/pages/life/index' ? 'app-filled' : 'app',
+      ariaLabel: t(I18N_KEYS.tabLife, uiPreferencesStore.locale),
+      label: t(I18N_KEYS.tabLife, uiPreferencesStore.locale)
+    },
+    {
+      value: '/pages/psychology/index',
+      icon: props.value === '/pages/psychology/index' ? 'heart-filled' : 'heart',
+      ariaLabel: t(I18N_KEYS.tabPsychology, uiPreferencesStore.locale),
+      label: t(I18N_KEYS.tabPsychology, uiPreferencesStore.locale)
+    },
+    {
+      value: '/pages/mine/index',
+      icon: props.value === '/pages/mine/index' ? 'user-filled' : 'user',
+      ariaLabel: t(I18N_KEYS.tabMine, uiPreferencesStore.locale),
+      label: t(I18N_KEYS.tabMine, uiPreferencesStore.locale)
+    }
+  ]
+  // 首格按角色：教师=教学，学生=学习；其余三项两端共享
+  return [authStore.isTeacher ? teachingItem : studyItem, ...sharedItems]
+})
+
+defineExpose({ list })
 
 function onChange(event: { value?: string } | string) {
   const nextValue = typeof event === 'string' ? event : String(event?.value || '')

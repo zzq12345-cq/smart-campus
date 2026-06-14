@@ -1,0 +1,7 @@
+dist
+unpackage
+node_modules
+src/uni_modules
+src/static
+server
+pnpm-lock.yaml

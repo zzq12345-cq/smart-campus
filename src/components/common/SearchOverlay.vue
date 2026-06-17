@@ -31,7 +31,9 @@
           v-for="tab in sectionTabs"
           :key="tab.value"
           :class="['tab-item', { active: activeSection === tab.value }]"
-          :style="activeSection === tab.value ? { color: tab.color, borderBottomColor: tab.color } : {}"
+          :style="
+            activeSection === tab.value ? { color: tab.color, borderBottomColor: tab.color } : {}
+          "
           @tap="switchSection(tab.value)"
         >
           <text class="tab-text">{{ tab.label }}</text>
@@ -52,14 +54,15 @@
           <text class="result-count">
             {{ t(I18N_KEYS.searchResultCount, locale, { count: results.length }) }}
           </text>
-          <view
-            v-for="item in results"
-            :key="item.$id"
-            class="result-card"
-            @tap="selectPost(item)"
-          >
+          <view v-for="item in results" :key="item.$id" class="result-card" @tap="selectPost(item)">
             <view class="result-top">
-              <view class="result-badge" :style="{ background: getSectionBadgeBg(item.section), color: getSectionBadgeColor(item.section) }">
+              <view
+                class="result-badge"
+                :style="{
+                  background: getSectionBadgeBg(item.section),
+                  color: getSectionBadgeColor(item.section),
+                }"
+              >
                 {{ getSectionLabel(item.section) }}
               </view>
               <text class="result-time">{{ formatTime(item.$createdAt) }}</text>
@@ -108,6 +111,7 @@
 import { computed, nextTick, ref, watch } from 'vue'
 import { t } from '@/i18n'
 import { I18N_KEYS } from '@/i18n/keys'
+import { readUniInputValue } from '@/types/uni-events'
 import postsService from '@/services/posts'
 import { useUiPreferencesStore } from '@/stores/ui-preferences'
 import type { Post, PostSection } from '@/types/post'
@@ -132,13 +136,13 @@ const DEBOUNCE_MS = 300
 const SECTION_COLORS: Record<string, { bg: string; color: string }> = {
   study: { bg: 'rgba(74, 144, 226, 0.16)', color: '#3f7dcb' },
   life: { bg: 'rgba(244, 157, 37, 0.18)', color: '#b45309' },
-  psychology: { bg: 'rgba(136, 111, 222, 0.16)', color: '#7359d3' }
+  psychology: { bg: 'rgba(136, 111, 222, 0.16)', color: '#7359d3' },
 }
 
 const TAB_COLORS: Record<string, string> = {
   study: '#4A90E2',
   life: '#f49d25',
-  psychology: '#886fde'
+  psychology: '#886fde',
 }
 
 const uiPreferencesStore = useUiPreferencesStore()
@@ -157,14 +161,30 @@ const history = ref<string[]>([])
 let debounceTimer: ReturnType<typeof setTimeout> | null = null
 
 const overlayVars = computed(() => ({
-  '--accent': props.accentColor
+  '--accent': props.accentColor,
 }))
 
 const sectionTabs = computed(() => [
-  { value: 'study' as SectionFilter, label: t(I18N_KEYS.tabStudy, locale.value), color: TAB_COLORS.study },
-  { value: 'life' as SectionFilter, label: t(I18N_KEYS.tabLife, locale.value), color: TAB_COLORS.life },
-  { value: 'psychology' as SectionFilter, label: t(I18N_KEYS.tabPsychology, locale.value), color: TAB_COLORS.psychology },
-  { value: 'all' as SectionFilter, label: t(I18N_KEYS.searchAllSections, locale.value), color: props.accentColor }
+  {
+    value: 'study' as SectionFilter,
+    label: t(I18N_KEYS.tabStudy, locale.value),
+    color: TAB_COLORS.study,
+  },
+  {
+    value: 'life' as SectionFilter,
+    label: t(I18N_KEYS.tabLife, locale.value),
+    color: TAB_COLORS.life,
+  },
+  {
+    value: 'psychology' as SectionFilter,
+    label: t(I18N_KEYS.tabPsychology, locale.value),
+    color: TAB_COLORS.psychology,
+  },
+  {
+    value: 'all' as SectionFilter,
+    label: t(I18N_KEYS.searchAllSections, locale.value),
+    color: props.accentColor,
+  },
 ])
 
 function loadHistory() {
@@ -185,14 +205,18 @@ function saveHistory(term: string) {
   history.value = [trimmed, ...filtered].slice(0, MAX_HISTORY)
   try {
     uni.setStorageSync(STORAGE_KEY, history.value)
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
 }
 
 function clearHistory() {
   history.value = []
   try {
     uni.removeStorageSync(STORAGE_KEY)
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
 }
 
 function getSectionLabel(section?: PostSection | string) {
@@ -243,7 +267,7 @@ async function doSearch() {
       keyword: term,
       section: sectionFilter,
       status: 'published',
-      limit: 30
+      limit: 30,
     })
     results.value = list
     if (list.length > 0) {
@@ -257,8 +281,8 @@ async function doSearch() {
   }
 }
 
-function onInput(e: { detail?: { value?: string } }) {
-  keyword.value = String(e.detail?.value || '')
+function onInput(e: InputEvent) {
+  keyword.value = readUniInputValue(e)
   if (debounceTimer) clearTimeout(debounceTimer)
   debounceTimer = setTimeout(doSearch, DEBOUNCE_MS)
 }
@@ -322,7 +346,7 @@ watch(
       animReady.value = false
       inputFocused.value = false
     }
-  }
+  },
 )
 </script>
 
@@ -381,7 +405,9 @@ watch(
   flex-direction: column;
   transform: translateY(-100%);
   opacity: 0;
-  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.22s ease;
+  transition:
+    transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.22s ease;
 
   &.active {
     transform: translateY(0);

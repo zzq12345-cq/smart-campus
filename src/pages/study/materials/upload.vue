@@ -150,33 +150,37 @@ const iconColor = computed(() => (uiPreferencesStore.theme === 'light' ? '#47556
 const isZh = computed(() => uiPreferencesStore.locale === 'zh-CN')
 
 const pageTitle = computed(() => (isZh.value ? '上传资料' : 'Upload Material'))
-const heroTitle = computed(() => (isZh.value ? '分享知识，共同进步' : 'Share knowledge, grow together'))
+const heroTitle = computed(() =>
+  isZh.value ? '分享知识，共同进步' : 'Share knowledge, grow together',
+)
 const heroSubtitle = computed(() =>
-  isZh.value ? '上传笔记、课件、真题等学习资料' : 'Upload notes, courseware, past exams and more'
+  isZh.value ? '上传笔记、课件、真题等学习资料' : 'Upload notes, courseware, past exams and more',
 )
 const titleLabel = computed(() => (isZh.value ? '资料标题' : 'Title'))
 const titlePlaceholder = computed(() =>
-  isZh.value ? '例如：高等数学期末复习笔记' : 'e.g. Calculus Final Review Notes'
+  isZh.value ? '例如：高等数学期末复习笔记' : 'e.g. Calculus Final Review Notes',
 )
 const subjectLabel = computed(() => (isZh.value ? '课程/科目' : 'Subject'))
 const subjectPlaceholder = computed(() =>
-  isZh.value ? '例如：高等数学' : 'e.g. Advanced Mathematics'
+  isZh.value ? '例如：高等数学' : 'e.g. Advanced Mathematics',
 )
 const descLabel = computed(() => (isZh.value ? '资料描述' : 'Description'))
 const descPlaceholder = computed(() =>
-  isZh.value ? '描述资料内容、适用范围等信息...' : 'Describe the content, scope, etc...'
+  isZh.value ? '描述资料内容、适用范围等信息...' : 'Describe the content, scope, etc...',
 )
 const typeLabel = computed(() => (isZh.value ? '资料类型' : 'Type'))
 const fileLabel = computed(() => (isZh.value ? '文件' : 'Files'))
 const fileCountLabel = computed(() =>
   isZh.value
     ? `已选 ${draftFiles.value.length}/${MAX_FILES}`
-    : `${draftFiles.value.length}/${MAX_FILES} selected`
+    : `${draftFiles.value.length}/${MAX_FILES} selected`,
 )
 const addFileLabel = computed(() => (isZh.value ? '添加文件' : 'Add file'))
-const tagsLabel = computed(() => (isZh.value ? '标签（选填，逗号分隔）' : 'Tags (optional, comma separated)'))
+const tagsLabel = computed(() =>
+  isZh.value ? '标签（选填，逗号分隔）' : 'Tags (optional, comma separated)',
+)
 const tagsPlaceholder = computed(() =>
-  isZh.value ? '例如：期末,复习,重点' : 'e.g. final, review, key points'
+  isZh.value ? '例如：期末,复习,重点' : 'e.g. final, review, key points',
 )
 const submitLabel = computed(() => (isZh.value ? '上传资料' : 'Upload'))
 const publishingLabel = computed(() => (isZh.value ? '上传中...' : 'Uploading...'))
@@ -187,7 +191,7 @@ const typeOptions = computed(() => [
   { value: 'past_exam' as MaterialType, label: isZh.value ? '历年真题' : 'Past Exam' },
   { value: 'courseware' as MaterialType, label: isZh.value ? '课件' : 'Courseware' },
   { value: 'lab_report' as MaterialType, label: isZh.value ? '实验报告' : 'Lab Report' },
-  { value: 'other' as MaterialType, label: isZh.value ? '其他' : 'Other' }
+  { value: 'other' as MaterialType, label: isZh.value ? '其他' : 'Other' },
 ])
 
 const goBack = () => {
@@ -205,7 +209,7 @@ const chooseFiles = async () => {
   if (remainCount <= 0) {
     uni.showToast({
       title: isZh.value ? `最多 ${MAX_FILES} 个文件` : `Max ${MAX_FILES} files`,
-      icon: 'none'
+      icon: 'none',
     })
     return
   }
@@ -213,19 +217,21 @@ const chooseFiles = async () => {
   try {
     // #ifdef MP-WEIXIN
     const wxResult: any = await new Promise((resolve, reject) => {
-      ;(wx as any).chooseMessageFile({
+      ;(globalThis as any).wx.chooseMessageFile({
         count: remainCount,
         type: 'file',
-        success: resolve,
-        fail: reject
+        success: (res: unknown) => resolve(res),
+        fail: reject,
       })
     })
     const tempFiles = Array.isArray(wxResult.tempFiles) ? wxResult.tempFiles : []
-    const selected: DraftFile[] = tempFiles.map((f: any) => ({
-      name: f.name || 'file',
-      path: f.path || '',
-      size: f.size
-    })).filter((f: DraftFile) => f.path)
+    const selected: DraftFile[] = tempFiles
+      .map((f: any) => ({
+        name: f.name || 'file',
+        path: f.path || '',
+        size: f.size,
+      }))
+      .filter((f: DraftFile) => f.path)
     if (selected.length) {
       draftFiles.value = [...draftFiles.value, ...selected].slice(0, MAX_FILES)
     }
@@ -244,7 +250,7 @@ const chooseFiles = async () => {
           name: files[i].name,
           path: URL.createObjectURL(files[i]),
           file: files[i],
-          size: files[i].size
+          size: files[i].size,
         })
       }
       if (selected.length) {
@@ -259,15 +265,17 @@ const chooseFiles = async () => {
       ;(uni as any).chooseFile?.({
         count: remainCount,
         success: resolve,
-        fail: reject
+        fail: reject,
       })
     })
     const appFiles = Array.isArray(result.tempFiles) ? result.tempFiles : []
-    const appSelected: DraftFile[] = appFiles.map((f: any) => ({
-      name: f.name || 'file',
-      path: f.path || f.tempFilePath || '',
-      size: f.size
-    })).filter((f: DraftFile) => f.path)
+    const appSelected: DraftFile[] = appFiles
+      .map((f: any) => ({
+        name: f.name || 'file',
+        path: f.path || f.tempFilePath || '',
+        size: f.size,
+      }))
+      .filter((f: DraftFile) => f.path)
     if (appSelected.length) {
       draftFiles.value = [...draftFiles.value, ...appSelected].slice(0, MAX_FILES)
     }
@@ -277,7 +285,7 @@ const chooseFiles = async () => {
     if (/cancel/i.test(msg)) return
     uni.showToast({
       title: isZh.value ? '选择文件失败' : 'Failed to choose files',
-      icon: 'none'
+      icon: 'none',
     })
   }
 }
@@ -313,7 +321,7 @@ const uploadFiles = async (): Promise<{ ids: string[]; names: string[] }> => {
     const created = await runtimeStorage.createFile({
       bucketId,
       fileId: ID.unique(),
-      file: fileToUpload
+      file: fileToUpload,
     })
     const fileId = (created?.$id || created?.id || '').trim()
     if (!fileId) {
@@ -357,14 +365,17 @@ const handleSubmit = async () => {
 
   const description = draftDesc.value.trim()
   if (!description) {
-    uni.showToast({ title: isZh.value ? '请输入资料描述' : 'Please enter description', icon: 'none' })
+    uni.showToast({
+      title: isZh.value ? '请输入资料描述' : 'Please enter description',
+      icon: 'none',
+    })
     return
   }
 
   if (!draftFiles.value.length) {
     uni.showToast({
       title: isZh.value ? '请至少添加一个文件' : 'Please add at least one file',
-      icon: 'none'
+      icon: 'none',
     })
     return
   }
@@ -384,7 +395,7 @@ const handleSubmit = async () => {
       materialType: draftType.value,
       fileIds: ids,
       fileNames: names,
-      tags
+      tags,
     })
     resetDraft()
     uni.showToast({ title: isZh.value ? '上传成功' : 'Uploaded', icon: 'success' })
@@ -393,7 +404,7 @@ const handleSubmit = async () => {
     const message = error instanceof Error ? error.message : String(error)
     uni.showToast({
       title: message || (isZh.value ? '上传失败' : 'Upload failed'),
-      icon: 'none'
+      icon: 'none',
     })
   } finally {
     submitting.value = false
@@ -652,7 +663,7 @@ onShow(async () => {
 
 .submit-btn {
   border-radius: 16rpx;
-  background: linear-gradient(135deg, #4A90E2, #2563eb);
+  background: linear-gradient(135deg, #4a90e2, #2563eb);
   padding: 14rpx 36rpx;
   box-shadow: 0 8rpx 18rpx rgba(74, 144, 226, 0.3);
 }

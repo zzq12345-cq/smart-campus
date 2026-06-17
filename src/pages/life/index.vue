@@ -100,15 +100,15 @@
         </view>
         <text class="feed-content">{{ post.content }}</text>
         <!-- 图片展示，支持单张、两张和多张图的网格渲染 -->
-        <view 
-          v-if="post.images.length" 
+        <view
+          v-if="post.images.length"
           :class="[
-            'feed-images', 
-            { 
-              single: post.images.length === 1, 
-              double: post.images.length === 2, 
-              triple: post.images.length >= 3 
-            }
+            'feed-images',
+            {
+              single: post.images.length === 1,
+              double: post.images.length === 2,
+              triple: post.images.length >= 3,
+            },
           ]"
         >
           <view
@@ -125,7 +125,11 @@
         </view>
         <!-- 卡片底部作者信息与操作 -->
         <view class="feed-footer">
-          <view class="author" :class="{ clickable: !post.isAnonymous && post.authorId }" @tap.stop="goAuthorProfile(post)">
+          <view
+            class="author"
+            :class="{ clickable: !post.isAnonymous && post.authorId }"
+            @tap.stop="goAuthorProfile(post)"
+          >
             <view class="author-avatar">
               <image
                 v-if="post.avatar"
@@ -134,17 +138,16 @@
                 mode="aspectFill"
                 lazy-load
               />
-              <Icon
-                v-else
-                name="person"
-                :size="14"
-                color="#94a3b8"
-              />
+              <Icon v-else name="person" :size="14" color="#94a3b8" />
             </view>
             <text class="author-text">{{ post.user }}</text>
           </view>
           <view class="feed-actions">
-            <view class="action-item" :class="{ active: post.isLiked }" @tap.stop="handleLike(post)">
+            <view
+              class="action-item"
+              :class="{ active: post.isLiked }"
+              @tap.stop="handleLike(post)"
+            >
               <Icon name="favorite" :size="16" :color="post.isLiked ? '#F43F5E' : '#94a3b8'" />
               <text class="footer-text">{{ post.likeCount }}</text>
             </view>
@@ -152,7 +155,11 @@
               <Icon name="chat_bubble" :size="16" color="#94a3b8" />
               <text class="footer-text">{{ post.commentCount }}</text>
             </view>
-            <view class="action-item compact" :class="{ saved: post.isSaved }" @tap.stop="handleSave(post)">
+            <view
+              class="action-item compact"
+              :class="{ saved: post.isSaved }"
+              @tap.stop="handleSave(post)"
+            >
               <Icon name="bookmark" :size="16" :color="post.isSaved ? '#F59E0B' : '#94a3b8'" />
               <text class="footer-text">{{ post.isSaved ? savedLabel : saveLabel }}</text>
             </view>
@@ -183,6 +190,7 @@ import { Query } from 'appwrite'
 import { computed, ref } from 'vue'
 import { onHide, onShow } from '@dcloudio/uni-app'
 import { I18N_KEYS } from '@/i18n/keys'
+import type { I18nKey } from '@/i18n/keys'
 import { t } from '@/i18n'
 import { getPageData as getLifePageData } from '@/mocks/pages/life'
 import postsService from '@/services/posts'
@@ -228,8 +236,13 @@ interface LifeFeedPost {
 
 const authStore = useAuthStore()
 const uiPreferencesStore = useUiPreferencesStore()
-const { totalUnreadCount, refreshUnreadCount, startAutoRefresh, stopAutoRefresh } = useConversations()
-const { totalUnreadCount: notifUnreadCount, startCountPolling, stopCountPolling } = useNotifications()
+const { totalUnreadCount, refreshUnreadCount, startAutoRefresh, stopAutoRefresh } =
+  useConversations()
+const {
+  totalUnreadCount: notifUnreadCount,
+  startCountPolling,
+  stopCountPolling,
+} = useNotifications()
 
 const themeClass = computed(() => `theme-${uiPreferencesStore.theme}`)
 const pageData = computed(() => getLifePageData(uiPreferencesStore.locale))
@@ -238,9 +251,11 @@ const iconColor = computed(() => (uiPreferencesStore.theme === 'light' ? '#33415
 const hasQuickOverflow = computed(() => pageData.value.quickActions.length > 4)
 const isTabBarVisible = ref(false)
 const showSearch = ref(false)
-const visibleUnreadCount = computed(() => (authStore.isLoggedIn ? totalUnreadCount.value + notifUnreadCount.value : 0))
+const visibleUnreadCount = computed(() =>
+  authStore.isLoggedIn ? totalUnreadCount.value + notifUnreadCount.value : 0,
+)
 const notificationBadgeText = computed(() =>
-  visibleUnreadCount.value > 99 ? '99+' : String(visibleUnreadCount.value)
+  visibleUnreadCount.value > 99 ? '99+' : String(visibleUnreadCount.value),
 )
 const posts = ref<LifeFeedPost[]>([])
 const loadingPosts = ref(false)
@@ -281,12 +296,12 @@ const formatRelativeTime = (rawTime?: string) => {
 }
 
 const topicLabel = (topic?: string) => {
-  const map: Record<LifeTopic, I18N_KEYS> = {
+  const map: Record<LifeTopic, I18nKey> = {
     life_help: I18N_KEYS.lifeTopicLifeHelp,
     second_hand: I18N_KEYS.lifeTopicSecondHand,
     activity: I18N_KEYS.lifeTopicActivity,
     job: I18N_KEYS.lifeTopicJob,
-    rental: I18N_KEYS.lifeTopicRental
+    rental: I18N_KEYS.lifeTopicRental,
   }
   if (!isLifeTopic(topic)) {
     return t(I18N_KEYS.lifeTopicDefault, uiPreferencesStore.locale)
@@ -300,18 +315,17 @@ const resolveAuthorNames = async (list: Post[]) => {
       list
         .filter((item) => !item.isAnonymous)
         .map((item) => String(item.authorId || '').trim())
-        .filter(Boolean)
-    )
+        .filter(Boolean),
+    ),
   )
   if (!ids.length) {
     return
   }
   try {
-    const result = await tablesDB.listRows(
-      MINDGUARD_DATABASE_ID,
-      USERS_TABLE_ID,
-      [Query.equal('$id', ids), Query.limit(ids.length)]
-    )
+    const result = await tablesDB.listRows(MINDGUARD_DATABASE_ID, USERS_TABLE_ID, [
+      Query.equal('$id', ids),
+      Query.limit(ids.length),
+    ])
     const resolvedNameMap: Record<string, string> = {}
     const resolvedAvatarMap: Record<string, string> = {}
     for (const row of result.rows || []) {
@@ -327,11 +341,11 @@ const resolveAuthorNames = async (list: Post[]) => {
     }
     authorNameMap.value = {
       ...authorNameMap.value,
-      ...resolvedNameMap
+      ...resolvedNameMap,
     }
     authorAvatarMap.value = {
       ...authorAvatarMap.value,
-      ...resolvedAvatarMap
+      ...resolvedAvatarMap,
     }
   } catch (error) {
     console.error('Resolve life author names failed:', error)
@@ -342,16 +356,24 @@ const mapPostToFeedItem = (post: Post): LifeFeedPost => {
   const anonymousLabel = t(I18N_KEYS.commonAnonymous, uiPreferencesStore.locale)
   const defaultUserLabel = t(I18N_KEYS.commonCampusUser, uiPreferencesStore.locale)
   const authorId = String(post.authorId || '').trim()
-  const user = post.isAnonymous ? anonymousLabel : authorNameMap.value[authorId] || authorId || defaultUserLabel
+  const user = post.isAnonymous
+    ? anonymousLabel
+    : authorNameMap.value[authorId] || authorId || defaultUserLabel
   const avatar = post.isAnonymous ? '' : authorAvatarMap.value[authorId] || ''
   const images = Array.isArray(post.images)
-    ? post.images.filter((item): item is string => typeof item === 'string' && item.trim().length > 0)
+    ? post.images.filter(
+        (item): item is string => typeof item === 'string' && item.trim().length > 0,
+      )
     : []
   const imageCount = images.length
   const isLiked = Boolean((post as { isLiked?: unknown }).isLiked)
-  const likeInteractionId = String((post as { likeInteractionId?: unknown }).likeInteractionId || '')
+  const likeInteractionId = String(
+    (post as { likeInteractionId?: unknown }).likeInteractionId || '',
+  )
   const isSaved = Boolean((post as { isSaved?: unknown }).isSaved)
-  const saveInteractionId = String((post as { saveInteractionId?: unknown }).saveInteractionId || '')
+  const saveInteractionId = String(
+    (post as { saveInteractionId?: unknown }).saveInteractionId || '',
+  )
   return {
     id: String(post.$id || ''),
     authorId,
@@ -374,16 +396,15 @@ const mapPostToFeedItem = (post: Post): LifeFeedPost => {
     likePending: false,
     isSaved,
     saveInteractionId,
-    savePending: false
+    savePending: false,
   }
 }
-
 
 const QUICK_ACTION_ROUTES: Record<string, string> = {
   storefront: '/pages/life/market/index',
   celebration: '/pages/life/events/index',
   work: '/pages/life/jobs/index',
-  meeting_room: '/pages/life/venues/index'
+  meeting_room: '/pages/life/venues/index',
 }
 
 const iconAccentColor = (icon: string) => {
@@ -391,7 +412,7 @@ const iconAccentColor = (icon: string) => {
     storefront: '#e28704',
     celebration: '#e2ab04',
     work: '#e28704',
-    meeting_room: '#e28704'
+    meeting_room: '#e28704',
   }
   return colors[icon] || '#e28704'
 }
@@ -408,7 +429,7 @@ const handleQuickAction = (icon: string) => {
 const handleCommonAction = () => {
   uni.showToast({
     title: t(I18N_KEYS.commonComingSoon, uiPreferencesStore.locale),
-    icon: 'none'
+    icon: 'none',
   })
 }
 
@@ -421,7 +442,7 @@ const openMessagesCenter = () => {
     return
   }
   uni.navigateTo({
-    url: '/pages/messages/index'
+    url: '/pages/messages/index',
   })
 }
 
@@ -429,7 +450,7 @@ const onSearchSelectPost = (payload: { postId: string; section: PostSection }) =
   showSearch.value = false
   if (!payload.postId) return
   uni.navigateTo({
-    url: `/pages/${payload.section}/post-detail?id=${encodeURIComponent(payload.postId)}`
+    url: `/pages/${payload.section}/post-detail?id=${encodeURIComponent(payload.postId)}`,
   })
 }
 
@@ -438,7 +459,7 @@ const goPublishPage = () => {
     return
   }
   uni.navigateTo({
-    url: '/pages/life/post-publish'
+    url: '/pages/life/post-publish',
   })
 }
 
@@ -446,7 +467,7 @@ const handleLike = async (post: LifeFeedPost) => {
   if (!authStore.isLoggedIn) {
     uni.showToast({
       title: isZh.value ? '请先登录' : 'Please login first',
-      icon: 'none'
+      icon: 'none',
     })
     redirectToLogin()
     return
@@ -465,21 +486,15 @@ const handleLike = async (post: LifeFeedPost) => {
   post.likeCount = Math.max(0, prevCount + (post.isLiked ? 1 : -1))
 
   uni.showToast({
-    title: post.isLiked
-      ? isZh.value
-        ? '温暖 +1'
-        : 'Liked'
-      : isZh.value
-        ? '已取消'
-        : 'Unliked',
-    icon: 'none'
+    title: post.isLiked ? (isZh.value ? '温暖 +1' : 'Liked') : isZh.value ? '已取消' : 'Unliked',
+    icon: 'none',
   })
 
   try {
     const result = await postInteractionsService.setMyLikeState(
       post.id,
       post.isLiked,
-      prevInteractionId
+      prevInteractionId,
     )
 
     if (typeof result?.liked === 'boolean') {
@@ -501,7 +516,7 @@ const handleLike = async (post: LifeFeedPost) => {
           title: isZh.value
             ? '点赞已记录，但无权限更新计数'
             : 'Like recorded but no permission to update count',
-          icon: 'none'
+          icon: 'none',
         })
       }, 350)
     }
@@ -513,7 +528,7 @@ const handleLike = async (post: LifeFeedPost) => {
     const errorMessage = error instanceof Error ? error.message : String(error)
     uni.showToast({
       title: errorMessage || (isZh.value ? '操作失败' : 'Operation failed'),
-      icon: 'none'
+      icon: 'none',
     })
   } finally {
     post.likePending = false
@@ -524,7 +539,7 @@ const handleSave = async (post: LifeFeedPost) => {
   if (!authStore.isLoggedIn) {
     uni.showToast({
       title: isZh.value ? '请先登录' : 'Please login first',
-      icon: 'none'
+      icon: 'none',
     })
     redirectToLogin()
     return
@@ -541,21 +556,15 @@ const handleSave = async (post: LifeFeedPost) => {
   post.isSaved = !prevSaved
 
   uni.showToast({
-    title: post.isSaved
-      ? isZh.value
-        ? '已收藏'
-        : 'Saved'
-      : isZh.value
-        ? '已取消收藏'
-        : 'Unsaved',
-    icon: 'none'
+    title: post.isSaved ? (isZh.value ? '已收藏' : 'Saved') : isZh.value ? '已取消收藏' : 'Unsaved',
+    icon: 'none',
   })
 
   try {
     const result = await postInteractionsService.setMySaveState(
       post.id,
       post.isSaved,
-      prevInteractionId
+      prevInteractionId,
     )
 
     if (typeof result?.saved === 'boolean') {
@@ -571,7 +580,7 @@ const handleSave = async (post: LifeFeedPost) => {
     const errorMessage = error instanceof Error ? error.message : String(error)
     uni.showToast({
       title: errorMessage || (isZh.value ? '操作失败' : 'Operation failed'),
-      icon: 'none'
+      icon: 'none',
     })
   } finally {
     post.savePending = false
@@ -584,14 +593,14 @@ const previewPostImages = (images: string[], current: string) => {
   }
   uni.previewImage({
     urls: images,
-    current
+    current,
   })
 }
 
 const goAuthorProfile = (post: LifeFeedPost) => {
   if (post.isAnonymous || !post.authorId) return
   uni.navigateTo({
-    url: `/pages/profile/index?userId=${encodeURIComponent(post.authorId)}`
+    url: `/pages/profile/index?userId=${encodeURIComponent(post.authorId)}`,
   })
 }
 
@@ -604,7 +613,7 @@ const goPostDetail = (postId: string, focusComment = false) => {
     query.push('focus=comment')
   }
   uni.navigateTo({
-    url: `/pages/life/post-detail?${query.join('&')}`
+    url: `/pages/life/post-detail?${query.join('&')}`,
   })
 }
 
@@ -625,7 +634,7 @@ const loadLifePosts = async (force = false) => {
     const result = await postsService.getPublicPosts({
       section: 'life',
       status: 'published',
-      limit: 50
+      limit: 50,
     })
     const visiblePosts = result.filter((post) => isLifeTopic(String(post.topic || '')))
 
@@ -633,7 +642,7 @@ const loadLifePosts = async (force = false) => {
       const postIds = visiblePosts.map((item) => item.$id)
       const [likeMap, saveMap] = await Promise.all([
         postInteractionsService.getMyLikesForPosts(postIds),
-        postInteractionsService.getMySavesForPosts(postIds)
+        postInteractionsService.getMySavesForPosts(postIds),
       ])
       visiblePosts.forEach((item) => {
         const like = likeMap.get(item.$id)
@@ -651,7 +660,7 @@ const loadLifePosts = async (force = false) => {
 
     await resolveAuthorNames(visiblePosts)
     const feedItems = visiblePosts.map(mapPostToFeedItem)
-    
+
     // 注入效果图里的精美 Mock 帖子
     const mockPost: LifeFeedPost = {
       id: 'mock-music-festival-post',
@@ -659,8 +668,8 @@ const loadLifePosts = async (force = false) => {
       isAnonymous: true,
       badge: isZh.value ? '校园活动' : 'Campus Event',
       time: isZh.value ? '99天前' : '99 days ago',
-      content: isZh.value 
-        ? '周末草坪音乐夜招募志愿者，负责签到与秩序维护。' 
+      content: isZh.value
+        ? '周末草坪音乐夜招募志愿者，负责签到与秩序维护。'
         : 'Volunteers wanted for the weekend lawn music night, responsible for check-in and order maintenance.',
       user: isZh.value ? '匿名用户' : 'Anonymous User',
       avatar: '',
@@ -669,7 +678,7 @@ const loadLifePosts = async (force = false) => {
       commentCount: 8,
       images: [
         'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=80',
-        'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=600&q=80'
+        'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=600&q=80',
       ],
       imageCount: 2,
       imageLabel: isZh.value ? '2 图' : '2 Images',
@@ -678,7 +687,7 @@ const loadLifePosts = async (force = false) => {
       likePending: false,
       isSaved: false,
       saveInteractionId: '',
-      savePending: false
+      savePending: false,
     }
 
     posts.value = [mockPost, ...feedItems]
@@ -690,7 +699,7 @@ const loadLifePosts = async (force = false) => {
       postsError.value = t(I18N_KEYS.commonLoadError, uiPreferencesStore.locale)
       uni.showToast({
         title: postsError.value,
-        icon: 'none'
+        icon: 'none',
       })
     }
   } finally {
@@ -703,7 +712,7 @@ const hideNativeTabBar = () => {
     return
   }
   uni.hideTabBar({
-    animation: false
+    animation: false,
   })
 }
 
@@ -769,13 +778,13 @@ onHide(() => {
 .theme-dark {
   --page-bg: linear-gradient(180deg, #1e1b10 0%, #221a10 35%, #15131f 100%);
   --glass-bg: rgba(30, 41, 59, 0.55);
-  --glass-border: rgba(255, 255, 255, 0.10);
-  --glass-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.20);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.2);
   --surface: rgba(30, 41, 59, 0.75);
   --text-main: #f8fafc;
   --text-sub: #d1d5db;
   --text-soft: #9ca3af;
-  --line: rgba(255, 255, 255, 0.10);
+  --line: rgba(255, 255, 255, 0.1);
   --topbar-bg: transparent;
 }
 
@@ -886,7 +895,7 @@ onHide(() => {
   border: 1rpx solid var(--line);
   box-shadow: 0 6rpx 18rpx rgba(0, 0, 0, 0.02);
   transition: transform 0.2s ease;
-  
+
   &:active {
     transform: scale(0.98);
   }
@@ -900,11 +909,19 @@ onHide(() => {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  
-  &.storefront { background: rgba(244, 157, 37, 0.08); }
-  &.celebration { background: rgba(234, 179, 8, 0.10); }
-  &.work { background: rgba(244, 157, 37, 0.08); }
-  &.meeting_room { background: rgba(244, 157, 37, 0.08); }
+
+  &.storefront {
+    background: rgba(244, 157, 37, 0.08);
+  }
+  &.celebration {
+    background: rgba(234, 179, 8, 0.1);
+  }
+  &.work {
+    background: rgba(244, 157, 37, 0.08);
+  }
+  &.meeting_room {
+    background: rgba(244, 157, 37, 0.08);
+  }
 }
 
 .quick-info {
@@ -955,7 +972,7 @@ onHide(() => {
   display: flex;
   align-items: center;
   gap: 4rpx;
-  
+
   &:active {
     opacity: 0.7;
   }
@@ -1025,26 +1042,26 @@ onHide(() => {
   margin-top: 18rpx;
   display: grid;
   gap: 12rpx;
-  
+
   &.single {
     grid-template-columns: minmax(0, 1fr);
-    
+
     .feed-image-wrap {
       height: 320rpx;
     }
   }
-  
+
   &.double {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    
+
     .feed-image-wrap {
       height: 220rpx;
     }
   }
-  
+
   &.triple {
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    
+
     .feed-image-wrap {
       height: 176rpx;
     }
@@ -1143,7 +1160,7 @@ onHide(() => {
 }
 
 .action-item.active .footer-text {
-  color: #F43F5E;
+  color: #f43f5e;
 }
 
 .action-item.saved .footer-text {

@@ -84,7 +84,7 @@ export async function register(email: string, password: string, name: string) {
       email: authUser.email,
       name: authUser.name,
     },
-    dbUser: sanitizeDbUser(dbUser as DbUser),
+    dbUser: sanitizeDbUser(dbUser as unknown as DbUser),
   }
 }
 
@@ -102,7 +102,7 @@ export async function login(email: string, password: string) {
   let dbUser: DbUser
   try {
     const doc = await getDocument(USERS_TABLE_ID, authUser.$id)
-    dbUser = doc as DbUser
+    dbUser = doc as unknown as DbUser
   } catch {
     // 如果 users 表还没有记录，创建一个
     try {
@@ -123,7 +123,7 @@ export async function login(email: string, password: string) {
         authUser.$id,
         buildUserPermissions(authUser.$id)
       )
-      dbUser = doc as DbUser
+      dbUser = doc as unknown as DbUser
     } catch {
       dbUser = {
         $id: authUser.$id,
@@ -165,7 +165,7 @@ export async function login(email: string, password: string) {
  */
 export async function getCurrentUser(userId: string) {
   const dbUser = await getDocument(USERS_TABLE_ID, userId)
-  return sanitizeDbUser(dbUser as DbUser)
+  return sanitizeDbUser(dbUser as unknown as DbUser)
 }
 
 /**
@@ -193,7 +193,7 @@ export async function updateProfile(
   }
 
   const updated = await updateDocument(USERS_TABLE_ID, userId, data)
-  return sanitizeDbUser(updated as DbUser)
+  return sanitizeDbUser(updated as unknown as DbUser)
 }
 
 /**

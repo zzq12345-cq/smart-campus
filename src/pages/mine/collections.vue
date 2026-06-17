@@ -142,7 +142,10 @@
 
           <text class="post-content">{{ post.content }}</text>
 
-          <view v-if="post.images.length" :class="['post-images', { single: post.images.length === 1 }]">
+          <view
+            v-if="post.images.length"
+            :class="['post-images', { single: post.images.length === 1 }]"
+          >
             <view
               v-for="(image, index) in post.images.slice(0, 3)"
               :key="`${post.id}-${image}-${index}`"
@@ -166,18 +169,17 @@
                   mode="aspectFill"
                   lazy-load
                 />
-                <Icon
-                  v-else
-                  name="person"
-                  :size="14"
-                  color="#94a3b8"
-                />
+                <Icon v-else name="person" :size="14" color="#94a3b8" />
               </view>
               <text class="author-text">{{ post.user }}</text>
             </view>
 
             <view class="feed-actions">
-              <view class="action-item" :class="{ active: post.isLiked }" @tap.stop="handleLike(post)">
+              <view
+                class="action-item"
+                :class="{ active: post.isLiked }"
+                @tap.stop="handleLike(post)"
+              >
                 <Icon name="favorite" :size="16" :color="post.isLiked ? '#F43F5E' : '#94a3b8'" />
                 <text class="footer-text">{{ post.likeCount }}</text>
               </view>
@@ -216,7 +218,7 @@ import {
   MINDGUARD_DATABASE_ID,
   POST_INTERACTIONS_TABLE_ID,
   POSTS_TABLE_ID,
-  USERS_TABLE_ID
+  USERS_TABLE_ID,
 } from '@/utils/appwrite-shared'
 
 type SectionFilter = 'all' | PostSection
@@ -253,23 +255,23 @@ interface CollectionPostItem {
 const SECTION_META: Record<PostSection, { icon: string; color: string }> = {
   study: {
     icon: 'school',
-    color: '#4A90E2'
+    color: '#4A90E2',
   },
   life: {
     icon: 'shopping_bag',
-    color: '#F49D25'
+    color: '#F49D25',
   },
   psychology: {
     icon: 'spa',
-    color: '#886FDE'
-  }
+    color: '#886FDE',
+  },
 }
 
 const STUDY_TOPICS: Record<string, [string, string]> = {
   course_review: ['课程复盘', 'Course Review'],
   exam_info: ['考试信息', 'Exam Info'],
   learning_material: ['学习资料', 'Materials'],
-  competition: ['竞赛', 'Competition']
+  competition: ['竞赛', 'Competition'],
 }
 
 const LIFE_TOPICS: Record<string, [string, string]> = {
@@ -277,7 +279,7 @@ const LIFE_TOPICS: Record<string, [string, string]> = {
   second_hand: ['二手交易', 'Second Hand'],
   activity: ['校园活动', 'Activity'],
   job: ['兼职就业', 'Job'],
-  rental: ['租房信息', 'Rental']
+  rental: ['租房信息', 'Rental'],
 }
 
 const PSYCHOLOGY_TOPICS: Record<string, [string, string]> = {
@@ -285,7 +287,7 @@ const PSYCHOLOGY_TOPICS: Record<string, [string, string]> = {
   mood: ['心情', 'Mood'],
   relationship: ['关系', 'Relationship'],
   future: ['未来', 'Future'],
-  night: ['夜谈', 'Night Talk']
+  night: ['夜谈', 'Night Talk'],
 }
 
 const authStore = useAuthStore()
@@ -313,20 +315,22 @@ const heroTitle = computed(() => localeText('我的收藏中枢', 'My Saved Hub'
 const heroSubtitle = computed(() =>
   localeText(
     '统一整理学习、生活、心理三个分区收藏，快速回看高价值帖子。',
-    'Review saved posts across study, life, and psychology in one place.'
-  )
+    'Review saved posts across study, life, and psychology in one place.',
+  ),
 )
 const listTitle = computed(() => localeText('收藏帖子列表', 'Saved Posts'))
 const filterSectionLabel = computed(() => localeText('来源分区', 'Source Section'))
 const refreshLabel = computed(() => localeText('刷新', 'Refresh'))
-const loadingHint = computed(() => localeText('正在同步你的收藏记录…', 'Syncing your saved list...'))
+const loadingHint = computed(() =>
+  localeText('正在同步你的收藏记录…', 'Syncing your saved list...'),
+)
 const loadErrorTitle = computed(() => localeText('加载失败', 'Load failed'))
 const emptyTitle = computed(() => localeText('暂时没有收藏内容', 'No saved posts yet'))
 const emptySubtitle = computed(() =>
   localeText(
     '去学习/生活/心理分区点击收藏后，会出现在这里。',
-    'Save posts from any section and they will appear here.'
-  )
+    'Save posts from any section and they will appear here.',
+  ),
 )
 const unsaveLabel = computed(() => localeText('取消收藏', 'Unsave'))
 const loadingText = computed(() => t(I18N_KEYS.commonLoading, uiPreferencesStore.locale))
@@ -339,47 +343,49 @@ const sectionMetrics = computed(() =>
       icon: meta.icon,
       color: meta.color,
       title: sectionLabel(section),
-      count: savedPosts.value.filter((item) => item.section === section).length
+      count: savedPosts.value.filter((item) => item.section === section).length,
     }
-  })
+  }),
 )
 
 const filteredPosts = computed(() =>
   sectionFilter.value === 'all'
     ? savedPosts.value
-    : savedPosts.value.filter((item) => item.section === sectionFilter.value)
+    : savedPosts.value.filter((item) => item.section === sectionFilter.value),
 )
 
 const statItems = computed(() => [
   {
     label: localeText('收藏总数', 'Saved Total'),
-    value: String(savedPosts.value.length)
+    value: String(savedPosts.value.length),
   },
   {
     label: localeText('已筛选', 'Filtered'),
-    value: String(filteredPosts.value.length)
+    value: String(filteredPosts.value.length),
   },
   {
     label: localeText('学习占比', 'Study Share'),
     value: `${Math.round(
       savedPosts.value.length
-        ? (savedPosts.value.filter((item) => item.section === 'study').length / savedPosts.value.length) * 100
-        : 0
-    )}%`
-  }
+        ? (savedPosts.value.filter((item) => item.section === 'study').length /
+            savedPosts.value.length) *
+            100
+        : 0,
+    )}%`,
+  },
 ])
 
 const sectionFilters = computed(() => [
   {
     key: 'all' as const,
     label: localeText('全部', 'All'),
-    count: savedPosts.value.length
+    count: savedPosts.value.length,
   },
   ...sectionMetrics.value.map((item) => ({
     key: item.key,
     label: item.title,
-    count: item.count
-  }))
+    count: item.count,
+  })),
 ])
 
 const sectionPreviewItems = computed(() => [
@@ -388,22 +394,22 @@ const sectionPreviewItems = computed(() => [
     icon: SECTION_META.study.icon,
     color: SECTION_META.study.color,
     title: sectionLabel('study'),
-    subtitle: localeText('课程与资料', 'Courses & resources')
+    subtitle: localeText('课程与资料', 'Courses & resources'),
   },
   {
     key: 'life' as PostSection,
     icon: SECTION_META.life.icon,
     color: SECTION_META.life.color,
     title: sectionLabel('life'),
-    subtitle: localeText('活动与互助', 'Events & help')
+    subtitle: localeText('活动与互助', 'Events & help'),
   },
   {
     key: 'psychology' as PostSection,
     icon: SECTION_META.psychology.icon,
     color: SECTION_META.psychology.color,
     title: sectionLabel('psychology'),
-    subtitle: localeText('树洞与情绪', 'Mood & support')
-  }
+    subtitle: localeText('树洞与情绪', 'Mood & support'),
+  },
 ])
 
 const getSectionMeta = (section: PostSection) => SECTION_META[section]
@@ -429,7 +435,7 @@ function topicLabel(section: PostSection, topic?: string): string {
   const sectionTopicMap: Record<PostSection, Record<string, [string, string]>> = {
     study: STUDY_TOPICS,
     life: LIFE_TOPICS,
-    psychology: PSYCHOLOGY_TOPICS
+    psychology: PSYCHOLOGY_TOPICS,
   }
   const pair = sectionTopicMap[section][String(topic || '').trim()]
   if (pair) {
@@ -468,8 +474,8 @@ async function resolveAuthorProfiles(posts: Post[]) {
       posts
         .filter((item) => !item.isAnonymous)
         .map((item) => String(item.authorId || '').trim())
-        .filter(Boolean)
-    )
+        .filter(Boolean),
+    ),
   )
   if (!authorIds.length) {
     return
@@ -478,7 +484,7 @@ async function resolveAuthorProfiles(posts: Post[]) {
   try {
     const result = await tablesDB.listRows(MINDGUARD_DATABASE_ID, USERS_TABLE_ID, [
       Query.equal('$id', authorIds),
-      Query.limit(authorIds.length)
+      Query.limit(authorIds.length),
     ])
 
     const nextNameMap: Record<string, string> = {}
@@ -499,11 +505,11 @@ async function resolveAuthorProfiles(posts: Post[]) {
 
     authorNameMap.value = {
       ...authorNameMap.value,
-      ...nextNameMap
+      ...nextNameMap,
     }
     authorAvatarMap.value = {
       ...authorAvatarMap.value,
-      ...nextAvatarMap
+      ...nextAvatarMap,
     }
   } catch (error) {
     console.error('Resolve collection author profiles failed:', error)
@@ -513,7 +519,7 @@ async function resolveAuthorProfiles(posts: Post[]) {
 function mapPostToCollectionItem(
   post: Post,
   saveInteractionId: string,
-  likeInteractionId: string
+  likeInteractionId: string,
 ): CollectionPostItem {
   const section = normalizeSection(post.section)
   const anonymousLabel = t(I18N_KEYS.commonAnonymous, uiPreferencesStore.locale)
@@ -524,7 +530,9 @@ function mapPostToCollectionItem(
     : authorNameMap.value[authorId] || authorId || defaultUserLabel
   const avatar = post.isAnonymous ? '' : authorAvatarMap.value[authorId] || ''
   const images = Array.isArray(post.images)
-    ? post.images.filter((item): item is string => typeof item === 'string' && item.trim().length > 0)
+    ? post.images.filter(
+        (item): item is string => typeof item === 'string' && item.trim().length > 0,
+      )
     : []
 
   return {
@@ -545,7 +553,7 @@ function mapPostToCollectionItem(
     likeInteractionId,
     likePending: false,
     saveInteractionId,
-    savePending: false
+    savePending: false,
   }
 }
 
@@ -559,7 +567,7 @@ function extractErrorMessage(error: unknown) {
 function toast(title: string, icon: 'none' | 'success' = 'none') {
   uni.showToast({
     title,
-    icon
+    icon,
   })
 }
 
@@ -586,7 +594,7 @@ async function loadSavedPosts() {
       Query.equal('userId', userId),
       Query.equal('type', 'save'),
       Query.orderDesc('$createdAt'),
-      Query.limit(200)
+      Query.limit(200),
     ])
     const saveRows = (saveResult.rows || []) as SaveInteractionRow[]
 
@@ -613,9 +621,9 @@ async function loadSavedPosts() {
       const batch = postOrder.slice(index, index + batchSize)
       const postResult = await tablesDB.listRows(MINDGUARD_DATABASE_ID, POSTS_TABLE_ID, [
         Query.equal('$id', batch),
-        Query.limit(batch.length)
+        Query.limit(batch.length),
       ])
-      ;(postResult.rows || []).forEach((item) => {
+      ;(postResult.rows || []).forEach((item: Record<string, unknown>) => {
         const post = item as Post
         const postId = String(post.$id || '').trim()
         if (!postId) {
@@ -638,7 +646,7 @@ async function loadSavedPosts() {
     }
 
     const likeMap = await postInteractionsService.getMyLikesForPosts(
-      orderedPosts.map((item) => item.$id)
+      orderedPosts.map((item) => item.$id),
     )
 
     await resolveAuthorProfiles(orderedPosts)
@@ -647,12 +655,13 @@ async function loadSavedPosts() {
       mapPostToCollectionItem(
         post,
         saveInteractionMap.get(post.$id) || '',
-        String(likeMap.get(post.$id)?.$id || '')
-      )
+        String(likeMap.get(post.$id)?.$id || ''),
+      ),
     )
   } catch (error) {
     console.error('Load saved posts failed:', error)
-    postsError.value = extractErrorMessage(error) || t(I18N_KEYS.commonLoadError, uiPreferencesStore.locale)
+    postsError.value =
+      extractErrorMessage(error) || t(I18N_KEYS.commonLoadError, uiPreferencesStore.locale)
     toast(postsError.value)
   } finally {
     loadingPosts.value = false
@@ -684,7 +693,7 @@ async function handleLike(post: CollectionPostItem) {
     const result = await postInteractionsService.setMyLikeState(
       post.id,
       post.isLiked,
-      prevInteractionId
+      prevInteractionId,
     )
     post.isLiked = Boolean(result.liked)
     post.likeInteractionId = String(result.interactionId || '')
@@ -728,7 +737,7 @@ function previewPostImages(images: string[], current: string) {
   }
   uni.previewImage({
     urls: images,
-    current
+    current,
   })
 }
 
@@ -741,19 +750,19 @@ function goPostDetail(post: CollectionPostItem, focusComment = false) {
     query.push('focus=comment')
   }
   uni.navigateTo({
-    url: `/pages/${post.section}/post-detail?${query.join('&')}`
+    url: `/pages/${post.section}/post-detail?${query.join('&')}`,
   })
 }
 
 function navigateToLogin() {
   uni.navigateTo({
-    url: '/pages/mine/login?redirect=' + encodeURIComponent('/pages/mine/collections')
+    url: '/pages/mine/login?redirect=' + encodeURIComponent('/pages/mine/collections'),
   })
 }
 
 function navigateToRegister() {
   uni.navigateTo({
-    url: '/pages/mine/register?redirect=' + encodeURIComponent('/pages/mine/collections')
+    url: '/pages/mine/register?redirect=' + encodeURIComponent('/pages/mine/collections'),
   })
 }
 
@@ -761,12 +770,12 @@ function goBack() {
   const pageStack = typeof getCurrentPages === 'function' ? getCurrentPages() : []
   if (pageStack.length > 1) {
     uni.navigateBack({
-      delta: 1
+      delta: 1,
     })
     return
   }
   uni.switchTab({
-    url: '/pages/mine/index'
+    url: '/pages/mine/index',
   })
 }
 
@@ -775,7 +784,7 @@ function hideNativeTabBar() {
     return
   }
   uni.hideTabBar({
-    animation: false
+    animation: false,
   })
 }
 

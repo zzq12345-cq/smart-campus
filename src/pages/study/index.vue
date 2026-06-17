@@ -7,7 +7,7 @@
     <!-- 顶部状态栏 -->
     <view class="top-bar">
       <view class="left">
-        <Icon name="menu_book" :size="28" color="#2563eb" style="margin-right: 12rpx;" />
+        <Icon name="menu_book" :size="28" color="#2563eb" style="margin-right: 12rpx" />
         <text class="greeting">{{ pageData.headerTitle }}</text>
       </view>
       <view class="right">
@@ -30,7 +30,7 @@
         <!-- 圆角蓝色按钮，带右箭头 -->
         <view class="hero-button">
           <text class="hero-button-text">{{ pageData.heroAction }}</text>
-          <Icon name="chevron_right" :size="16" color="#ffffff" style="margin-left: 4rpx;" />
+          <Icon name="chevron_right" :size="16" color="#ffffff" style="margin-left: 4rpx" />
         </view>
       </view>
     </view>
@@ -109,15 +109,15 @@
         </view>
         <text class="feed-content">{{ post.content }}</text>
         <!-- 图片展示，支持单张、两张和多张图的网格渲染 -->
-        <view 
-          v-if="post.images.length" 
+        <view
+          v-if="post.images.length"
           :class="[
-            'feed-images', 
-            { 
-              single: post.images.length === 1, 
-              double: post.images.length === 2, 
-              triple: post.images.length >= 3 
-            }
+            'feed-images',
+            {
+              single: post.images.length === 1,
+              double: post.images.length === 2,
+              triple: post.images.length >= 3,
+            },
           ]"
         >
           <view
@@ -134,7 +134,11 @@
         </view>
         <!-- 卡片底部作者信息与操作 -->
         <view class="feed-footer">
-          <view class="author" :class="{ clickable: !post.isAnonymous && post.authorId }" @tap.stop="goAuthorProfile(post)">
+          <view
+            class="author"
+            :class="{ clickable: !post.isAnonymous && post.authorId }"
+            @tap.stop="goAuthorProfile(post)"
+          >
             <view class="author-avatar">
               <image
                 v-if="post.avatar"
@@ -143,17 +147,16 @@
                 mode="aspectFill"
                 lazy-load
               />
-              <Icon
-                v-else
-                name="person"
-                :size="14"
-                color="#94a3b8"
-              />
+              <Icon v-else name="person" :size="14" color="#94a3b8" />
             </view>
             <text class="author-text">{{ post.user }}</text>
           </view>
           <view class="feed-actions">
-            <view class="action-item" :class="{ active: post.isLiked }" @tap.stop="handleLike(post)">
+            <view
+              class="action-item"
+              :class="{ active: post.isLiked }"
+              @tap.stop="handleLike(post)"
+            >
               <Icon name="favorite" :size="16" :color="post.isLiked ? '#F43F5E' : '#94a3b8'" />
               <text class="footer-text">{{ post.likeCount }}</text>
             </view>
@@ -161,7 +164,11 @@
               <Icon name="chat_bubble" :size="16" color="#94a3b8" />
               <text class="footer-text">{{ post.commentCount }}</text>
             </view>
-            <view class="action-item compact" :class="{ saved: post.isSaved }" @tap.stop="handleSave(post)">
+            <view
+              class="action-item compact"
+              :class="{ saved: post.isSaved }"
+              @tap.stop="handleSave(post)"
+            >
               <Icon name="bookmark" :size="16" :color="post.isSaved ? '#F59E0B' : '#94a3b8'" />
               <text class="footer-text">{{ post.isSaved ? savedLabel : saveLabel }}</text>
             </view>
@@ -192,6 +199,7 @@ import { Query } from 'appwrite'
 import { computed, ref } from 'vue'
 import { onHide, onShow } from '@dcloudio/uni-app'
 import { I18N_KEYS } from '@/i18n/keys'
+import type { I18nKey } from '@/i18n/keys'
 import { t } from '@/i18n'
 import { getPageData as getStudyPageData } from '@/mocks/pages/study'
 import postsService from '@/services/posts'
@@ -237,8 +245,13 @@ interface StudyFeedPost {
 
 const authStore = useAuthStore()
 const uiPreferencesStore = useUiPreferencesStore()
-const { totalUnreadCount, refreshUnreadCount, startAutoRefresh, stopAutoRefresh } = useConversations()
-const { totalUnreadCount: notifUnreadCount, startCountPolling, stopCountPolling } = useNotifications()
+const { totalUnreadCount, refreshUnreadCount, startAutoRefresh, stopAutoRefresh } =
+  useConversations()
+const {
+  totalUnreadCount: notifUnreadCount,
+  startCountPolling,
+  stopCountPolling,
+} = useNotifications()
 
 const themeClass = computed(() => `theme-${uiPreferencesStore.theme}`)
 const pageData = computed(() => getStudyPageData(uiPreferencesStore.locale))
@@ -247,9 +260,11 @@ const iconColor = computed(() => (uiPreferencesStore.theme === 'light' ? '#64748
 const hasQuickOverflow = computed(() => pageData.value.quickActions.length > 4)
 const isTabBarVisible = ref(false)
 const showSearch = ref(false)
-const visibleUnreadCount = computed(() => (authStore.isLoggedIn ? totalUnreadCount.value + notifUnreadCount.value : 0))
+const visibleUnreadCount = computed(() =>
+  authStore.isLoggedIn ? totalUnreadCount.value + notifUnreadCount.value : 0,
+)
 const notificationBadgeText = computed(() =>
-  visibleUnreadCount.value > 99 ? '99+' : String(visibleUnreadCount.value)
+  visibleUnreadCount.value > 99 ? '99+' : String(visibleUnreadCount.value),
 )
 const posts = ref<StudyFeedPost[]>([])
 const loadingPosts = ref(false)
@@ -263,8 +278,8 @@ const loadingText = computed(() => t(I18N_KEYS.commonLoading, uiPreferencesStore
 const emptyText = computed(() => t(I18N_KEYS.studyFeedEmpty, uiPreferencesStore.locale))
 
 const getQuickIconColor = (index: number) => {
-  const colors = ['#2563eb', '#2563eb', '#10b981', '#a855f7'];
-  return colors[index] || '#2563eb';
+  const colors = ['#2563eb', '#2563eb', '#10b981', '#a855f7']
+  return colors[index] || '#2563eb'
 }
 
 const isStudyTopic = (topic?: string): topic is StudyTopic =>
@@ -295,11 +310,11 @@ const formatRelativeTime = (rawTime?: string) => {
 }
 
 const topicLabel = (topic?: string) => {
-  const map: Record<StudyTopic, I18N_KEYS> = {
+  const map: Record<StudyTopic, I18nKey> = {
     course_review: I18N_KEYS.studyTopicCourseReview,
     exam_info: I18N_KEYS.studyTopicExamInfo,
     learning_material: I18N_KEYS.studyTopicLearningMaterial,
-    competition: I18N_KEYS.studyTopicCompetition
+    competition: I18N_KEYS.studyTopicCompetition,
   }
   if (!isStudyTopic(topic)) {
     return t(I18N_KEYS.studyTopicDefault, uiPreferencesStore.locale)
@@ -313,18 +328,17 @@ const resolveAuthorNames = async (list: Post[]) => {
       list
         .filter((item) => !item.isAnonymous)
         .map((item) => String(item.authorId || '').trim())
-        .filter(Boolean)
-    )
+        .filter(Boolean),
+    ),
   )
   if (!ids.length) {
     return
   }
   try {
-    const result = await tablesDB.listRows(
-      MINDGUARD_DATABASE_ID,
-      USERS_TABLE_ID,
-      [Query.equal('$id', ids), Query.limit(ids.length)]
-    )
+    const result = await tablesDB.listRows(MINDGUARD_DATABASE_ID, USERS_TABLE_ID, [
+      Query.equal('$id', ids),
+      Query.limit(ids.length),
+    ])
     const resolvedNameMap: Record<string, string> = {}
     const resolvedAvatarMap: Record<string, string> = {}
     for (const row of result.rows || []) {
@@ -340,11 +354,11 @@ const resolveAuthorNames = async (list: Post[]) => {
     }
     authorNameMap.value = {
       ...authorNameMap.value,
-      ...resolvedNameMap
+      ...resolvedNameMap,
     }
     authorAvatarMap.value = {
       ...authorAvatarMap.value,
-      ...resolvedAvatarMap
+      ...resolvedAvatarMap,
     }
   } catch (error) {
     console.error('Resolve study author names failed:', error)
@@ -355,16 +369,24 @@ const mapPostToFeedItem = (post: Post): StudyFeedPost => {
   const anonymousLabel = t(I18N_KEYS.commonAnonymous, uiPreferencesStore.locale)
   const defaultUserLabel = t(I18N_KEYS.commonCampusUser, uiPreferencesStore.locale)
   const authorId = String(post.authorId || '').trim()
-  const user = post.isAnonymous ? anonymousLabel : authorNameMap.value[authorId] || authorId || defaultUserLabel
+  const user = post.isAnonymous
+    ? anonymousLabel
+    : authorNameMap.value[authorId] || authorId || defaultUserLabel
   const avatar = post.isAnonymous ? '' : authorAvatarMap.value[authorId] || ''
   const images = Array.isArray(post.images)
-    ? post.images.filter((item): item is string => typeof item === 'string' && item.trim().length > 0)
+    ? post.images.filter(
+        (item): item is string => typeof item === 'string' && item.trim().length > 0,
+      )
     : []
   const imageCount = images.length
   const isLiked = Boolean((post as { isLiked?: unknown }).isLiked)
-  const likeInteractionId = String((post as { likeInteractionId?: unknown }).likeInteractionId || '')
+  const likeInteractionId = String(
+    (post as { likeInteractionId?: unknown }).likeInteractionId || '',
+  )
   const isSaved = Boolean((post as { isSaved?: unknown }).isSaved)
-  const saveInteractionId = String((post as { saveInteractionId?: unknown }).saveInteractionId || '')
+  const saveInteractionId = String(
+    (post as { saveInteractionId?: unknown }).saveInteractionId || '',
+  )
   return {
     id: String(post.$id || ''),
     authorId,
@@ -387,23 +409,22 @@ const mapPostToFeedItem = (post: Post): StudyFeedPost => {
     likePending: false,
     isSaved,
     saveInteractionId,
-    savePending: false
+    savePending: false,
   }
 }
 
 const handleCommonAction = () => {
   uni.showToast({
     title: t(I18N_KEYS.commonComingSoon, uiPreferencesStore.locale),
-    icon: 'none'
+    icon: 'none',
   })
 }
-
 
 const STUDY_QUICK_ROUTES: Record<number, string> = {
   0: '/pages/study/schedule',
   1: '/pages/study/materials/index',
   2: '/pages/study/checkin',
-  3: '/pages/study/exam/index'
+  3: '/pages/study/exam/index',
 }
 
 const handleQuickAction = (index: number) => {
@@ -427,7 +448,7 @@ const openMessagesCenter = () => {
     return
   }
   uni.navigateTo({
-    url: '/pages/messages/index'
+    url: '/pages/messages/index',
   })
 }
 
@@ -435,7 +456,7 @@ const onSearchSelectPost = (payload: { postId: string; section: PostSection }) =
   showSearch.value = false
   if (!payload.postId) return
   uni.navigateTo({
-    url: `/pages/${payload.section}/post-detail?id=${encodeURIComponent(payload.postId)}`
+    url: `/pages/${payload.section}/post-detail?id=${encodeURIComponent(payload.postId)}`,
   })
 }
 
@@ -444,7 +465,7 @@ const goPublishPage = () => {
     return
   }
   uni.navigateTo({
-    url: '/pages/study/post-publish'
+    url: '/pages/study/post-publish',
   })
 }
 
@@ -452,7 +473,7 @@ const handleLike = async (post: StudyFeedPost) => {
   if (!authStore.isLoggedIn) {
     uni.showToast({
       title: isZh.value ? '请先登录' : 'Please login first',
-      icon: 'none'
+      icon: 'none',
     })
     redirectToLogin()
     return
@@ -471,21 +492,15 @@ const handleLike = async (post: StudyFeedPost) => {
   post.likeCount = Math.max(0, prevCount + (post.isLiked ? 1 : -1))
 
   uni.showToast({
-    title: post.isLiked
-      ? isZh.value
-        ? '温暖 +1'
-        : 'Liked'
-      : isZh.value
-        ? '已取消'
-        : 'Unliked',
-    icon: 'none'
+    title: post.isLiked ? (isZh.value ? '温暖 +1' : 'Liked') : isZh.value ? '已取消' : 'Unliked',
+    icon: 'none',
   })
 
   try {
     const result = await postInteractionsService.setMyLikeState(
       post.id,
       post.isLiked,
-      prevInteractionId
+      prevInteractionId,
     )
 
     if (typeof result?.liked === 'boolean') {
@@ -507,7 +522,7 @@ const handleLike = async (post: StudyFeedPost) => {
           title: isZh.value
             ? '点赞已记录，但无权限更新计数'
             : 'Like recorded but no permission to update count',
-          icon: 'none'
+          icon: 'none',
         })
       }, 350)
     }
@@ -519,7 +534,7 @@ const handleLike = async (post: StudyFeedPost) => {
     const errorMessage = error instanceof Error ? error.message : String(error)
     uni.showToast({
       title: errorMessage || (isZh.value ? '操作失败' : 'Operation failed'),
-      icon: 'none'
+      icon: 'none',
     })
   } finally {
     post.likePending = false
@@ -530,7 +545,7 @@ const handleSave = async (post: StudyFeedPost) => {
   if (!authStore.isLoggedIn) {
     uni.showToast({
       title: isZh.value ? '请先登录' : 'Please login first',
-      icon: 'none'
+      icon: 'none',
     })
     redirectToLogin()
     return
@@ -547,21 +562,15 @@ const handleSave = async (post: StudyFeedPost) => {
   post.isSaved = !prevSaved
 
   uni.showToast({
-    title: post.isSaved
-      ? isZh.value
-        ? '已收藏'
-        : 'Saved'
-      : isZh.value
-        ? '已取消收藏'
-        : 'Unsaved',
-    icon: 'none'
+    title: post.isSaved ? (isZh.value ? '已收藏' : 'Saved') : isZh.value ? '已取消收藏' : 'Unsaved',
+    icon: 'none',
   })
 
   try {
     const result = await postInteractionsService.setMySaveState(
       post.id,
       post.isSaved,
-      prevInteractionId
+      prevInteractionId,
     )
 
     if (typeof result?.saved === 'boolean') {
@@ -577,7 +586,7 @@ const handleSave = async (post: StudyFeedPost) => {
     const errorMessage = error instanceof Error ? error.message : String(error)
     uni.showToast({
       title: errorMessage || (isZh.value ? '操作失败' : 'Operation failed'),
-      icon: 'none'
+      icon: 'none',
     })
   } finally {
     post.savePending = false
@@ -590,14 +599,14 @@ const previewPostImages = (images: string[], current: string) => {
   }
   uni.previewImage({
     urls: images,
-    current
+    current,
   })
 }
 
 const goAuthorProfile = (post: StudyFeedPost) => {
   if (post.isAnonymous || !post.authorId) return
   uni.navigateTo({
-    url: `/pages/profile/index?userId=${encodeURIComponent(post.authorId)}`
+    url: `/pages/profile/index?userId=${encodeURIComponent(post.authorId)}`,
   })
 }
 
@@ -610,7 +619,7 @@ const goPostDetail = (postId: string, focusComment = false) => {
     query.push('focus=comment')
   }
   uni.navigateTo({
-    url: `/pages/study/post-detail?${query.join('&')}`
+    url: `/pages/study/post-detail?${query.join('&')}`,
   })
 }
 
@@ -631,7 +640,7 @@ const loadStudyPosts = async (force = false) => {
     const result = await postsService.getPublicPosts({
       section: 'study',
       status: 'published',
-      limit: 50
+      limit: 50,
     })
     const visiblePosts = result.filter((post) => isStudyTopic(String(post.topic || '')))
 
@@ -639,7 +648,7 @@ const loadStudyPosts = async (force = false) => {
       const postIds = visiblePosts.map((item) => item.$id)
       const [likeMap, saveMap] = await Promise.all([
         postInteractionsService.getMyLikesForPosts(postIds),
-        postInteractionsService.getMySavesForPosts(postIds)
+        postInteractionsService.getMySavesForPosts(postIds),
       ])
       visiblePosts.forEach((item) => {
         const like = likeMap.get(item.$id)
@@ -665,8 +674,8 @@ const loadStudyPosts = async (force = false) => {
       isAnonymous: false,
       badge: isZh.value ? '考试信息' : 'Exam Info',
       time: isZh.value ? '20分钟前' : '20 minutes ago',
-      content: isZh.value 
-        ? '英语期末口语考试安排已出，请大家及时查看。' 
+      content: isZh.value
+        ? '英语期末口语考试安排已出，请大家及时查看。'
         : 'The English final oral exam schedule has been released, please check it in time.',
       user: 'Test User',
       avatar: '',
@@ -681,7 +690,7 @@ const loadStudyPosts = async (force = false) => {
       likePending: false,
       isSaved: false,
       saveInteractionId: '',
-      savePending: false
+      savePending: false,
     }
 
     const mockPost2: StudyFeedPost = {
@@ -690,9 +699,9 @@ const loadStudyPosts = async (force = false) => {
       isAnonymous: false,
       badge: isZh.value ? '竞赛资讯' : 'Contest Info',
       time: isZh.value ? '99分钟前' : '99 minutes ago',
-      content: isZh.value 
-        ? '蓝桥杯校赛组队中，熟悉 Python 或 C++ 的同学可私信我，一起冲国奖！' 
-        : 'Teaming up for the Lanqiao Cup campus competition. Students familiar with Python or C++ can PM me, let\'s aim for the national award!',
+      content: isZh.value
+        ? '蓝桥杯校赛组队中，熟悉 Python 或 C++ 的同学可私信我，一起冲国奖！'
+        : "Teaming up for the Lanqiao Cup campus competition. Students familiar with Python or C++ can PM me, let's aim for the national award!",
       user: isZh.value ? '实名用户' : 'Named User',
       avatar: '',
       contextLabel: isZh.value ? '实名发布' : 'Named Post',
@@ -706,7 +715,7 @@ const loadStudyPosts = async (force = false) => {
       likePending: false,
       isSaved: false,
       saveInteractionId: '',
-      savePending: false
+      savePending: false,
     }
 
     posts.value = [mockPost1, mockPost2, ...feedItems]
@@ -718,7 +727,7 @@ const loadStudyPosts = async (force = false) => {
       postsError.value = t(I18N_KEYS.commonLoadError, uiPreferencesStore.locale)
       uni.showToast({
         title: postsError.value,
-        icon: 'none'
+        icon: 'none',
       })
     }
   } finally {
@@ -731,7 +740,7 @@ const hideNativeTabBar = () => {
     return
   }
   uni.hideTabBar({
-    animation: false
+    animation: false,
   })
 }
 
@@ -780,13 +789,13 @@ onHide(() => {
 .theme-dark {
   --page-bg: linear-gradient(180deg, #0f172a 0%, #1e1b2e 35%, #15131f 100%);
   --glass-bg: rgba(30, 41, 59, 0.55);
-  --glass-border: rgba(255, 255, 255, 0.10);
-  --glass-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.20);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.2);
   --surface: rgba(30, 41, 59, 0.55);
   --text-main: #f8fafc;
   --text-sub: #cbd5e1;
   --text-soft: #94a3b8;
-  --line: rgba(255, 255, 255, 0.10);
+  --line: rgba(255, 255, 255, 0.1);
 }
 
 .study-page {
@@ -811,7 +820,7 @@ onHide(() => {
   right: -50rpx;
   width: 400rpx;
   height: 400rpx;
-  background: rgba(91, 139, 212, 0.20);
+  background: rgba(91, 139, 212, 0.2);
 }
 
 .orb-2 {
@@ -819,7 +828,7 @@ onHide(() => {
   left: -60rpx;
   width: 320rpx;
   height: 320rpx;
-  background: rgba(136, 111, 222, 0.10);
+  background: rgba(136, 111, 222, 0.1);
 }
 
 /* ===== 顶栏 ===== */
@@ -981,7 +990,7 @@ onHide(() => {
   display: flex;
   align-items: center;
   gap: 4rpx;
-  
+
   &:active {
     opacity: 0.7;
   }
@@ -1029,16 +1038,17 @@ onHide(() => {
   flex-shrink: 0;
 }
 
-.quick-icon-0, .quick-icon-1 {
+.quick-icon-0,
+.quick-icon-1 {
   background: rgba(37, 99, 235, 0.08);
 }
 
 .quick-icon-2 {
-  background: rgba(16, 185, 129, 0.10);
+  background: rgba(16, 185, 129, 0.1);
 }
 
 .quick-icon-3 {
-  background: rgba(168, 85, 247, 0.10);
+  background: rgba(168, 85, 247, 0.1);
 }
 
 .quick-info {
@@ -1129,7 +1139,7 @@ onHide(() => {
 
   &.single {
     grid-template-columns: minmax(0, 1fr);
-    
+
     .feed-image-wrap {
       height: 320rpx;
     }
@@ -1137,7 +1147,7 @@ onHide(() => {
 
   &.double {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    
+
     .feed-image-wrap {
       height: 220rpx;
     }
@@ -1145,7 +1155,7 @@ onHide(() => {
 
   &.triple {
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    
+
     .feed-image-wrap {
       height: 176rpx;
     }
@@ -1244,7 +1254,7 @@ onHide(() => {
 }
 
 .action-item.active .footer-text {
-  color: #F43F5E;
+  color: #f43f5e;
 }
 
 .action-item.saved .footer-text {

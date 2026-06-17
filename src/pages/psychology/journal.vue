@@ -113,7 +113,11 @@
             {{ riskLabel(Number(item.riskLevel ?? 1), isZh) }}
           </view>
           <view v-if="item.isPrivate" class="meta-chip private">{{ privateBadge }}</view>
-          <view v-for="tag in item.tags || []" :key="`tag-${item.$id}-${tag}`" class="meta-chip tag">
+          <view
+            v-for="tag in item.tags || []"
+            :key="`tag-${item.$id}-${tag}`"
+            class="meta-chip tag"
+          >
             {{ formatTag(tag) }}
           </view>
         </view>
@@ -136,6 +140,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
+import type { UniSwitchEvent } from '@/types/uni-events'
 import journalsService from '@/services/journals'
 import { useAuthStore } from '@/stores/auth'
 import { useUiPreferencesStore } from '@/stores/ui-preferences'
@@ -162,15 +167,21 @@ const isZh = computed(() => uiPreferencesStore.locale === 'zh-CN')
 
 const pageTitle = computed(() => (isZh.value ? '心情日记' : 'Mood Journal'))
 const composerLabel = computed(() => (isZh.value ? '记录此刻感受' : 'Capture your current feeling'))
-const composerHint = computed(() => (isZh.value ? '文本优先的心理记录与追踪' : 'Text-first journaling for emotional tracking'))
+const composerHint = computed(() =>
+  isZh.value ? '文本优先的心理记录与追踪' : 'Text-first journaling for emotional tracking',
+)
 const composerPlaceholder = computed(() =>
-  isZh.value ? '今天发生了什么？你此刻有什么感受？' : 'What happened today? How do you feel right now?'
+  isZh.value
+    ? '今天发生了什么？你此刻有什么感受？'
+    : 'What happened today? How do you feel right now?',
 )
 const submitLabel = computed(() => (isZh.value ? '保存日记' : 'Save Journal'))
 const listTitle = computed(() => (isZh.value ? '我的记录' : 'My Journals'))
 const countSuffix = computed(() => (isZh.value ? ' 条' : ' items'))
 const loadingText = computed(() => (isZh.value ? '加载中...' : 'Loading...'))
-const emptyText = computed(() => (isZh.value ? '还没有日记，先写一条吧' : 'No journal yet. Write your first one.'))
+const emptyText = computed(() =>
+  isZh.value ? '还没有日记，先写一条吧' : 'No journal yet. Write your first one.',
+)
 const deleteLabel = computed(() => (isZh.value ? '删除' : 'Delete'))
 const moodTitle = computed(() => (isZh.value ? '情绪标签' : 'Mood'))
 const tagTitle = computed(() => (isZh.value ? '主题标签' : 'Tags'))
@@ -188,7 +199,7 @@ const moodOptions = computed(() => [
   { value: 'calm' as JournalMood, label: isZh.value ? '平静' : 'Calm' },
   { value: 'anxious' as JournalMood, label: isZh.value ? '焦虑' : 'Anxious' },
   { value: 'sad' as JournalMood, label: isZh.value ? '低落' : 'Sad' },
-  { value: 'angry' as JournalMood, label: isZh.value ? '烦躁' : 'Angry' }
+  { value: 'angry' as JournalMood, label: isZh.value ? '烦躁' : 'Angry' },
 ])
 
 const tagOptions = computed(() => [
@@ -196,7 +207,7 @@ const tagOptions = computed(() => [
   { value: 'emotion', label: isZh.value ? '情绪' : 'Emotion' },
   { value: 'sleep', label: isZh.value ? '睡眠' : 'Sleep' },
   { value: 'relation', label: isZh.value ? '关系' : 'Relation' },
-  { value: 'growth', label: isZh.value ? '成长' : 'Growth' }
+  { value: 'growth', label: isZh.value ? '成长' : 'Growth' },
 ])
 
 const journalStats = computed(() => {
@@ -206,7 +217,7 @@ const journalStats = computed(() => {
   return {
     total,
     riskCount,
-    latestDate: latest ? formatDateShort(latest) : noDateLabel.value
+    latestDate: latest ? formatDateShort(latest) : noDateLabel.value,
   }
 })
 
@@ -214,7 +225,7 @@ function handleCommonAction() {
   uni.navigateTo({ url: '/pages/psychology/insights' })
 }
 
-function onPrivateSwitch(event: { detail?: { value?: boolean } }) {
+function onPrivateSwitch(event: UniSwitchEvent) {
   draftIsPrivate.value = Boolean(event?.detail?.value)
 }
 
@@ -233,14 +244,14 @@ function formatTag(tag: string) {
         emotion: '情绪',
         sleep: '睡眠',
         relation: '关系',
-        growth: '成长'
+        growth: '成长',
       }
     : {
         study: 'Study',
         emotion: 'Emotion',
         sleep: 'Sleep',
         relation: 'Relation',
-        growth: 'Growth'
+        growth: 'Growth',
       }
   return map[tag as keyof typeof map] || tag
 }
@@ -282,13 +293,13 @@ async function loadJournals() {
   try {
     journals.value = await journalsService.getMyJournals({
       limit: 50,
-      order: 'desc'
+      order: 'desc',
     })
   } catch (error) {
     console.error('Load journals failed:', error)
     uni.showToast({
       title: isZh.value ? '加载日记失败' : 'Failed to load journals',
-      icon: 'none'
+      icon: 'none',
     })
   } finally {
     loading.value = false
@@ -300,7 +311,7 @@ async function createJournal() {
   if (!content) {
     uni.showToast({
       title: isZh.value ? '请输入内容' : 'Please input content',
-      icon: 'none'
+      icon: 'none',
     })
     return
   }
@@ -311,7 +322,7 @@ async function createJournal() {
       mood: draftMood.value,
       isPrivate: draftIsPrivate.value,
       tags: [...draftTags.value],
-      summary: buildSummary(content)
+      summary: buildSummary(content),
     })
     draftContent.value = ''
     draftMood.value = 'calm'
@@ -319,14 +330,14 @@ async function createJournal() {
     draftTags.value = []
     uni.showToast({
       title: isZh.value ? '已保存' : 'Saved',
-      icon: 'success'
+      icon: 'success',
     })
     await loadJournals()
   } catch (error) {
     console.error('Create journal failed:', error)
     uni.showToast({
       title: isZh.value ? '保存失败' : 'Save failed',
-      icon: 'none'
+      icon: 'none',
     })
   }
 }
@@ -336,7 +347,7 @@ async function deleteJournal(rowId: string) {
   journals.value = journals.value.filter((item) => item.$id !== rowId)
   uni.showToast({
     title: isZh.value ? '已删除' : 'Deleted',
-    icon: 'success'
+    icon: 'success',
   })
 
   try {
@@ -346,7 +357,7 @@ async function deleteJournal(rowId: string) {
     journals.value = snapshot
     uni.showToast({
       title: isZh.value ? '删除失败，已恢复' : 'Delete failed, restored',
-      icon: 'none'
+      icon: 'none',
     })
   }
 }

@@ -69,7 +69,9 @@
               <RobotAvatar :skin-id="pointsStore.equippedSkinId" size="small" />
             </view>
             <view class="bubble-content">
-              <text class="bubble-text thinking-text">{{ t(I18N_KEYS.aiChatThinking, locale) }}</text>
+              <text class="bubble-text thinking-text">{{
+                t(I18N_KEYS.aiChatThinking, locale)
+              }}</text>
             </view>
           </view>
 
@@ -125,7 +127,9 @@
             </view>
             <view class="notification-content">
               <text class="notification-text">{{ item.preview }}</text>
-              <text class="notification-time">{{ formatTime(new Date(item.$createdAt).getTime()) }}</text>
+              <text class="notification-time">{{
+                formatTime(new Date(item.$createdAt).getTime())
+              }}</text>
             </view>
             <view v-if="!item.isRead" class="unread-dot" />
           </view>
@@ -180,7 +184,7 @@ type TabValue = 'chat' | 'notifications'
 // Tab configuration
 const tabs = computed(() => [
   { value: 'chat' as TabValue, label: t(I18N_KEYS.aiChatTitle, locale.value) },
-  { value: 'notifications' as TabValue, label: t(I18N_KEYS.commonNotifications, locale.value) }
+  { value: 'notifications' as TabValue, label: t(I18N_KEYS.commonNotifications, locale.value) },
 ])
 
 // Tab state
@@ -265,7 +269,7 @@ const simulateAIResponse = async (userMessage: string): Promise<string> => {
     const responses = [
       `请先登录后再使用 AI 助手功能。`,
       `I'm currently in demo mode. Please login to use AI features.`,
-      `请登录账号以使用 AI 聊天功能。`
+      `请登录账号以使用 AI 聊天功能。`,
     ]
     return responses[Math.floor(Math.random() * responses.length)]
   }
@@ -276,22 +280,22 @@ const simulateAIResponse = async (userMessage: string): Promise<string> => {
     content: `You are UniSmart AI Assistant, a helpful and friendly AI assistant for university students.
 You provide support for academic questions, campus life, mental health, and general assistance.
 Be concise, helpful, and empathetic. Respond in the same language the user uses.
-If the user seems stressed or mentions mental health concerns, be supportive and suggest professional help if needed.`
+If the user seems stressed or mentions mental health concerns, be supportive and suggest professional help if needed.`,
   }
 
   const conversationMessages = [
     systemPrompt,
     ...messages.value.slice(-10).map((msg) => ({
       role: msg.role as 'user' | 'assistant',
-      content: msg.content
+      content: msg.content,
     })),
-    { role: 'user' as const, content: userMessage }
+    { role: 'user' as const, content: userMessage },
   ]
 
   const result = await aiChatService.sendMessage({
     messages: conversationMessages,
     temperature: 0.7,
-    maxTokens: 1000
+    maxTokens: 1000,
   })
 
   if (!result.success || !result.content) {
@@ -317,7 +321,7 @@ const handleSend = async () => {
         confirmText: t(I18N_KEYS.pointsGoToCenter, locale.value),
         success: (res) => {
           if (res.confirm) uni.navigateTo({ url: '/pages/mine/points' })
-        }
+        },
       })
       return
     }
@@ -327,7 +331,7 @@ const handleSend = async () => {
   const userMessage: DisplayMessage = {
     role: 'user',
     content: text,
-    timestamp: Date.now()
+    timestamp: Date.now(),
   }
 
   messages.value.push(userMessage)
@@ -342,7 +346,7 @@ const handleSend = async () => {
     const assistantMessage: DisplayMessage = {
       role: 'assistant',
       content: aiResponse,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     }
 
     thinking.value = false
@@ -358,7 +362,7 @@ const handleSend = async () => {
     const message = err instanceof Error ? err.message : String(err || '')
     uni.showToast({
       title: message || t(I18N_KEYS.aiChatSendFailed, locale.value),
-      icon: 'none'
+      icon: 'none',
     })
   } finally {
     sending.value = false
@@ -375,10 +379,10 @@ const clearHistory = () => {
         uni.removeStorageSync(STORAGE_KEY)
         uni.showToast({
           title: t(I18N_KEYS.aiChatCleared, locale.value),
-          icon: 'success'
+          icon: 'success',
         })
       }
-    }
+    },
   })
 }
 
@@ -408,9 +412,9 @@ const loadNotifications = async () => {
   notificationsLoading.value = true
   try {
     const result = await notificationsService.listNotifications()
-    if (result.success && result.data) {
-      notifications.value = result.data
-      unreadCount.value = result.data.filter((n) => !n.isRead).length
+    if (Array.isArray(result)) {
+      notifications.value = result
+      unreadCount.value = result.filter((n) => !n.isRead).length
     }
   } catch (err) {
     console.error('Failed to load notifications:', err)
@@ -452,7 +456,7 @@ const handleRightAction = () => {
     unreadCount.value = 0
     uni.showToast({
       title: t(I18N_KEYS.notificationMarkAllRead, locale.value),
-      icon: 'success'
+      icon: 'success',
     })
   }
 }
@@ -470,9 +474,13 @@ onLoad((options) => {
   nextTick(() => scrollToBottom())
 })
 
-watch(messages, () => {
-  scrollToBottom()
-}, { deep: true })
+watch(
+  messages,
+  () => {
+    scrollToBottom()
+  },
+  { deep: true },
+)
 </script>
 
 <style scoped lang="scss">
@@ -624,7 +632,11 @@ watch(messages, () => {
 }
 
 .user .bubble-content {
-  background: linear-gradient(135deg, var(--bubble-user-start, #886fde), var(--bubble-user-end, #886fde));
+  background: linear-gradient(
+    135deg,
+    var(--bubble-user-start, #886fde),
+    var(--bubble-user-end, #886fde)
+  );
   border: none;
 
   .bubble-text {
@@ -658,7 +670,8 @@ watch(messages, () => {
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {
@@ -775,7 +788,11 @@ watch(messages, () => {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  background: linear-gradient(135deg, var(--bubble-user-start, #886fde), var(--bubble-user-end, #886fde));
+  background: linear-gradient(
+    135deg,
+    var(--bubble-user-start, #886fde),
+    var(--bubble-user-end, #886fde)
+  );
   box-shadow: 0 10rpx 22rpx rgba(136, 111, 222, 0.18);
   color: var(--send-icon-color, #ffffff);
 }

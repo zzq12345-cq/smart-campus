@@ -51,7 +51,7 @@ export function optionalAuth(req: Request, res: Response, next: NextFunction): v
  * 签发 JWT
  */
 export function signToken(payload: Omit<JwtPayload, 'iat' | 'exp'>): string {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN })
+  return jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN as unknown as number })
 }
 
 function extractToken(req: Request): string | null {

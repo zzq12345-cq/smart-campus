@@ -1,3 +1,5 @@
+import type { I18nKey } from '@/i18n/keys'
+
 export type PointTransactionType =
   | 'daily_task'
   | 'achievement'
@@ -64,7 +66,7 @@ export interface RobotSkinVisual {
 export interface RobotItemDefinition {
   itemType: RobotItemType
   itemId: string
-  nameKey: string
+  nameKey: I18nKey
   points: number
 }
 

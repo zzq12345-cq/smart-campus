@@ -22,16 +22,17 @@
             <RobotAvatar :skinId="skin.id" size="large" />
           </view>
           <view class="skin-card-info">
-            <text class="skin-card-name">{{ t(I18N_KEYS[skin.nameKey as I18nKey], locale) }}</text>
-            <text v-if="skin.points > 0" class="skin-card-cost">
-              {{ skin.points }} pts
-            </text>
+            <text class="skin-card-name">{{ t(skin.nameKey, locale) }}</text>
+            <text v-if="skin.points > 0" class="skin-card-cost"> {{ skin.points }} pts </text>
             <text v-else class="skin-card-cost skin-card-cost--free">
               {{ t(I18N_KEYS.robotSkinFree, locale) }}
             </text>
           </view>
           <view class="skin-card-action">
-            <text v-if="pointsStore.isSkinEquipped(skin.id)" class="skin-badge skin-badge--equipped">
+            <text
+              v-if="pointsStore.isSkinEquipped(skin.id)"
+              class="skin-badge skin-badge--equipped"
+            >
               {{ t(I18N_KEYS.robotSkinEquipped, locale) }}
             </text>
             <view
@@ -73,11 +74,14 @@ import Icon from '@/components/common/Icon.vue'
 import RobotAvatar from '@/components/common/RobotAvatar.vue'
 import type { RobotSkinId } from '@/types/points'
 
-const props = withDefaults(defineProps<{
-  visible: boolean
-}>(), {
-  visible: false
-})
+const props = withDefaults(
+  defineProps<{
+    visible: boolean
+  }>(),
+  {
+    visible: false,
+  },
+)
 
 const emit = defineEmits<{
   (e: 'close'): void
@@ -147,7 +151,7 @@ watch(
     } else {
       animReady.value = false
     }
-  }
+  },
 )
 </script>
 
@@ -216,7 +220,9 @@ watch(
   flex-direction: column;
   transform: translateY(100%);
   opacity: 0;
-  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.22s ease;
+  transition:
+    transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.22s ease;
 
   &.active {
     transform: translateY(0);

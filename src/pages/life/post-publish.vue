@@ -99,6 +99,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
+import type { UniSwitchEvent } from '@/types/uni-events'
 import postsService from '@/services/posts'
 import { uploadPostImage } from '@/services/storage'
 import { useAuthStore } from '@/stores/auth'
@@ -141,21 +142,27 @@ const isZh = computed(() => uiPreferencesStore.locale === 'zh-CN')
 const pageTitle = computed(() => (isZh.value ? '生活区发帖' : 'Post to Life'))
 const heroTitle = computed(() => (isZh.value ? '发布校园生活信息' : 'Share life updates'))
 const heroSubtitle = computed(() =>
-  isZh.value ? '互助、租房、二手、活动，一条动态快速触达同学' : 'Help, rental, market, and events in one post'
+  isZh.value
+    ? '互助、租房、二手、活动，一条动态快速触达同学'
+    : 'Help, rental, market, and events in one post',
 )
-const composerLabel = computed(() => (isZh.value ? '写点有用的，大家都看得到' : 'Write something useful for everyone'))
+const composerLabel = computed(() =>
+  isZh.value ? '写点有用的，大家都看得到' : 'Write something useful for everyone',
+)
 const composerHint = computed(() =>
-  isZh.value ? '内容清晰一点，更容易获得回应' : 'Clear context helps others reply faster'
+  isZh.value ? '内容清晰一点，更容易获得回应' : 'Clear context helps others reply faster',
 )
 const composerPlaceholder = computed(() =>
-  isZh.value ? '例如：南苑一食堂门口捡到校园卡，失主请私信...' : 'Example: Found a campus card near cafeteria gate...'
+  isZh.value
+    ? '例如：南苑一食堂门口捡到校园卡，失主请私信...'
+    : 'Example: Found a campus card near cafeteria gate...',
 )
 const topicTitle = computed(() => (isZh.value ? '帖子主题' : 'Topic'))
 const imageTitle = computed(() => (isZh.value ? '图片' : 'Images'))
 const imageCountLabel = computed(() =>
   isZh.value
     ? `已选 ${draftImages.value.length}/${MAX_DRAFT_IMAGES}`
-    : `${draftImages.value.length}/${MAX_DRAFT_IMAGES} selected`
+    : `${draftImages.value.length}/${MAX_DRAFT_IMAGES} selected`,
 )
 const addImageLabel = computed(() => (isZh.value ? '添加图片' : 'Add image'))
 const uploadingLabel = computed(() => (isZh.value ? '上传中...' : 'Uploading...'))
@@ -169,7 +176,7 @@ const topicOptions = computed(() => [
   { value: 'second_hand' as LifeTopic, label: isZh.value ? '二手交易' : 'Second-hand' },
   { value: 'activity' as LifeTopic, label: isZh.value ? '校园活动' : 'Campus Activity' },
   { value: 'job' as LifeTopic, label: isZh.value ? '就业招聘' : 'Jobs' },
-  { value: 'rental' as LifeTopic, label: isZh.value ? '租房信息' : 'Rental' }
+  { value: 'rental' as LifeTopic, label: isZh.value ? '租房信息' : 'Rental' },
 ])
 
 const extractErrorMessage = (error: unknown) => {
@@ -189,7 +196,7 @@ const normalizeDraftImage = (item: unknown) => {
   }
   return {
     localPath,
-    file: typeof File !== 'undefined' && source.file instanceof File ? source.file : undefined
+    file: typeof File !== 'undefined' && source.file instanceof File ? source.file : undefined,
   } as DraftImageAsset
 }
 
@@ -201,7 +208,6 @@ const resetDraft = () => {
 }
 
 const goBack = () => {
-
   const pages = getCurrentPages()
   if (pages.length > 1) {
     uni.navigateBack({ delta: 1 })
@@ -210,7 +216,7 @@ const goBack = () => {
   }
 }
 
-const onAnonymousSwitch = (event: { detail?: { value?: boolean } }) => {
+const onAnonymousSwitch = (event: UniSwitchEvent) => {
   isAnonymous.value = Boolean(event?.detail?.value)
 }
 
@@ -222,7 +228,7 @@ const chooseDraftImages = async () => {
   if (remainCount <= 0) {
     uni.showToast({
       title: isZh.value ? `最多 ${MAX_DRAFT_IMAGES} 张图片` : `Max ${MAX_DRAFT_IMAGES} images`,
-      icon: 'none'
+      icon: 'none',
     })
     return
   }
@@ -234,7 +240,7 @@ const chooseDraftImages = async () => {
         sizeType: ['compressed'],
         sourceType: ['album', 'camera'],
         success: resolve,
-        fail: reject
+        fail: reject,
       })
     })
 
@@ -266,7 +272,7 @@ const chooseDraftImages = async () => {
     }
     uni.showToast({
       title: isZh.value ? '选择图片失败' : 'Failed to choose images',
-      icon: 'none'
+      icon: 'none',
     })
   }
 }
@@ -287,7 +293,7 @@ const previewDraftImages = (current: string) => {
   }
   uni.previewImage({
     urls,
-    current
+    current,
   })
 }
 
@@ -300,12 +306,12 @@ const uploadDraftImages = async () => {
     const asset = draftImages.value[index]
     draftImages.value[index] = {
       ...asset,
-      uploading: true
+      uploading: true,
     }
     try {
       const url = await uploadPostImage({
         localPath: asset.localPath,
-        file: asset.file
+        file: asset.file,
       })
       uploadedUrls.push(url)
     } finally {
@@ -313,7 +319,7 @@ const uploadDraftImages = async () => {
       if (latest) {
         draftImages.value[index] = {
           ...latest,
-          uploading: false
+          uploading: false,
         }
       }
     }
@@ -325,7 +331,7 @@ const createPost = async () => {
   if (!authStore.isLoggedIn) {
     uni.showToast({
       title: isZh.value ? '请先登录' : 'Please login first',
-      icon: 'none'
+      icon: 'none',
     })
     uni.navigateTo({ url: '/pages/mine/login' })
     return
@@ -339,7 +345,7 @@ const createPost = async () => {
   if (!content) {
     uni.showToast({
       title: isZh.value ? '请输入内容' : 'Please enter content',
-      icon: 'none'
+      icon: 'none',
     })
     return
   }
@@ -353,7 +359,7 @@ const createPost = async () => {
       topic: draftTopic.value as PostTopic,
       isAnonymous: isAnonymous.value,
       status: 'published',
-      images
+      images,
     })
     invalidateCache('life-posts')
     const userId = authStore.dbUser?.$id
@@ -363,10 +369,9 @@ const createPost = async () => {
     resetDraft()
     uni.showToast({
       title: isZh.value ? '发布成功' : 'Posted',
-      icon: 'success'
+      icon: 'success',
     })
     setTimeout(() => {
-
       uni.switchTab({ url: '/pages/life/index' })
     }, 160)
   } catch (error) {
@@ -386,7 +391,7 @@ const createPost = async () => {
           : isZh.value
             ? '发布失败'
             : 'Post failed',
-      icon: 'none'
+      icon: 'none',
     })
   } finally {
     submitting.value = false

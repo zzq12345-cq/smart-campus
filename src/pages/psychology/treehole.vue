@@ -117,12 +117,19 @@
         <text class="state-text">{{ emptyText }}</text>
       </view>
 
-      <view v-for="item in enrichedPosts" :key="item.$id" class="post-card" @tap="goPostDetail(item.$id)">
+      <view
+        v-for="item in enrichedPosts"
+        :key="item.$id"
+        class="post-card"
+        @tap="goPostDetail(item.$id)"
+      >
         <view class="post-meta">
           <view class="meta-tags">
             <view class="meta-chip topic">{{ topicLabel(item.topic) }}</view>
             <view v-if="item.mood" class="meta-chip mood">{{ moodLabel(item.mood) }}</view>
-            <view class="meta-chip risk" :class="riskToneClass(item.riskLevel)">{{ riskLabel(item.riskLevel) }}</view>
+            <view class="meta-chip risk" :class="riskToneClass(item.riskLevel)">{{
+              riskLabel(item.riskLevel)
+            }}</view>
             <view v-if="item.isAnonymous" class="meta-chip anonymous">{{ anonymousBadge }}</view>
             <view v-if="item._images.length" class="meta-chip media">
               <Icon name="image" :size="12" color="#7c69c9" />
@@ -134,7 +141,10 @@
 
         <text class="content">{{ item.content }}</text>
 
-        <view v-if="item._images.length" :class="['post-images', { single: item._images.length === 1 }]">
+        <view
+          v-if="item._images.length"
+          :class="['post-images', { single: item._images.length === 1 }]"
+        >
           <view
             v-for="(image, index) in item._images.slice(0, 3)"
             :key="`${item.$id}-${image}-${index}`"
@@ -158,29 +168,28 @@
                 mode="aspectFill"
                 lazy-load
               />
-              <Icon
-                v-else
-                name="person"
-                :size="14"
-                color="#94a3b8"
-              />
+              <Icon v-else name="person" :size="14" color="#94a3b8" />
             </view>
             <text class="author-text">{{ authorLabel(item) }}</text>
           </view>
           <view class="actions">
-            <view class="action-item" :class="{ active: item.isLiked }" @tap.stop="handleLike(item)">
-              <Icon
-                name="favorite"
-                :size="16"
-                :color="item.isLiked ? '#F43F5E' : '#94a3b8'"
-              />
+            <view
+              class="action-item"
+              :class="{ active: item.isLiked }"
+              @tap.stop="handleLike(item)"
+            >
+              <Icon name="favorite" :size="16" :color="item.isLiked ? '#F43F5E' : '#94a3b8'" />
               <text class="action-text">{{ Number(item.likeCount || 0) }}</text>
             </view>
             <view class="action-item" @tap.stop="goPostDetail(item.$id, true)">
               <Icon name="chat_bubble" :size="16" color="#94a3b8" />
               <text class="action-text">{{ Number(item.commentCount || 0) }}</text>
             </view>
-            <view class="action-item compact" :class="{ saved: item.isSaved }" @tap.stop="handleSave(item)">
+            <view
+              class="action-item compact"
+              :class="{ saved: item.isSaved }"
+              @tap.stop="handleSave(item)"
+            >
               <Icon name="bookmark" :size="16" :color="item.isSaved ? '#F59E0B' : '#94a3b8'" />
               <text class="action-text">{{ item.isSaved ? savedLabel : saveLabel }}</text>
             </view>
@@ -206,6 +215,7 @@
 <script setup lang="ts">
 import { Query } from 'appwrite'
 import { computed, ref } from 'vue'
+import type { UniSwitchEvent } from '@/types/uni-events'
 import { onShow } from '@dcloudio/uni-app'
 import postsService from '@/services/posts'
 import postInteractionsService from '@/services/post-interactions'
@@ -263,12 +273,14 @@ const iconColor = computed(() => (uiPreferencesStore.theme === 'light' ? '#64748
 const isZh = computed(() => uiPreferencesStore.locale === 'zh-CN')
 
 const pageTitle = computed(() => (isZh.value ? '树洞广场' : 'Treehole'))
-const composerLabel = computed(() => (isZh.value ? '写下真实想法，轻一点也没关系' : 'Share your thoughts, no pressure'))
+const composerLabel = computed(() =>
+  isZh.value ? '写下真实想法，轻一点也没关系' : 'Share your thoughts, no pressure',
+)
 const composerHint = computed(() =>
-  isZh.value ? '按主题与情绪标记，后续更容易回看' : 'Tag by topic and mood for easier review'
+  isZh.value ? '按主题与情绪标记，后续更容易回看' : 'Tag by topic and mood for easier review',
 )
 const composerPlaceholder = computed(() =>
-  isZh.value ? '记录你想说的话...' : 'Write what you want to say...'
+  isZh.value ? '记录你想说的话...' : 'Write what you want to say...',
 )
 const topicTitle = computed(() => (isZh.value ? '话题类型' : 'Topic'))
 const moodTitle = computed(() => (isZh.value ? '当前心情' : 'Mood'))
@@ -276,7 +288,7 @@ const imageTitle = computed(() => (isZh.value ? '图片' : 'Images'))
 const imageCountLabel = computed(() =>
   isZh.value
     ? `已选 ${draftImages.value.length}/${MAX_DRAFT_IMAGES}`
-    : `${draftImages.value.length}/${MAX_DRAFT_IMAGES} selected`
+    : `${draftImages.value.length}/${MAX_DRAFT_IMAGES} selected`,
 )
 const addImageLabel = computed(() => (isZh.value ? '添加图片' : 'Add image'))
 const uploadingLabel = computed(() => (isZh.value ? '上传中...' : 'Uploading...'))
@@ -287,7 +299,9 @@ const publishingLabel = computed(() => (isZh.value ? '发布中...' : 'Posting..
 const listTitle = computed(() => (isZh.value ? '最新动态' : 'Latest posts'))
 const countSuffix = computed(() => (isZh.value ? ' 条' : ' items'))
 const loadingText = computed(() => (isZh.value ? '加载中...' : 'Loading...'))
-const emptyText = computed(() => (isZh.value ? '还没有帖子，发一条吧' : 'No posts yet. Create one.'))
+const emptyText = computed(() =>
+  isZh.value ? '还没有帖子，发一条吧' : 'No posts yet. Create one.',
+)
 const deleteLabel = computed(() => (isZh.value ? '删除' : 'Delete'))
 const saveLabel = computed(() => (isZh.value ? '收藏' : 'Save'))
 const savedLabel = computed(() => (isZh.value ? '已收藏' : 'Saved'))
@@ -302,8 +316,8 @@ const enrichedPosts = computed<EnrichedPost[]>(() =>
   posts.value.map((item) => ({
     ...item,
     _images: postImages(item),
-    _avatar: authorAvatar(item)
-  }))
+    _avatar: authorAvatar(item),
+  })),
 )
 
 const topicOptions = computed(() => [
@@ -311,7 +325,7 @@ const topicOptions = computed(() => [
   { value: 'mood' as PostTopic, label: isZh.value ? '心情' : 'Mood' },
   { value: 'relationship' as PostTopic, label: isZh.value ? '关系' : 'Relationship' },
   { value: 'future' as PostTopic, label: isZh.value ? '未来' : 'Future' },
-  { value: 'night' as PostTopic, label: isZh.value ? '深夜' : 'Night' }
+  { value: 'night' as PostTopic, label: isZh.value ? '深夜' : 'Night' },
 ])
 
 function isPsychologyTopic(topic?: string): topic is PsychologyTopic {
@@ -323,11 +337,10 @@ const moodOptions = computed(() => [
   { value: 'happy' as PostMood, label: isZh.value ? '开心' : 'Happy' },
   { value: 'anxious' as PostMood, label: isZh.value ? '焦虑' : 'Anxious' },
   { value: 'sad' as PostMood, label: isZh.value ? '低落' : 'Sad' },
-  { value: 'angry' as PostMood, label: isZh.value ? '愤怒' : 'Angry' }
+  { value: 'angry' as PostMood, label: isZh.value ? '愤怒' : 'Angry' },
 ])
 
 function goBack() {
-
   const pages = getCurrentPages()
   if (pages.length > 1) {
     uni.navigateBack({ delta: 1 })
@@ -339,7 +352,7 @@ function goBack() {
 function handleCommonAction() {
   uni.showToast({
     title: isZh.value ? '互动功能开发中' : 'Interaction coming soon',
-    icon: 'none'
+    icon: 'none',
   })
 }
 
@@ -347,7 +360,7 @@ async function handleLike(item: PostWithLikeState) {
   if (!authStore.isLoggedIn) {
     uni.showToast({
       title: isZh.value ? '请先登录' : 'Please login first',
-      icon: 'none'
+      icon: 'none',
     })
     redirectToLogin()
     return
@@ -367,21 +380,15 @@ async function handleLike(item: PostWithLikeState) {
   item.likeCount = Math.max(0, prevCount + (item.isLiked ? 1 : -1))
 
   uni.showToast({
-    title: item.isLiked
-      ? isZh.value
-        ? '温暖 +1'
-        : 'Liked'
-      : isZh.value
-        ? '已取消'
-        : 'Unliked',
-    icon: 'none'
+    title: item.isLiked ? (isZh.value ? '温暖 +1' : 'Liked') : isZh.value ? '已取消' : 'Unliked',
+    icon: 'none',
   })
 
   try {
     const result = await postInteractionsService.setMyLikeState(
       item.$id,
       item.isLiked!,
-      prevInteractionId
+      prevInteractionId,
     )
 
     if (result && typeof result.liked === 'boolean') {
@@ -403,7 +410,7 @@ async function handleLike(item: PostWithLikeState) {
           title: isZh.value
             ? '点赞已记录，但无权限更新计数'
             : 'Like recorded but no permission to update count',
-          icon: 'none'
+          icon: 'none',
         })
       }, 350)
     }
@@ -416,7 +423,7 @@ async function handleLike(item: PostWithLikeState) {
     const errorMessage = error instanceof Error ? error.message : String(error)
     uni.showToast({
       title: errorMessage || (isZh.value ? '操作失败' : 'Operation failed'),
-      icon: 'none'
+      icon: 'none',
     })
   } finally {
     item.likePending = false
@@ -427,7 +434,7 @@ async function handleSave(item: PostWithLikeState) {
   if (!authStore.isLoggedIn) {
     uni.showToast({
       title: isZh.value ? '请先登录' : 'Please login first',
-      icon: 'none'
+      icon: 'none',
     })
     redirectToLogin()
     return
@@ -444,21 +451,15 @@ async function handleSave(item: PostWithLikeState) {
   item.isSaved = !prevSaved
 
   uni.showToast({
-    title: item.isSaved
-      ? isZh.value
-        ? '已收藏'
-        : 'Saved'
-      : isZh.value
-        ? '已取消收藏'
-        : 'Unsaved',
-    icon: 'none'
+    title: item.isSaved ? (isZh.value ? '已收藏' : 'Saved') : isZh.value ? '已取消收藏' : 'Unsaved',
+    icon: 'none',
   })
 
   try {
     const result = await postInteractionsService.setMySaveState(
       item.$id,
       item.isSaved!,
-      prevInteractionId
+      prevInteractionId,
     )
 
     if (typeof result?.saved === 'boolean') {
@@ -474,14 +475,14 @@ async function handleSave(item: PostWithLikeState) {
     const errorMessage = error instanceof Error ? error.message : String(error)
     uni.showToast({
       title: errorMessage || (isZh.value ? '操作失败' : 'Operation failed'),
-      icon: 'none'
+      icon: 'none',
     })
   } finally {
     item.savePending = false
   }
 }
 
-function onAnonymousSwitch(event: { detail?: { value?: boolean } }) {
+function onAnonymousSwitch(event: UniSwitchEvent) {
   isAnonymous.value = Boolean(event?.detail?.value)
 }
 
@@ -504,7 +505,7 @@ function normalizeDraftImage(item: unknown) {
   }
   return {
     localPath,
-    file: typeof File !== 'undefined' && source.file instanceof File ? source.file : undefined
+    file: typeof File !== 'undefined' && source.file instanceof File ? source.file : undefined,
   } as DraftImageAsset
 }
 
@@ -516,7 +517,7 @@ async function chooseDraftImages() {
   if (remainCount <= 0) {
     uni.showToast({
       title: isZh.value ? `最多 ${MAX_DRAFT_IMAGES} 张图片` : `Max ${MAX_DRAFT_IMAGES} images`,
-      icon: 'none'
+      icon: 'none',
     })
     return
   }
@@ -528,7 +529,7 @@ async function chooseDraftImages() {
         sizeType: ['compressed'],
         sourceType: ['album', 'camera'],
         success: resolve,
-        fail: reject
+        fail: reject,
       })
     })
 
@@ -561,7 +562,7 @@ async function chooseDraftImages() {
     console.error('Choose treehole images failed:', error)
     uni.showToast({
       title: isZh.value ? '选择图片失败' : 'Failed to choose images',
-      icon: 'none'
+      icon: 'none',
     })
   }
 }
@@ -582,7 +583,7 @@ function previewDraftImages(current: string) {
   }
   uni.previewImage({
     urls,
-    current
+    current,
   })
 }
 
@@ -595,12 +596,12 @@ async function uploadDraftImages() {
     const asset = draftImages.value[index]
     draftImages.value[index] = {
       ...asset,
-      uploading: true
+      uploading: true,
     }
     try {
       const url = await uploadPostImage({
         localPath: asset.localPath,
-        file: asset.file
+        file: asset.file,
       })
       uploadedUrls.push(url)
     } finally {
@@ -608,7 +609,7 @@ async function uploadDraftImages() {
       if (latest) {
         draftImages.value[index] = {
           ...latest,
-          uploading: false
+          uploading: false,
         }
       }
     }
@@ -661,8 +662,8 @@ async function resolveAuthorNames(list: Post[]) {
     new Set(
       list
         .map((item) => String(item.authorId || '').trim())
-        .filter((authorId) => authorId && !authorNameMap.value[authorId])
-    )
+        .filter((authorId) => authorId && !authorNameMap.value[authorId]),
+    ),
   )
   if (!missingAuthorIds.length) {
     return
@@ -673,7 +674,7 @@ async function resolveAuthorNames(list: Post[]) {
 
   try {
     const result = (await tablesDB.listRows(MINDGUARD_DATABASE_ID, USERS_TABLE_ID, [
-      Query.limit(Math.max(50, missingAuthorIds.length * 5))
+      Query.limit(Math.max(50, missingAuthorIds.length * 5)),
     ])) as { rows?: Array<{ $id?: unknown; name?: unknown; avatar?: unknown }> }
     ;(result?.rows || []).forEach((row) => {
       const userId = String(row?.$id || '').trim()
@@ -694,7 +695,7 @@ async function resolveAuthorNames(list: Post[]) {
   }
 
   const unresolvedAuthorIds = missingAuthorIds.filter(
-    (authorId) => !resolvedNameMap[authorId] || !resolvedAvatarMap[authorId]
+    (authorId) => !resolvedNameMap[authorId] || !resolvedAvatarMap[authorId],
   )
   if (unresolvedAuthorIds.length) {
     const entries = await Promise.all(
@@ -710,16 +711,16 @@ async function resolveAuthorNames(list: Post[]) {
           return {
             authorId,
             name: name || authorId,
-            avatar: avatar || ''
+            avatar: avatar || '',
           }
         } catch {
           return {
             authorId,
             name: authorId,
-            avatar: ''
+            avatar: '',
           }
         }
-      })
+      }),
     )
     entries.forEach(({ authorId, name, avatar }) => {
       resolvedNameMap[authorId] = name
@@ -732,11 +733,11 @@ async function resolveAuthorNames(list: Post[]) {
   if (Object.keys(resolvedNameMap).length || Object.keys(resolvedAvatarMap).length) {
     authorNameMap.value = {
       ...authorNameMap.value,
-      ...resolvedNameMap
+      ...resolvedNameMap,
     }
     authorAvatarMap.value = {
       ...authorAvatarMap.value,
-      ...resolvedAvatarMap
+      ...resolvedAvatarMap,
     }
   }
 }
@@ -751,14 +752,14 @@ function topicLabel(topic?: string) {
         mood: '心情',
         relationship: '关系',
         future: '未来',
-        night: '深夜'
+        night: '深夜',
       }
     : {
         daily: 'Daily',
         mood: 'Mood',
         relationship: 'Relationship',
         future: 'Future',
-        night: 'Night'
+        night: 'Night',
       }
   return map[topic]
 }
@@ -773,14 +774,14 @@ function moodLabel(mood?: string) {
         calm: '平静',
         anxious: '焦虑',
         sad: '低落',
-        angry: '愤怒'
+        angry: '愤怒',
       }
     : {
         happy: 'Happy',
         calm: 'Calm',
         anxious: 'Anxious',
         sad: 'Sad',
-        angry: 'Angry'
+        angry: 'Angry',
       }
   return map[mood] || mood
 }
@@ -822,7 +823,9 @@ function imageLabel(count: number) {
 
 function postImages(item: Post) {
   return Array.isArray(item.images)
-    ? item.images.filter((value): value is string => typeof value === 'string' && value.trim().length > 0)
+    ? item.images.filter(
+        (value): value is string => typeof value === 'string' && value.trim().length > 0,
+      )
     : []
 }
 
@@ -832,7 +835,7 @@ function previewPostImages(images: string[], current: string) {
   }
   uni.previewImage({
     urls: images,
-    current
+    current,
   })
 }
 
@@ -846,7 +849,7 @@ function goPostDetail(postId?: string, focusComment = false) {
     query.push('focus=comment')
   }
   uni.navigateTo({
-    url: `/pages/psychology/post-detail?${query.join('&')}`
+    url: `/pages/psychology/post-detail?${query.join('&')}`,
   })
 }
 
@@ -863,9 +866,11 @@ async function loadPosts() {
   try {
     const [publicPosts, myPosts] = await Promise.all([
       postsService.getPublicPosts({ section: 'psychology', status: 'published', limit: 50 }),
-      postsService.getMyPosts({ section: 'psychology', limit: 100 })
+      postsService.getMyPosts({ section: 'psychology', limit: 100 }),
     ])
-    const visiblePublicPosts = publicPosts.filter((item) => isPsychologyTopic(String(item.topic || '')))
+    const visiblePublicPosts = publicPosts.filter((item) =>
+      isPsychologyTopic(String(item.topic || '')),
+    )
     const visibleMyPosts = myPosts.filter((item) => isPsychologyTopic(String(item.topic || '')))
 
     await resolveAuthorNames(visiblePublicPosts)
@@ -874,7 +879,7 @@ async function loadPosts() {
       const postIds = visiblePublicPosts.map((p) => p.$id)
       const [likeMap, saveMap] = await Promise.all([
         postInteractionsService.getMyLikesForPosts(postIds),
-        postInteractionsService.getMySavesForPosts(postIds)
+        postInteractionsService.getMySavesForPosts(postIds),
       ])
 
       visiblePublicPosts.forEach((post) => {
@@ -900,7 +905,7 @@ async function loadPosts() {
     if (!cached) {
       uni.showToast({
         title: isZh.value ? '加载帖子失败' : 'Failed to load posts',
-        icon: 'none'
+        icon: 'none',
       })
     }
   } finally {
@@ -916,7 +921,7 @@ async function createPost() {
   if (!content) {
     uni.showToast({
       title: isZh.value ? '请输入内容' : 'Please input content',
-      icon: 'none'
+      icon: 'none',
     })
     return
   }
@@ -933,7 +938,7 @@ async function createPost() {
       topic,
       mood: draftMood.value,
       riskLevel: 1,
-      images
+      images,
     })
     draftContent.value = ''
     draftImages.value = []
@@ -943,7 +948,7 @@ async function createPost() {
     invalidateCache('psychology-posts')
     uni.showToast({
       title: isZh.value ? '发布成功' : 'Posted',
-      icon: 'success'
+      icon: 'success',
     })
     await loadPosts()
   } catch (error) {
@@ -961,10 +966,10 @@ async function createPost() {
           ? isZh.value
             ? '图片上传或发布失败'
             : 'Image upload or post failed'
-        : isZh.value
-          ? '发布失败'
-          : 'Post failed',
-      icon: 'none'
+          : isZh.value
+            ? '发布失败'
+            : 'Post failed',
+      icon: 'none',
     })
   } finally {
     submitting.value = false
@@ -983,7 +988,7 @@ async function deletePost(postId?: string) {
   invalidateCache('psychology-posts')
   uni.showToast({
     title: isZh.value ? '已删除' : 'Deleted',
-    icon: 'success'
+    icon: 'success',
   })
 
   try {
@@ -994,7 +999,7 @@ async function deletePost(postId?: string) {
     ownPostIds.value = ownIdsSnapshot
     uni.showToast({
       title: isZh.value ? '删除失败，已恢复' : 'Delete failed, restored',
-      icon: 'none'
+      icon: 'none',
     })
   }
 }
@@ -1481,11 +1486,11 @@ onShow(async () => {
 }
 
 .action-item.active .action-text {
-  color: #F43F5E;
+  color: #f43f5e;
 }
 
 .action-item.saved .action-text {
-  color: #F59E0B;
+  color: #f59e0b;
 }
 
 .action-item.compact {

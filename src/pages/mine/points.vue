@@ -31,7 +31,9 @@
     <view class="section-header">
       <Icon name="task_alt" :size="20" color="#6fde81" />
       <text>{{ dailyTasksLabel }}</text>
-      <text class="section-badge">{{ pointsStore.completedTaskCount }}/{{ DAILY_TASKS.length }}</text>
+      <text class="section-badge"
+        >{{ pointsStore.completedTaskCount }}/{{ DAILY_TASKS.length }}</text
+      >
     </view>
 
     <view class="tasks-grid">
@@ -64,8 +66,11 @@
     <view v-else class="transactions-list">
       <view v-for="txn in pointsStore.transactions" :key="txn.$id" class="txn-row">
         <view class="txn-left">
-          <Icon :name="txn.amount > 0 ? 'add_circle' : 'remove_circle'" :size="18"
-            :color="txn.amount > 0 ? '#6fde81' : '#ef4444'" />
+          <Icon
+            :name="txn.amount > 0 ? 'add_circle' : 'remove_circle'"
+            :size="18"
+            :color="txn.amount > 0 ? '#6fde81' : '#ef4444'"
+          />
           <text class="txn-desc">{{ txn.description }}</text>
         </view>
         <text :class="['txn-amount', { positive: txn.amount > 0 }]">
@@ -84,6 +89,7 @@ import { usePointsStore } from '@/stores/points'
 import { useUiPreferencesStore } from '@/stores/ui-preferences'
 import { t } from '@/i18n'
 import { I18N_KEYS } from '@/i18n/keys'
+import type { I18nKey } from '@/i18n/keys'
 import type { LocaleCode } from '@/types/ui'
 import type { DailyTaskId } from '@/types/points'
 import { DAILY_TASKS } from '@/data/points-constants'
@@ -93,7 +99,7 @@ const pointsStore = usePointsStore()
 const uiPreferencesStore = useUiPreferencesStore()
 
 const themeClass = computed(() => `theme-${uiPreferencesStore.theme}`)
-const iconColor = computed(() => uiPreferencesStore.isDark ? '#a0aec0' : '#64748b')
+const iconColor = computed(() => (uiPreferencesStore.isDark ? '#a0aec0' : '#64748b'))
 const locale = computed(() => uiPreferencesStore.locale as LocaleCode)
 
 const pageTitle = computed(() => t(I18N_KEYS.pointsTitle, locale.value))
@@ -108,7 +114,7 @@ function isTaskDone(taskId: string) {
   return pointsStore.dailyTaskStatus[taskId] === true
 }
 
-const TASK_NAME_KEYS: Record<DailyTaskId, string> = {
+const TASK_NAME_KEYS: Record<DailyTaskId, I18nKey> = {
   mood_checkin: I18N_KEYS.pointsTaskMoodCheckin,
   study_checkin: I18N_KEYS.pointsTaskStudyCheckin,
   journal_entry: I18N_KEYS.pointsTaskJournal,
@@ -186,7 +192,7 @@ onMounted(async () => {
 .balance-value {
   font-size: 56rpx;
   font-weight: 800;
-  color: #F59E0B;
+  color: #f59e0b;
 }
 
 .balance-sub {
@@ -262,7 +268,7 @@ onMounted(async () => {
 
 .task-reward {
   font-size: 22rpx;
-  color: #F59E0B;
+  color: #f59e0b;
   font-weight: 600;
 }
 

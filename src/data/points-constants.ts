@@ -1,4 +1,11 @@
-import type { AchievementDefinition, DailyTaskDefinition, RobotItemDefinition, RobotSkinId, RobotSkinVisual } from '@/types/points'
+import type {
+  AchievementDefinition,
+  DailyTaskDefinition,
+  RobotItemDefinition,
+  RobotSkinId,
+  RobotSkinVisual,
+} from '@/types/points'
+import type { I18nKey } from '@/i18n/keys'
 
 export const INITIAL_POINTS = 100
 
@@ -36,24 +43,24 @@ export const ACHIEVEMENTS: AchievementDefinition[] = [
 ]
 
 export const ROBOT_SHOP_ITEMS: RobotItemDefinition[] = [
-  { itemType: 'skin', itemId: 'nebula', nameKey: 'mineRobotSkinNebula', points: 200 },
-  { itemType: 'skin', itemId: 'mint', nameKey: 'mineRobotSkinMint', points: 300 },
-  { itemType: 'skin', itemId: 'sunset', nameKey: 'mineRobotSkinSunset', points: 150 },
-  { itemType: 'skin', itemId: 'ocean', nameKey: 'mineRobotSkinOcean', points: 250 },
-  { itemType: 'skin', itemId: 'golden', nameKey: 'mineRobotSkinGolden', points: 400 },
+  { itemType: 'skin', itemId: 'nebula', nameKey: 'mine.robot.skin.nebula', points: 200 },
+  { itemType: 'skin', itemId: 'mint', nameKey: 'mine.robot.skin.mint', points: 300 },
+  { itemType: 'skin', itemId: 'sunset', nameKey: 'mine.robot.skin.sunset', points: 150 },
+  { itemType: 'skin', itemId: 'ocean', nameKey: 'mine.robot.skin.ocean', points: 250 },
+  { itemType: 'skin', itemId: 'golden', nameKey: 'mine.robot.skin.golden', points: 400 },
 ]
 
 export const ROBOT_FREE_DEFAULTS: Record<string, string> = {
   skin: 'default',
 }
 
-export const ROBOT_SKINS: { id: RobotSkinId; nameKey: string; points: number; icon: string }[] = [
-  { id: 'default', nameKey: 'mineRobotSkinDefault', points: 0, icon: 'smart_toy' },
-  { id: 'nebula', nameKey: 'mineRobotSkinNebula', points: 200, icon: 'auto_awesome' },
-  { id: 'mint', nameKey: 'mineRobotSkinMint', points: 300, icon: 'eco' },
-  { id: 'sunset', nameKey: 'mineRobotSkinSunset', points: 150, icon: 'wb_twilight' },
-  { id: 'ocean', nameKey: 'mineRobotSkinOcean', points: 250, icon: 'water' },
-  { id: 'golden', nameKey: 'mineRobotSkinGolden', points: 400, icon: 'school' },
+export const ROBOT_SKINS: { id: RobotSkinId; nameKey: I18nKey; points: number; icon: string }[] = [
+  { id: 'default', nameKey: 'mine.robot.skin.default', points: 0, icon: 'smart_toy' },
+  { id: 'nebula', nameKey: 'mine.robot.skin.nebula', points: 200, icon: 'auto_awesome' },
+  { id: 'mint', nameKey: 'mine.robot.skin.mint', points: 300, icon: 'eco' },
+  { id: 'sunset', nameKey: 'mine.robot.skin.sunset', points: 150, icon: 'wb_twilight' },
+  { id: 'ocean', nameKey: 'mine.robot.skin.ocean', points: 250, icon: 'water' },
+  { id: 'golden', nameKey: 'mine.robot.skin.golden', points: 400, icon: 'school' },
 ]
 
 export const ROBOT_SKIN_VISUALS: Record<RobotSkinId, RobotSkinVisual> = {

@@ -35,3 +35,24 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm run test:unit:run
+
+  type-check:
+    name: Type Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      # 前端：vue-tsc 类型检查（src/ 范围）
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run type-check
+      # 后端：server/ 是独立子项目，单独装依赖并跑 tsc
+      - run: pnpm install --frozen-lockfile
+        working-directory: server
+      - run: pnpm run type-check
+        working-directory: server

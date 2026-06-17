@@ -130,11 +130,17 @@ const isRegistered = ref(false)
 const registrations = ref<EventRegistration[]>([])
 
 const CATEGORY_LABELS: Record<EventCategory, string> = {
-  competition: '竞赛', lecture: '讲座', club: '社团',
-  entertainment: '文娱', other: '其他'
+  competition: '竞赛',
+  lecture: '讲座',
+  club: '社团',
+  volunteer: '志愿',
+  entertainment: '文娱',
+  other: '其他',
 }
 
-const categoryLabel = computed(() => event.value ? (CATEGORY_LABELS[event.value.category] || '其他') : '')
+const categoryLabel = computed(() =>
+  event.value ? CATEGORY_LABELS[event.value.category] || '其他' : '',
+)
 
 const isAuthor = computed(() => {
   if (!event.value || !authStore.user) return false
@@ -166,7 +172,9 @@ const isDeadlinePassed = computed(() => {
   if (!event.value) return true
   try {
     return new Date(event.value.registrationDeadline).getTime() < Date.now()
-  } catch { return true }
+  } catch {
+    return true
+  }
 })
 
 const isFull = computed(() => {
@@ -195,14 +203,18 @@ function formatDateTime(val?: string) {
   try {
     const d = new Date(val)
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
-  } catch { return val }
+  } catch {
+    return val
+  }
 }
 
 function formatRegTime(val: string) {
   try {
     const d = new Date(val)
     return `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
-  } catch { return val }
+  } catch {
+    return val
+  }
 }
 
 const loadEvent = async (id: string) => {
@@ -226,7 +238,9 @@ const loadRegistrations = async () => {
   if (!event.value) return
   try {
     registrations.value = await eventsService.getEventRegistrations(event.value.$id)
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
 }
 
 const handleRegister = async () => {
@@ -279,7 +293,7 @@ const confirmDelete = () => {
         const msg = error instanceof Error ? error.message : String(error)
         uni.showToast({ title: msg || '删除失败', icon: 'none' })
       }
-    }
+    },
   })
 }
 
@@ -539,7 +553,9 @@ onLoad((query) => {
   background: linear-gradient(135deg, #f49d25, #e88b15);
   box-shadow: 0 8rpx 24rpx rgba(244, 157, 37, 0.35);
 
-  text { color: #fff; }
+  text {
+    color: #fff;
+  }
 }
 
 .action-btn.register.disabled {
@@ -551,7 +567,9 @@ onLoad((query) => {
   background: var(--surface);
   border: 2px solid rgba(244, 157, 37, 0.4);
 
-  text { color: #f49d25; }
+  text {
+    color: #f49d25;
+  }
 }
 
 .action-btn.delete {
@@ -559,6 +577,8 @@ onLoad((query) => {
   border: 2px solid rgba(239, 68, 68, 0.3);
   gap: 8rpx;
 
-  text { color: #ef4444; }
+  text {
+    color: #ef4444;
+  }
 }
 </style>

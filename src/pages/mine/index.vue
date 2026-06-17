@@ -149,6 +149,7 @@ import { computed, ref } from 'vue'
 import { onHide, onShow } from '@dcloudio/uni-app'
 import { getLocaleLabel, t } from '@/i18n'
 import { I18N_KEYS } from '@/i18n/keys'
+import type { I18nKey } from '@/i18n/keys'
 import { getPageData as getMinePageData } from '@/mocks/pages/mine'
 import educationSessionService from '@/services/education-session'
 import postsService from '@/services/posts'
@@ -349,7 +350,7 @@ const VALID_ROBOT_SKIN_IDS = new Set<string>([
 const isRobotSkin = (value: unknown): value is RobotSkinId =>
   typeof value === 'string' && VALID_ROBOT_SKIN_IDS.has(value)
 
-const SKIN_NAME_KEYS: Record<RobotSkinId, string> = {
+const SKIN_NAME_KEYS: Record<RobotSkinId, I18nKey> = {
   default: I18N_KEYS.mineRobotSkinDefault,
   nebula: I18N_KEYS.mineRobotSkinNebula,
   mint: I18N_KEYS.mineRobotSkinMint,
@@ -521,7 +522,6 @@ async function handleAvatarUpload() {
     avatarUploading.value = true
     const avatarUrl = await uploadAvatarImage({
       localPath: normalized.localPath,
-      file: normalized.file,
     })
     await authStore.updateProfile({
       avatar: avatarUrl,

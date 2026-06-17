@@ -99,6 +99,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
+import type { UniSwitchEvent } from '@/types/uni-events'
 import postsService from '@/services/posts'
 import { uploadPostImage } from '@/services/storage'
 import { useAuthStore } from '@/stores/auth'
@@ -141,21 +142,29 @@ const isZh = computed(() => uiPreferencesStore.locale === 'zh-CN')
 const pageTitle = computed(() => (isZh.value ? '学习区发帖' : 'Post to Study'))
 const heroTitle = computed(() => (isZh.value ? '分享学习经验和信息' : 'Share study insights'))
 const heroSubtitle = computed(() =>
-  isZh.value ? '课程评价、考试动态、学习资料，统一发布更高效' : 'Course review, exam updates, and resources in one place'
+  isZh.value
+    ? '课程评价、考试动态、学习资料，统一发布更高效'
+    : 'Course review, exam updates, and resources in one place',
 )
-const composerLabel = computed(() => (isZh.value ? '把你的学习经验写给后来人' : 'Turn experience into useful notes'))
+const composerLabel = computed(() =>
+  isZh.value ? '把你的学习经验写给后来人' : 'Turn experience into useful notes',
+)
 const composerHint = computed(() =>
-  isZh.value ? '描述清楚课程与时间范围，信息更有价值' : 'Add course and timeline context for better value'
+  isZh.value
+    ? '描述清楚课程与时间范围，信息更有价值'
+    : 'Add course and timeline context for better value',
 )
 const composerPlaceholder = computed(() =>
-  isZh.value ? '例如：数据结构期中重点在图与树，附复习顺序建议...' : 'Example: Midterm focus is graph and tree, with review order tips...'
+  isZh.value
+    ? '例如：数据结构期中重点在图与树，附复习顺序建议...'
+    : 'Example: Midterm focus is graph and tree, with review order tips...',
 )
 const topicTitle = computed(() => (isZh.value ? '帖子主题' : 'Topic'))
 const imageTitle = computed(() => (isZh.value ? '图片' : 'Images'))
 const imageCountLabel = computed(() =>
   isZh.value
     ? `已选 ${draftImages.value.length}/${MAX_DRAFT_IMAGES}`
-    : `${draftImages.value.length}/${MAX_DRAFT_IMAGES} selected`
+    : `${draftImages.value.length}/${MAX_DRAFT_IMAGES} selected`,
 )
 const addImageLabel = computed(() => (isZh.value ? '添加图片' : 'Add image'))
 const uploadingLabel = computed(() => (isZh.value ? '上传中...' : 'Uploading...'))
@@ -167,8 +176,11 @@ const canAddDraftImages = computed(() => draftImages.value.length < MAX_DRAFT_IM
 const topicOptions = computed(() => [
   { value: 'course_review' as StudyTopic, label: isZh.value ? '课程评价' : 'Course Review' },
   { value: 'exam_info' as StudyTopic, label: isZh.value ? '考试信息' : 'Exam Info' },
-  { value: 'learning_material' as StudyTopic, label: isZh.value ? '学习资料' : 'Learning Materials' },
-  { value: 'competition' as StudyTopic, label: isZh.value ? '竞赛资讯' : 'Competition' }
+  {
+    value: 'learning_material' as StudyTopic,
+    label: isZh.value ? '学习资料' : 'Learning Materials',
+  },
+  { value: 'competition' as StudyTopic, label: isZh.value ? '竞赛资讯' : 'Competition' },
 ])
 
 const extractErrorMessage = (error: unknown) => {
@@ -188,7 +200,7 @@ const normalizeDraftImage = (item: unknown) => {
   }
   return {
     localPath,
-    file: typeof File !== 'undefined' && source.file instanceof File ? source.file : undefined
+    file: typeof File !== 'undefined' && source.file instanceof File ? source.file : undefined,
   } as DraftImageAsset
 }
 
@@ -200,7 +212,6 @@ const resetDraft = () => {
 }
 
 const goBack = () => {
-
   const pages = getCurrentPages()
   if (pages.length > 1) {
     uni.navigateBack({ delta: 1 })
@@ -209,7 +220,7 @@ const goBack = () => {
   }
 }
 
-const onAnonymousSwitch = (event: { detail?: { value?: boolean } }) => {
+const onAnonymousSwitch = (event: UniSwitchEvent) => {
   isAnonymous.value = Boolean(event?.detail?.value)
 }
 
@@ -221,7 +232,7 @@ const chooseDraftImages = async () => {
   if (remainCount <= 0) {
     uni.showToast({
       title: isZh.value ? `最多 ${MAX_DRAFT_IMAGES} 张图片` : `Max ${MAX_DRAFT_IMAGES} images`,
-      icon: 'none'
+      icon: 'none',
     })
     return
   }
@@ -233,7 +244,7 @@ const chooseDraftImages = async () => {
         sizeType: ['compressed'],
         sourceType: ['album', 'camera'],
         success: resolve,
-        fail: reject
+        fail: reject,
       })
     })
 
@@ -265,7 +276,7 @@ const chooseDraftImages = async () => {
     }
     uni.showToast({
       title: isZh.value ? '选择图片失败' : 'Failed to choose images',
-      icon: 'none'
+      icon: 'none',
     })
   }
 }
@@ -286,7 +297,7 @@ const previewDraftImages = (current: string) => {
   }
   uni.previewImage({
     urls,
-    current
+    current,
   })
 }
 
@@ -299,12 +310,12 @@ const uploadDraftImages = async () => {
     const asset = draftImages.value[index]
     draftImages.value[index] = {
       ...asset,
-      uploading: true
+      uploading: true,
     }
     try {
       const url = await uploadPostImage({
         localPath: asset.localPath,
-        file: asset.file
+        file: asset.file,
       })
       uploadedUrls.push(url)
     } finally {
@@ -312,7 +323,7 @@ const uploadDraftImages = async () => {
       if (latest) {
         draftImages.value[index] = {
           ...latest,
-          uploading: false
+          uploading: false,
         }
       }
     }
@@ -324,7 +335,7 @@ const createPost = async () => {
   if (!authStore.isLoggedIn) {
     uni.showToast({
       title: isZh.value ? '请先登录' : 'Please login first',
-      icon: 'none'
+      icon: 'none',
     })
     uni.navigateTo({ url: '/pages/mine/login' })
     return
@@ -338,7 +349,7 @@ const createPost = async () => {
   if (!content) {
     uni.showToast({
       title: isZh.value ? '请输入内容' : 'Please enter content',
-      icon: 'none'
+      icon: 'none',
     })
     return
   }
@@ -352,7 +363,7 @@ const createPost = async () => {
       topic: draftTopic.value as PostTopic,
       isAnonymous: isAnonymous.value,
       status: 'published',
-      images
+      images,
     })
     invalidateCache('study-posts')
     const userId = authStore.dbUser?.$id
@@ -362,10 +373,9 @@ const createPost = async () => {
     resetDraft()
     uni.showToast({
       title: isZh.value ? '发布成功' : 'Posted',
-      icon: 'success'
+      icon: 'success',
     })
     setTimeout(() => {
-
       uni.switchTab({ url: '/pages/study/index' })
     }, 160)
   } catch (error) {
@@ -385,7 +395,7 @@ const createPost = async () => {
           : isZh.value
             ? '发布失败'
             : 'Post failed',
-      icon: 'none'
+      icon: 'none',
     })
   } finally {
     submitting.value = false
@@ -670,7 +680,7 @@ onShow(async () => {
 
 .submit-btn {
   border-radius: 16rpx;
-  background: #4A90E2;
+  background: #4a90e2;
   padding: 12rpx 28rpx;
   box-shadow: 0 8rpx 18rpx rgba(74, 144, 226, 0.3);
 }

@@ -9,8 +9,6 @@ import interactionsRoutes from './interactions.routes.js'
 import usersRoutes from './users.routes.js'
 import pptRoutes from './ppt.routes.js'
 import aiRoutes from './ai.routes.js'
-import dataProxyRoutes from './data-proxy.routes.js'
-
 const router = Router()
 
 // 健康检查
@@ -45,8 +43,5 @@ router.use('/ppt', pptRoutes)
 
 // AI 聊天
 router.use('/ai', aiRoutes)
-
-// 通用数据代理（未迁移的服务使用）
-router.use('/data', dataProxyRoutes)
 
 export default router

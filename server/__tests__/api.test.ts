@@ -96,12 +96,12 @@ describe('Interactions Routes', () => {
   })
 })
 
-describe('Data Proxy Routes', () => {
-  it('POST /api/data/list 未认证返回 401', async () => {
+describe('Data Proxy Routes（已下线）', () => {
+  it('POST /api/data/list 路由已删除，返回 404', async () => {
     const res = await request(app)
       .post('/api/data/list')
       .send({ collectionId: 'test' })
-    expect(res.status).toBe(401)
+    expect(res.status).toBe(404)
   })
 })
 

@@ -62,9 +62,8 @@ export async function getPublicPosts(options: {
   limit?: number
   offset?: number
 }) {
-  const queries: string[] = [
-    Query.equal('status', options.status || 'published'),
-  ]
+  // 公开列表强制只返回已发布帖子，忽略客户端传入的 status，防止草稿/私密内容泄露
+  const queries: string[] = [Query.equal('status', 'published')]
   if (options.section && options.section !== 'all') {
     queries.push(Query.equal('section', options.section))
   }

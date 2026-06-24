@@ -30,6 +30,18 @@ export const IS_PRODUCTION = NODE_ENV === 'production'
 export const JWT_SECRET = env('JWT_SECRET', 'unismart-dev-secret-change-in-production')
 export const JWT_EXPIRES_IN = env('JWT_EXPIRES_IN', '7d')
 
+// 生产环境禁止使用默认/弱密钥（fail-fast，避免 token 被伪造）
+if (IS_PRODUCTION) {
+  if (JWT_SECRET === 'unismart-dev-secret-change-in-production') {
+    throw new Error(
+      '[Config] 生产环境必须通过环境变量 JWT_SECRET 配置独立强密钥，当前仍为默认值，拒绝启动。'
+    )
+  }
+  if (JWT_SECRET.length < 32) {
+    throw new Error('[Config] 生产环境 JWT_SECRET 长度需 >= 32 字符，拒绝启动。')
+  }
+}
+
 // ========== CORS ==========
 export const CORS_ORIGINS = env('CORS_ORIGINS', 'http://localhost:5173,http://localhost:5174')
   .split(',')

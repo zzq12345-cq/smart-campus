@@ -667,58 +667,7 @@ const loadStudyPosts = async (force = false) => {
     await resolveAuthorNames(visiblePosts)
     const feedItems = visiblePosts.map(mapPostToFeedItem)
 
-    // 强行插入两条与效果图完全一致的 Mock 帖子数据
-    const mockPost1: StudyFeedPost = {
-      id: 'mock-exam-info-post',
-      authorId: 'user-id-1',
-      isAnonymous: false,
-      badge: isZh.value ? '考试信息' : 'Exam Info',
-      time: isZh.value ? '20分钟前' : '20 minutes ago',
-      content: isZh.value
-        ? '英语期末口语考试安排已出，请大家及时查看。'
-        : 'The English final oral exam schedule has been released, please check it in time.',
-      user: 'Test User',
-      avatar: '',
-      contextLabel: isZh.value ? '实名发布' : 'Named Post',
-      likeCount: 26,
-      commentCount: 3,
-      images: [],
-      imageCount: 0,
-      imageLabel: '',
-      isLiked: false,
-      likeInteractionId: '',
-      likePending: false,
-      isSaved: false,
-      saveInteractionId: '',
-      savePending: false,
-    }
-
-    const mockPost2: StudyFeedPost = {
-      id: 'mock-competition-post',
-      authorId: 'user-id-2',
-      isAnonymous: false,
-      badge: isZh.value ? '竞赛资讯' : 'Contest Info',
-      time: isZh.value ? '99分钟前' : '99 minutes ago',
-      content: isZh.value
-        ? '蓝桥杯校赛组队中，熟悉 Python 或 C++ 的同学可私信我，一起冲国奖！'
-        : "Teaming up for the Lanqiao Cup campus competition. Students familiar with Python or C++ can PM me, let's aim for the national award!",
-      user: isZh.value ? '实名用户' : 'Named User',
-      avatar: '',
-      contextLabel: isZh.value ? '实名发布' : 'Named Post',
-      likeCount: 15,
-      commentCount: 2,
-      images: [],
-      imageCount: 0,
-      imageLabel: '',
-      isLiked: false,
-      likeInteractionId: '',
-      likePending: false,
-      isSaved: false,
-      saveInteractionId: '',
-      savePending: false,
-    }
-
-    posts.value = [mockPost1, mockPost2, ...feedItems]
+    posts.value = feedItems
     setCache('study-posts', posts.value)
     postsLastFetchedAt = Date.now()
   } catch (error) {

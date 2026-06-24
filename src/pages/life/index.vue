@@ -661,36 +661,7 @@ const loadLifePosts = async (force = false) => {
     await resolveAuthorNames(visiblePosts)
     const feedItems = visiblePosts.map(mapPostToFeedItem)
 
-    // 注入效果图里的精美 Mock 帖子
-    const mockPost: LifeFeedPost = {
-      id: 'mock-music-festival-post',
-      authorId: 'anonymous-user-id',
-      isAnonymous: true,
-      badge: isZh.value ? '校园活动' : 'Campus Event',
-      time: isZh.value ? '99天前' : '99 days ago',
-      content: isZh.value
-        ? '周末草坪音乐夜招募志愿者，负责签到与秩序维护。'
-        : 'Volunteers wanted for the weekend lawn music night, responsible for check-in and order maintenance.',
-      user: isZh.value ? '匿名用户' : 'Anonymous User',
-      avatar: '',
-      contextLabel: isZh.value ? '匿名发布' : 'Anonymous Post',
-      likeCount: 33,
-      commentCount: 8,
-      images: [
-        'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=80',
-        'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=600&q=80',
-      ],
-      imageCount: 2,
-      imageLabel: isZh.value ? '2 图' : '2 Images',
-      isLiked: false,
-      likeInteractionId: '',
-      likePending: false,
-      isSaved: false,
-      saveInteractionId: '',
-      savePending: false,
-    }
-
-    posts.value = [mockPost, ...feedItems]
+    posts.value = feedItems
     setCache('life-posts', posts.value)
     postsLastFetchedAt = Date.now()
   } catch (error) {

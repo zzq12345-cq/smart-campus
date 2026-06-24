@@ -15,7 +15,7 @@ class StudyMaterialsService {
   private getDatabaseAndTable() {
     return {
       databaseId: MINDGUARD_DATABASE_ID,
-      tableId: STUDY_MATERIALS_TABLE_ID
+      tableId: STUDY_MATERIALS_TABLE_ID,
     }
   }
 
@@ -33,7 +33,7 @@ class StudyMaterialsService {
     return [
       Permission.read(Role.any()),
       Permission.update(Role.user(authorId)),
-      Permission.delete(Role.user(authorId))
+      Permission.delete(Role.user(authorId)),
     ]
   }
 
@@ -51,7 +51,7 @@ class StudyMaterialsService {
       fileNames: data.fileNames,
       downloadCount: 0,
       likeCount: 0,
-      tags: data.tags || []
+      tags: data.tags || [],
     }
     const permissions = this.buildPermissions(authorId)
     return (await tablesDB.createRow(
@@ -59,7 +59,7 @@ class StudyMaterialsService {
       tableId,
       ID.unique(),
       payload,
-      permissions
+      permissions,
     )) as StudyMaterial
   }
 
@@ -93,7 +93,7 @@ class StudyMaterialsService {
     const queries: string[] = [
       Query.equal('authorId', authorId),
       Query.orderDesc('$createdAt'),
-      Query.limit(100)
+      Query.limit(100),
     ]
     const result = await tablesDB.listRows(databaseId, tableId, queries)
     return (result?.rows || []) as StudyMaterial[]
@@ -105,23 +105,19 @@ class StudyMaterialsService {
     return true
   }
 
-  async incrementDownloadCount(id: string, currentCount: number) {
+  async incrementDownloadCount(id: string) {
     const { databaseId, tableId } = this.getDatabaseAndTable()
     try {
-      await tablesDB.updateRow(databaseId, tableId, id, {
-        downloadCount: currentCount + 1
-      })
+      await tablesDB.incrementRowColumn(databaseId, tableId, id, 'downloadCount', 1)
     } catch {
       // silently ignore permission errors
     }
   }
 
-  async incrementLikeCount(id: string, currentCount: number) {
+  async incrementLikeCount(id: string) {
     const { databaseId, tableId } = this.getDatabaseAndTable()
     try {
-      await tablesDB.updateRow(databaseId, tableId, id, {
-        likeCount: currentCount + 1
-      })
+      await tablesDB.incrementRowColumn(databaseId, tableId, id, 'likeCount', 1)
     } catch {
       // silently ignore permission errors
     }
@@ -137,7 +133,7 @@ class StudyMaterialsService {
     const queries: string[] = [
       Query.contains('title', trimmed),
       Query.orderDesc('$createdAt'),
-      Query.limit(50)
+      Query.limit(50),
     ]
 
     const result = await tablesDB.listRows(databaseId, tableId, queries)

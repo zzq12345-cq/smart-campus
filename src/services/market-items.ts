@@ -5,7 +5,7 @@ import type {
   MarketItem,
   MarketItemCategory,
   MarketItemCreateData,
-  MarketItemStatus
+  MarketItemStatus,
 } from '@/types/market-item'
 import { tablesDBProxy as tablesDB } from '@/utils/appwrite-proxy'
 import { MINDGUARD_DATABASE_ID, MARKET_ITEMS_TABLE_ID } from '@/utils/appwrite-shared'
@@ -21,7 +21,7 @@ class MarketItemsService {
   private getDatabaseAndTable() {
     return {
       databaseId: MINDGUARD_DATABASE_ID,
-      tableId: MARKET_ITEMS_TABLE_ID
+      tableId: MARKET_ITEMS_TABLE_ID,
     }
   }
 
@@ -39,7 +39,7 @@ class MarketItemsService {
     return [
       Permission.read(Role.any()),
       Permission.update(Role.user(authorId)),
-      Permission.delete(Role.user(authorId))
+      Permission.delete(Role.user(authorId)),
     ]
   }
 
@@ -57,10 +57,16 @@ class MarketItemsService {
       images: data.images || [],
       status: 'available' as MarketItemStatus,
       contactNote: data.contactNote || '',
-      viewCount: 0
+      viewCount: 0,
     }
     const permissions = this.buildItemPermissions(authorId)
-    return (await tablesDB.createRow(databaseId, tableId, ID.unique(), payload, permissions)) as MarketItem
+    return (await tablesDB.createRow(
+      databaseId,
+      tableId,
+      ID.unique(),
+      payload,
+      permissions,
+    )) as MarketItem
   }
 
   async getItems(options: MarketItemListOptions = {}) {
@@ -92,7 +98,7 @@ class MarketItemsService {
     const queries: string[] = [
       Query.equal('authorId', authorId),
       Query.orderDesc('$createdAt'),
-      Query.limit(100)
+      Query.limit(100),
     ]
     const result = await tablesDB.listRows(databaseId, tableId, queries)
     return (result?.rows || []) as MarketItem[]
@@ -110,14 +116,11 @@ class MarketItemsService {
     // Trigger notification if status changed to sold or reserved
     if (status !== currentItem.status && (status === 'sold' || status === 'reserved')) {
       const statusText = status === 'sold' ? '已售出' : '已预留'
-      pushSchedulerService.scheduleOrderStatusReminders(
-        id,
-        currentItem.authorId,
-        statusText,
-        currentItem.title
-      ).catch(() => {
-        // Silent error handling - don't interrupt main flow
-      })
+      pushSchedulerService
+        .scheduleOrderStatusReminders(id, currentItem.authorId, statusText, currentItem.title)
+        .catch(() => {
+          // Silent error handling - don't interrupt main flow
+        })
     }
 
     return updated
@@ -129,10 +132,10 @@ class MarketItemsService {
     return true
   }
 
-  async incrementViewCount(id: string, currentCount: number) {
+  async incrementViewCount(id: string) {
     const { databaseId, tableId } = this.getDatabaseAndTable()
     try {
-      await tablesDB.updateRow(databaseId, tableId, id, { viewCount: currentCount + 1 })
+      await tablesDB.incrementRowColumn(databaseId, tableId, id, 'viewCount', 1)
     } catch {
       // silently ignore permission errors on view count
     }
@@ -149,7 +152,7 @@ class MarketItemsService {
       Query.equal('status', 'available'),
       Query.contains('title', trimmed),
       Query.orderDesc('$createdAt'),
-      Query.limit(50)
+      Query.limit(50),
     ]
 
     const result = await tablesDB.listRows(databaseId, tableId, queries)

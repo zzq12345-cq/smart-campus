@@ -2,7 +2,11 @@ import { ID, Permission, Query, Role } from 'appwrite'
 import authService from '@/services/auth'
 import notificationsService from '@/services/notifications'
 import { tablesDB } from '@/utils/appwrite'
-import { MINDGUARD_DATABASE_ID, POST_INTERACTIONS_TABLE_ID, POSTS_TABLE_ID } from '@/utils/appwrite-shared'
+import {
+  MINDGUARD_DATABASE_ID,
+  POST_INTERACTIONS_TABLE_ID,
+  POSTS_TABLE_ID,
+} from '@/utils/appwrite-shared'
 
 export type InteractionType = 'like' | 'save' | 'report'
 
@@ -80,20 +84,49 @@ class PostInteractionsService {
         authorId: string
         content?: string
       }
-      const nextLikeCount = Math.max(0, Number(post.likeCount || 0) + delta)
-      await tablesDB.updateRow(MINDGUARD_DATABASE_ID, POSTS_TABLE_ID, postId, {
-        likeCount: nextLikeCount,
-      })
+      // 原子更新点赞计数，消除并发"读-改-写"导致的丢失更新
+      let updatedLikeCount: number | undefined
+      try {
+        const updated = (
+          delta > 0
+            ? await tablesDB.incrementRowColumn(
+                MINDGUARD_DATABASE_ID,
+                POSTS_TABLE_ID,
+                postId,
+                'likeCount',
+                delta,
+              )
+            : await tablesDB.decrementRowColumn(
+                MINDGUARD_DATABASE_ID,
+                POSTS_TABLE_ID,
+                postId,
+                'likeCount',
+                Math.abs(delta),
+                0,
+              )
+        ) as { likeCount?: number } | undefined
+        if (updated?.likeCount !== undefined) {
+          updatedLikeCount = Number(updated.likeCount)
+        }
+      } catch {
+        // 原子更新失败则用本地估算兜底
+      }
+      const nextLikeCount =
+        updatedLikeCount !== undefined
+          ? updatedLikeCount
+          : Math.max(0, Number(post.likeCount || 0) + delta)
 
       if (delta > 0 && post.authorId && post.authorId !== userId) {
-        notificationsService.createNotification({
-          recipientId: post.authorId,
-          actorId: userId,
-          type: 'like',
-          targetType: 'post',
-          targetId: postId,
-          preview: String(post.content || '').slice(0, 100),
-        }).catch(() => undefined)
+        notificationsService
+          .createNotification({
+            recipientId: post.authorId,
+            actorId: userId,
+            type: 'like',
+            targetType: 'post',
+            targetId: postId,
+            preview: String(post.content || '').slice(0, 100),
+          })
+          .catch(() => undefined)
       }
 
       return {
@@ -178,7 +211,11 @@ class PostInteractionsService {
     return saveMap
   }
 
-  async setMyLikeState(postId: string, isLiked: boolean, existingInteractionId?: string): Promise<LikeResult> {
+  async setMyLikeState(
+    postId: string,
+    isLiked: boolean,
+    existingInteractionId?: string,
+  ): Promise<LikeResult> {
     const userId = await this.getAuthUserId()
     const { databaseId, tableId } = this.getDatabaseAndTable()
 
@@ -195,7 +232,7 @@ class PostInteractionsService {
           tableId,
           ID.unique(),
           { userId, postId, type: 'like' },
-          this.buildInteractionPermissions(userId)
+          this.buildInteractionPermissions(userId),
         )) as PostInteraction
         interactionId = interaction.$id
         delta = 1
@@ -217,7 +254,11 @@ class PostInteractionsService {
     }
   }
 
-  async setMySaveState(postId: string, isSaved: boolean, existingInteractionId?: string): Promise<SaveResult> {
+  async setMySaveState(
+    postId: string,
+    isSaved: boolean,
+    existingInteractionId?: string,
+  ): Promise<SaveResult> {
     const userId = await this.getAuthUserId()
     const { databaseId, tableId } = this.getDatabaseAndTable()
 
@@ -233,7 +274,7 @@ class PostInteractionsService {
           tableId,
           ID.unique(),
           { userId, postId, type: 'save' },
-          this.buildInteractionPermissions(userId)
+          this.buildInteractionPermissions(userId),
         )) as PostInteraction
         interactionId = interaction.$id
       }

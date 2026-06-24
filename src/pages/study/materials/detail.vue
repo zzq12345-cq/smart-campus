@@ -71,7 +71,9 @@
           </view>
           <view class="author-info">
             <text class="author-name">{{ authorName }}</text>
-            <text class="author-label">{{ isZh ? '上传者 · 点击私信' : 'Uploader · Tap to chat' }}</text>
+            <text class="author-label">{{
+              isZh ? '上传者 · 点击私信' : 'Uploader · Tap to chat'
+            }}</text>
           </view>
         </view>
       </view>
@@ -79,7 +81,9 @@
       <view class="files-card">
         <view class="files-head">
           <Icon name="folder" :size="18" color="#4A90E2" />
-          <text class="files-title">{{ isZh ? '文件列表' : 'Files' }} ({{ item.fileIds.length }})</text>
+          <text class="files-title"
+            >{{ isZh ? '文件列表' : 'Files' }} ({{ item.fileIds.length }})</text
+          >
         </view>
         <view
           v-for="(fileId, idx) in item.fileIds"
@@ -100,13 +104,9 @@
       <view class="bottom-actions">
         <view class="action-btn like-btn" :class="{ liked: hasLiked }" @tap="handleLike">
           <Icon name="thumb_up" :size="18" :color="hasLiked ? '#ffffff' : '#4A90E2'" />
-          <text>{{ hasLiked ? (isZh ? '已点赞' : 'Liked') : (isZh ? '点赞' : 'Like') }}</text>
+          <text>{{ hasLiked ? (isZh ? '已点赞' : 'Liked') : isZh ? '点赞' : 'Like' }}</text>
         </view>
-        <view
-          v-if="isOwner"
-          class="action-btn delete-btn"
-          @tap="confirmDelete"
-        >
+        <view v-if="isOwner" class="action-btn delete-btn" @tap="confirmDelete">
           <Icon name="delete" :size="18" color="#ef4444" />
           <text>{{ isZh ? '删除' : 'Delete' }}</text>
         </view>
@@ -149,10 +149,10 @@ const loadingText = computed(() => (isZh.value ? '加载中...' : 'Loading...'))
 const retryText = computed(() => (isZh.value ? '重试' : 'Retry'))
 
 const currentUserId = computed(() =>
-  String(authStore.user?.$id || authStore.dbUser?.$id || '').trim()
+  String(authStore.user?.$id || authStore.dbUser?.$id || '').trim(),
 )
 const isOwner = computed(() =>
-  Boolean(item.value && currentUserId.value && item.value.authorId === currentUserId.value)
+  Boolean(item.value && currentUserId.value && item.value.authorId === currentUserId.value),
 )
 
 const typeIconMap: Record<string, string> = {
@@ -160,7 +160,7 @@ const typeIconMap: Record<string, string> = {
   past_exam: 'history_edu',
   courseware: 'slideshow',
   lab_report: 'science',
-  other: 'folder'
+  other: 'folder',
 }
 
 const typeIcon = computed(() => typeIconMap[item.value?.materialType || ''] || 'folder')
@@ -171,7 +171,7 @@ const typeLabel = computed(() => {
     past_exam: { zh: '历年真题', en: 'Past Exam' },
     courseware: { zh: '课件', en: 'Courseware' },
     lab_report: { zh: '实验报告', en: 'Lab Report' },
-    other: { zh: '其他', en: 'Other' }
+    other: { zh: '其他', en: 'Other' },
   }
   const entry = map[item.value?.materialType || '']
   return entry ? (isZh.value ? entry.zh : entry.en) : ''
@@ -195,7 +195,7 @@ const resolveAuthor = async (authorId: string) => {
   try {
     const result = await tablesDB.listRows(MINDGUARD_DATABASE_ID, USERS_TABLE_ID, [
       Query.equal('$id', [authorId]),
-      Query.limit(1)
+      Query.limit(1),
     ])
     const row = (result?.rows || [])[0] as Record<string, unknown> | undefined
     if (row) {
@@ -240,7 +240,7 @@ const downloadFile = (fileId: string, fileName: string) => {
   if (!item.value) return
   const url = buildFileDownloadUrl(fileId)
 
-  studyMaterialsService.incrementDownloadCount(item.value.$id, item.value.downloadCount)
+  studyMaterialsService.incrementDownloadCount(item.value.$id)
   item.value = { ...item.value, downloadCount: item.value.downloadCount + 1 }
 
   // #ifdef H5
@@ -260,20 +260,20 @@ const downloadFile = (fileId: string, fileName: string) => {
               success: () => {
                 uni.showToast({
                   title: isZh.value ? '已保存' : 'Saved',
-                  icon: 'success'
+                  icon: 'success',
                 })
-              }
+              },
             })
-          }
+          },
         })
       }
     },
     fail: () => {
       uni.showToast({
         title: isZh.value ? '下载失败' : 'Download failed',
-        icon: 'none'
+        icon: 'none',
       })
-    }
+    },
   })
   // #endif
 }
@@ -281,14 +281,17 @@ const downloadFile = (fileId: string, fileName: string) => {
 const handleLike = () => {
   if (!item.value || hasLiked.value) return
   hasLiked.value = true
-  studyMaterialsService.incrementLikeCount(item.value.$id, item.value.likeCount)
+  studyMaterialsService.incrementLikeCount(item.value.$id)
   item.value = { ...item.value, likeCount: item.value.likeCount + 1 }
 }
 
 const contactAuthor = async () => {
   if (!item.value?.authorId || startingConversation.value) return
   if (item.value.authorId === String(authStore.user?.$id || '').trim()) {
-    uni.showToast({ title: isZh.value ? '这是你自己的资料' : 'This is your material', icon: 'none' })
+    uni.showToast({
+      title: isZh.value ? '这是你自己的资料' : 'This is your material',
+      icon: 'none',
+    })
     return
   }
   if (!authStore.isLoggedIn) {
@@ -298,10 +301,12 @@ const contactAuthor = async () => {
   }
   startingConversation.value = true
   try {
-    const conversation = await conversationsService.findOrCreateDirectConversation(item.value.authorId)
+    const conversation = await conversationsService.findOrCreateDirectConversation(
+      item.value.authorId,
+    )
     const title = encodeURIComponent(authorName.value || (isZh.value ? '上传者' : 'Uploader'))
     uni.navigateTo({
-      url: `/pages/messages/chat?conversationId=${encodeURIComponent(conversation.$id)}&title=${title}`
+      url: `/pages/messages/chat?conversationId=${encodeURIComponent(conversation.$id)}&title=${title}`,
     })
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error)
@@ -325,10 +330,10 @@ const confirmDelete = () => {
         const msg = error instanceof Error ? error.message : String(error)
         uni.showToast({
           title: msg || (isZh.value ? '删除失败' : 'Delete failed'),
-          icon: 'none'
+          icon: 'none',
         })
       }
-    }
+    },
   })
 }
 
@@ -459,7 +464,7 @@ onLoad(async (query) => {
   background: rgba(74, 144, 226, 0.08);
 
   text {
-    color: #4A90E2;
+    color: #4a90e2;
   }
 }
 
@@ -485,7 +490,7 @@ onLoad(async (query) => {
   background: rgba(74, 144, 226, 0.08);
 
   text {
-    color: #4A90E2;
+    color: #4a90e2;
     font-size: 20rpx;
     font-weight: 600;
   }
@@ -646,12 +651,12 @@ onLoad(async (query) => {
   border: 1px solid rgba(74, 144, 226, 0.2);
 
   text {
-    color: #4A90E2;
+    color: #4a90e2;
   }
 }
 
 .like-btn.liked {
-  background: linear-gradient(135deg, #4A90E2, #2563eb);
+  background: linear-gradient(135deg, #4a90e2, #2563eb);
   border-color: transparent;
 
   text {

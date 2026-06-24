@@ -86,7 +86,9 @@
           </view>
           <view class="author-info">
             <text class="author-name">{{ authorName }}</text>
-            <text class="author-label">{{ isZh ? '发布者 · 点击私信' : 'Seller · Tap to chat' }}</text>
+            <text class="author-label">{{
+              isZh ? '发布者 · 点击私信' : 'Seller · Tap to chat'
+            }}</text>
           </view>
         </view>
       </view>
@@ -99,13 +101,17 @@
           @tap="toggleSoldStatus"
         >
           <Icon name="sell" :size="18" color="#ffffff" />
-          <text>{{ item.status === 'sold' ? (isZh ? '重新上架' : 'Relist') : (isZh ? '标记已售' : 'Mark Sold') }}</text>
+          <text>{{
+            item.status === 'sold'
+              ? isZh
+                ? '重新上架'
+                : 'Relist'
+              : isZh
+                ? '标记已售'
+                : 'Mark Sold'
+          }}</text>
         </view>
-        <view
-          v-if="isOwner"
-          class="action-btn delete-btn"
-          @tap="confirmDelete"
-        >
+        <view v-if="isOwner" class="action-btn delete-btn" @tap="confirmDelete">
           <Icon name="delete" :size="18" color="#ef4444" />
           <text>{{ isZh ? '删除' : 'Delete' }}</text>
         </view>
@@ -156,9 +162,17 @@ const pageTitle = computed(() => (isZh.value ? '商品详情' : 'Item Detail'))
 const loadingText = computed(() => (isZh.value ? '加载中...' : 'Loading...'))
 const retryText = computed(() => (isZh.value ? '重试' : 'Retry'))
 
-const currentUserId = computed(() => String(authStore.user?.$id || authStore.dbUser?.$id || '').trim())
-const isOwner = computed(() => Boolean(item.value && currentUserId.value && item.value.authorId === currentUserId.value))
-const canContact = computed(() => Boolean(item.value?.authorId && currentUserId.value && item.value.authorId !== currentUserId.value))
+const currentUserId = computed(() =>
+  String(authStore.user?.$id || authStore.dbUser?.$id || '').trim(),
+)
+const isOwner = computed(() =>
+  Boolean(item.value && currentUserId.value && item.value.authorId === currentUserId.value),
+)
+const canContact = computed(() =>
+  Boolean(
+    item.value?.authorId && currentUserId.value && item.value.authorId !== currentUserId.value,
+  ),
+)
 
 const formattedPrice = computed(() => {
   const p = Number(item.value?.price || 0)
@@ -170,7 +184,7 @@ const conditionLabel = computed(() => {
     brand_new: { zh: '全新', en: 'New' },
     like_new: { zh: '九成新', en: 'Like New' },
     good: { zh: '良好', en: 'Good' },
-    fair: { zh: '有痕迹', en: 'Fair' }
+    fair: { zh: '有痕迹', en: 'Fair' },
   }
   const entry = map[item.value?.condition || '']
   return entry ? (isZh.value ? entry.zh : entry.en) : ''
@@ -183,7 +197,7 @@ const categoryLabel = computed(() => {
     daily: { zh: '生活', en: 'Daily' },
     clothing: { zh: '服装', en: 'Clothing' },
     sports: { zh: '运动', en: 'Sports' },
-    other: { zh: '其他', en: 'Other' }
+    other: { zh: '其他', en: 'Other' },
   }
   const entry = map[item.value?.category || '']
   return entry ? (isZh.value ? entry.zh : entry.en) : ''
@@ -193,7 +207,7 @@ const statusLabel = computed(() => {
   const map: Record<string, { zh: string; en: string }> = {
     available: { zh: '在售', en: 'Available' },
     reserved: { zh: '已预留', en: 'Reserved' },
-    sold: { zh: '已售出', en: 'Sold' }
+    sold: { zh: '已售出', en: 'Sold' },
   }
   const entry = map[item.value?.status || '']
   return entry ? (isZh.value ? entry.zh : entry.en) : ''
@@ -217,7 +231,7 @@ const resolveAuthor = async (authorId: string) => {
   try {
     const result = await tablesDB.listRows(MINDGUARD_DATABASE_ID, USERS_TABLE_ID, [
       Query.equal('$id', [authorId]),
-      Query.limit(1)
+      Query.limit(1),
     ])
     const row = (result?.rows || [])[0] as Record<string, unknown> | undefined
     if (row) {
@@ -242,10 +256,12 @@ const loadDetail = async () => {
     const result = await marketItemsService.getItem(itemId.value)
     item.value = result
     await resolveAuthor(result.authorId)
-    marketItemsService.incrementViewCount(result.$id, result.viewCount)
+    marketItemsService.incrementViewCount(result.$id)
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error)
-    errorMessage.value = isZh.value ? `加载失败：${msg || '请稍后重试'}` : `Failed: ${msg || 'retry later'}`
+    errorMessage.value = isZh.value
+      ? `加载失败：${msg || '请稍后重试'}`
+      : `Failed: ${msg || 'retry later'}`
   } finally {
     loading.value = false
   }
@@ -255,7 +271,7 @@ const previewImages = (index: number) => {
   if (!item.value?.images.length) return
   uni.previewImage({
     urls: item.value.images,
-    current: item.value.images[index]
+    current: item.value.images[index],
   })
 }
 
@@ -268,7 +284,7 @@ const toggleSoldStatus = async () => {
     item.value = { ...item.value, status: updated.status || newStatus }
     uni.showToast({
       title: isZh.value ? '已更新' : 'Updated',
-      icon: 'success'
+      icon: 'success',
     })
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error)
@@ -292,7 +308,7 @@ const confirmDelete = () => {
         const msg = error instanceof Error ? error.message : String(error)
         uni.showToast({ title: msg || (isZh.value ? '删除失败' : 'Delete failed'), icon: 'none' })
       }
-    }
+    },
   })
 }
 
@@ -305,10 +321,12 @@ const contactSeller = async () => {
   }
   startingConversation.value = true
   try {
-    const conversation = await conversationsService.findOrCreateDirectConversation(item.value.authorId)
+    const conversation = await conversationsService.findOrCreateDirectConversation(
+      item.value.authorId,
+    )
     const title = encodeURIComponent(authorName.value || (isZh.value ? '卖家' : 'Seller'))
     uni.navigateTo({
-      url: `/pages/messages/chat?conversationId=${encodeURIComponent(conversation.$id)}&title=${title}`
+      url: `/pages/messages/chat?conversationId=${encodeURIComponent(conversation.$id)}&title=${title}`,
     })
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error)

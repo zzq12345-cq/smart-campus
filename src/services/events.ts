@@ -1,20 +1,35 @@
 import { ID, Permission, Query, Role } from 'appwrite'
 import authService from '@/services/auth'
-import type { CampusEvent, EventCategory, EventCreateData, EventRegistration, EventStatus } from '@/types/event'
+import type {
+  CampusEvent,
+  EventCategory,
+  EventCreateData,
+  EventRegistration,
+  EventStatus,
+} from '@/types/event'
 import { tablesDBProxy as tablesDB } from '@/utils/appwrite-proxy'
 import {
   MINDGUARD_DATABASE_ID,
   EVENTS_TABLE_ID,
-  EVENT_REGISTRATIONS_TABLE_ID
+  EVENT_REGISTRATIONS_TABLE_ID,
 } from '@/utils/appwrite-shared'
 
 const CATEGORY_SET: Set<EventCategory> = new Set([
-  'competition', 'lecture', 'club', 'volunteer', 'entertainment', 'other'
+  'competition',
+  'lecture',
+  'club',
+  'volunteer',
+  'entertainment',
+  'other',
 ])
 
 class EventsService {
   private get db() {
-    return { databaseId: MINDGUARD_DATABASE_ID, eventsTable: EVENTS_TABLE_ID, regTable: EVENT_REGISTRATIONS_TABLE_ID }
+    return {
+      databaseId: MINDGUARD_DATABASE_ID,
+      eventsTable: EVENTS_TABLE_ID,
+      regTable: EVENT_REGISTRATIONS_TABLE_ID,
+    }
   }
 
   private async getAuthUserId() {
@@ -32,7 +47,7 @@ class EventsService {
       Permission.read(Role.users()),
       Permission.read(Role.user(authorId)),
       Permission.update(Role.user(authorId)),
-      Permission.delete(Role.user(authorId))
+      Permission.delete(Role.user(authorId)),
     ]
   }
 
@@ -41,7 +56,7 @@ class EventsService {
       Permission.read(Role.users()),
       Permission.read(Role.user(userId)),
       Permission.update(Role.user(userId)),
-      Permission.delete(Role.user(userId))
+      Permission.delete(Role.user(userId)),
     ]
   }
 
@@ -68,17 +83,30 @@ class EventsService {
       category: this.normalizeCategory(data.category),
       status: 'upcoming' as EventStatus,
       registrationCount: 0,
-      contactInfo: data.contactInfo || ''
+      contactInfo: data.contactInfo || '',
     }
     if (data.eventEndDate) {
       payload.eventEndDate = data.eventEndDate
     }
 
     const permissions = this.buildEventPermissions(authorId)
-    return (await tablesDB.createRow(databaseId, eventsTable, ID.unique(), payload, permissions)) as CampusEvent
+    return (await tablesDB.createRow(
+      databaseId,
+      eventsTable,
+      ID.unique(),
+      payload,
+      permissions,
+    )) as CampusEvent
   }
 
-  async getEvents(options: { category?: EventCategory; status?: EventStatus; limit?: number; offset?: number } = {}) {
+  async getEvents(
+    options: {
+      category?: EventCategory
+      status?: EventStatus
+      limit?: number
+      offset?: number
+    } = {},
+  ) {
     const { databaseId, eventsTable } = this.db
     const queries: string[] = []
 
@@ -113,7 +141,7 @@ class EventsService {
     const queries = [
       Query.equal('authorId', authorId),
       Query.orderDesc('$createdAt'),
-      Query.limit(50)
+      Query.limit(50),
     ]
     const result = await tablesDB.listRows(databaseId, eventsTable, queries)
     return (result?.rows || []) as CampusEvent[]
@@ -135,7 +163,7 @@ class EventsService {
 
     if (existing && existing.status === 'cancelled') {
       const updated = (await tablesDB.updateRow(databaseId, regTable, existing.$id, {
-        status: 'registered'
+        status: 'registered',
       })) as EventRegistration
       await this.incrementRegistrationCount(eventId, 1)
       return updated
@@ -143,7 +171,13 @@ class EventsService {
 
     const payload = { eventId, userId: uid, status: 'registered' }
     const permissions = this.buildRegistrationPermissions(uid)
-    const reg = (await tablesDB.createRow(databaseId, regTable, ID.unique(), payload, permissions)) as EventRegistration
+    const reg = (await tablesDB.createRow(
+      databaseId,
+      regTable,
+      ID.unique(),
+      payload,
+      permissions,
+    )) as EventRegistration
     await this.incrementRegistrationCount(eventId, 1)
     return reg
   }
@@ -158,7 +192,7 @@ class EventsService {
     }
 
     const updated = (await tablesDB.updateRow(databaseId, regTable, existing.$id, {
-      status: 'cancelled'
+      status: 'cancelled',
     })) as EventRegistration
     await this.incrementRegistrationCount(eventId, -1)
     return updated
@@ -170,7 +204,7 @@ class EventsService {
       Query.equal('eventId', eventId),
       Query.equal('status', 'registered'),
       Query.orderDesc('$createdAt'),
-      Query.limit(200)
+      Query.limit(200),
     ]
     const result = await tablesDB.listRows(databaseId, regTable, queries)
     return (result?.rows || []) as EventRegistration[]
@@ -186,24 +220,40 @@ class EventsService {
     return this.getEvents({ status: 'upcoming', limit })
   }
 
-  private async findRegistration(eventId: string, userId: string): Promise<EventRegistration | null> {
+  private async findRegistration(
+    eventId: string,
+    userId: string,
+  ): Promise<EventRegistration | null> {
     const { databaseId, regTable } = this.db
-    const queries = [
-      Query.equal('eventId', eventId),
-      Query.equal('userId', userId),
-      Query.limit(1)
-    ]
+    const queries = [Query.equal('eventId', eventId), Query.equal('userId', userId), Query.limit(1)]
     const result = await tablesDB.listRows(databaseId, regTable, queries)
     const rows = (result?.rows || []) as EventRegistration[]
     return rows.length > 0 ? rows[0] : null
   }
 
   private async incrementRegistrationCount(eventId: string, delta: number) {
+    if (!delta) return
     const { databaseId, eventsTable } = this.db
     try {
-      const event = (await tablesDB.getRow(databaseId, eventsTable, eventId)) as CampusEvent
-      const newCount = Math.max(0, (event.registrationCount || 0) + delta)
-      await tablesDB.updateRow(databaseId, eventsTable, eventId, { registrationCount: newCount })
+      // 原子更新报名人数，消除并发"读-改-写"导致的丢失更新
+      if (delta > 0) {
+        await tablesDB.incrementRowColumn(
+          databaseId,
+          eventsTable,
+          eventId,
+          'registrationCount',
+          delta,
+        )
+      } else {
+        await tablesDB.decrementRowColumn(
+          databaseId,
+          eventsTable,
+          eventId,
+          'registrationCount',
+          Math.abs(delta),
+          0,
+        )
+      }
     } catch {
       // non-critical: count will be slightly off
     }

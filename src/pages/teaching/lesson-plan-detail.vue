@@ -94,7 +94,7 @@
         <MarkdownText :content="plan.notes" />
       </view>
 
-      <view style="height: 160rpx;" />
+      <view style="height: 160rpx" />
     </scroll-view>
 
     <!-- 加载中 -->
@@ -106,15 +106,19 @@
     <view v-if="plan" class="bottom-bar">
       <view class="action-btn outline" @tap="exportAsFile">
         <Icon name="download" :size="18" :color="subjectColor" />
-        <text class="action-text" :style="{ color: subjectColor }">{{ isZh ? '导出' : 'Export' }}</text>
+        <text class="action-text" :style="{ color: subjectColor }">{{
+          isZh ? '导出' : 'Export'
+        }}</text>
       </view>
       <view class="action-btn outline" @tap="copyFullText">
         <Icon name="content_copy" :size="18" :color="subjectColor" />
-        <text class="action-text" :style="{ color: subjectColor }">{{ isZh ? '复制' : 'Copy' }}</text>
+        <text class="action-text" :style="{ color: subjectColor }">{{
+          isZh ? '复制' : 'Copy'
+        }}</text>
       </view>
       <view class="action-btn primary" :style="{ background: subjectColor }" @tap="goEdit">
         <Icon name="edit" :size="18" color="#ffffff" />
-        <text class="action-text" style="color:#ffffff">{{ isZh ? '编辑' : 'Edit' }}</text>
+        <text class="action-text" style="color: #ffffff">{{ isZh ? '编辑' : 'Edit' }}</text>
       </view>
     </view>
 
@@ -123,19 +127,19 @@
       <view class="action-sheet" @tap.stop>
         <view v-if="plan?.status === 'draft'" class="action-item" @tap="handlePublish">
           <Icon name="publish" :size="20" color="#10b981" />
-          <text style="color:#10b981">{{ isZh ? '发布教案' : 'Publish' }}</text>
+          <text style="color: #10b981">{{ isZh ? '发布教案' : 'Publish' }}</text>
         </view>
         <view v-if="plan?.status === 'published'" class="action-item" @tap="handleArchive">
           <Icon name="archive" :size="20" color="#f59e0b" />
-          <text style="color:#f59e0b">{{ isZh ? '归档教案' : 'Archive' }}</text>
+          <text style="color: #f59e0b">{{ isZh ? '归档教案' : 'Archive' }}</text>
         </view>
         <view class="action-item" @tap="handleDuplicate">
           <Icon name="content_copy" :size="20" color="#3b82f6" />
-          <text style="color:#3b82f6">{{ isZh ? '复制为新教案' : 'Duplicate' }}</text>
+          <text style="color: #3b82f6">{{ isZh ? '复制为新教案' : 'Duplicate' }}</text>
         </view>
         <view class="action-item" @tap="handleDelete">
           <Icon name="delete" :size="20" color="#ef4444" />
-          <text style="color:#ef4444">{{ isZh ? '删除教案' : 'Delete' }}</text>
+          <text style="color: #ef4444">{{ isZh ? '删除教案' : 'Delete' }}</text>
         </view>
         <view class="action-item cancel" @tap="showMoreActions = false">
           <text>{{ isZh ? '取消' : 'Cancel' }}</text>
@@ -158,7 +162,7 @@ const authStore = useAuthStore()
 const uiPreferencesStore = useUiPreferencesStore()
 
 const themeClass = computed(() => `theme-${uiPreferencesStore.theme}`)
-const iconColor = computed(() => uiPreferencesStore.theme === 'light' ? '#64748b' : '#94a3b8')
+const iconColor = computed(() => (uiPreferencesStore.theme === 'light' ? '#64748b' : '#94a3b8'))
 const isZh = computed(() => uiPreferencesStore.locale === 'zh-CN')
 
 const currentSubject = computed(() => {
@@ -167,7 +171,9 @@ const currentSubject = computed(() => {
 })
 const subjectColor = computed(() => currentSubject.value.color)
 const subjectColorLight = computed(() => currentSubject.value.colorLight)
-const subjectLabel = computed(() => isZh.value ? currentSubject.value.name : currentSubject.value.nameEn)
+const subjectLabel = computed(() =>
+  isZh.value ? currentSubject.value.name : currentSubject.value.nameEn,
+)
 const heroGradient = computed(() => currentSubject.value.gradient)
 
 const plan = ref<LessonPlan | null>(null)
@@ -226,16 +232,19 @@ function copyFullText() {
     p.homework ? `\n【课后作业】\n${p.homework}` : '',
     p.reflection ? `\n【教学反思】\n${p.reflection}` : '',
     p.notes ? `\n【备注】\n${p.notes}` : '',
-  ].filter(Boolean).join('\n')
+  ]
+    .filter(Boolean)
+    .join('\n')
 
   uni.setClipboardData({
     data: sections,
-    success: () => uni.showToast({ title: isZh.value ? '已复制全文' : 'Copied', icon: 'success' })
+    success: () => uni.showToast({ title: isZh.value ? '已复制全文' : 'Copied', icon: 'success' }),
   })
 }
 
-/** 通用文件下载（H5） */
+/** 通用文件下载（H5 使用浏览器下载，小程序端降级为复制到剪贴板） */
 function triggerDownload(content: string, filename: string, mimeType: string) {
+  // #ifdef H5
   try {
     const blob = new Blob([content], { type: `${mimeType};charset=utf-8` })
     const url = URL.createObjectURL(blob)
@@ -254,6 +263,19 @@ function triggerDownload(content: string, filename: string, mimeType: string) {
     console.error('Export failed:', e)
     uni.showToast({ title: isZh.value ? '导出失败，请复制后粘贴' : 'Export failed', icon: 'none' })
   }
+  // #endif
+  // #ifndef H5
+  // 小程序端无 Blob/URL，降级为复制内容到剪贴板
+  uni.setClipboardData({
+    data: content,
+    success: () =>
+      uni.showToast({
+        title: isZh.value ? '内容已复制，可粘贴保存' : 'Content copied',
+        icon: 'success',
+      }),
+    fail: () => uni.showToast({ title: isZh.value ? '导出失败' : 'Export failed', icon: 'none' }),
+  })
+  // #endif
 }
 
 /** 导出为 HTML 文件（手机和电脑都能下载，WPS/Word 可打开） */
@@ -262,7 +284,9 @@ function exportAsFile() {
   const p = plan.value
 
   const sectionHtml = (title: string, text: string) =>
-    text ? `<h2 style="color:#c00000;border-bottom:2px solid #c00000;padding-bottom:6px;">${title}</h2><div style="line-height:1.8;white-space:pre-wrap;">${text.replace(/\n/g, '<br>')}</div>` : ''
+    text
+      ? `<h2 style="color:#c00000;border-bottom:2px solid #c00000;padding-bottom:6px;">${title}</h2><div style="line-height:1.8;white-space:pre-wrap;">${text.replace(/\n/g, '<br>')}</div>`
+      : ''
 
   const html = `<!DOCTYPE html>
 <html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width">
@@ -298,7 +322,9 @@ async function handlePublish() {
     await lessonPlansService.publishLessonPlan(planId.value)
     plan.value!.status = 'published'
     uni.showToast({ title: isZh.value ? '已发布' : 'Published', icon: 'success' })
-  } catch { uni.showToast({ title: isZh.value ? '操作失败' : 'Failed', icon: 'none' }) }
+  } catch {
+    uni.showToast({ title: isZh.value ? '操作失败' : 'Failed', icon: 'none' })
+  }
 }
 
 async function handleArchive() {
@@ -307,7 +333,9 @@ async function handleArchive() {
     await lessonPlansService.archiveLessonPlan(planId.value)
     plan.value!.status = 'archived'
     uni.showToast({ title: isZh.value ? '已归档' : 'Archived', icon: 'success' })
-  } catch { uni.showToast({ title: isZh.value ? '操作失败' : 'Failed', icon: 'none' }) }
+  } catch {
+    uni.showToast({ title: isZh.value ? '操作失败' : 'Failed', icon: 'none' })
+  }
 }
 
 async function handleDuplicate() {
@@ -316,9 +344,13 @@ async function handleDuplicate() {
     const dup = await lessonPlansService.duplicateLessonPlan(planId.value)
     uni.showToast({ title: isZh.value ? '已复制' : 'Duplicated', icon: 'success' })
     setTimeout(() => {
-      uni.redirectTo({ url: `/pages/teaching/lesson-plan-detail?id=${encodeURIComponent(dup.$id)}` })
+      uni.redirectTo({
+        url: `/pages/teaching/lesson-plan-detail?id=${encodeURIComponent(dup.$id)}`,
+      })
     }, 600)
-  } catch { uni.showToast({ title: isZh.value ? '操作失败' : 'Failed', icon: 'none' }) }
+  } catch {
+    uni.showToast({ title: isZh.value ? '操作失败' : 'Failed', icon: 'none' })
+  }
 }
 
 function handleDelete() {
@@ -332,8 +364,10 @@ function handleDelete() {
         await lessonPlansService.deleteLessonPlan(planId.value)
         uni.showToast({ title: isZh.value ? '已删除' : 'Deleted', icon: 'success' })
         setTimeout(() => goBack(), 600)
-      } catch { uni.showToast({ title: isZh.value ? '删除失败' : 'Delete failed', icon: 'none' }) }
-    }
+      } catch {
+        uni.showToast({ title: isZh.value ? '删除失败' : 'Delete failed', icon: 'none' })
+      }
+    },
   })
 }
 
@@ -392,9 +426,15 @@ onMounted(() => {
   }
 
   .icon-btn {
-    width: 64rpx; height: 64rpx; border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    &:active { opacity: 0.7; }
+    width: 64rpx;
+    height: 64rpx;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    &:active {
+      opacity: 0.7;
+    }
   }
 }
 
@@ -420,17 +460,32 @@ onMounted(() => {
 .badge {
   padding: 6rpx 16rpx;
   border-radius: 999rpx;
-  text { font-size: 22rpx; font-weight: 600; }
+  text {
+    font-size: 22rpx;
+    font-weight: 600;
+  }
 }
 
 .status-badge {
   padding: 6rpx 14rpx;
   border-radius: 999rpx;
-  text { font-size: 20rpx; font-weight: 500; }
+  text {
+    font-size: 20rpx;
+    font-weight: 500;
+  }
 
-  &.status-draft { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
-  &.status-published { background: rgba(16, 185, 129, 0.2); color: #34d399; }
-  &.status-archived { background: rgba(148, 163, 184, 0.2); color: #cbd5e1; }
+  &.status-draft {
+    background: rgba(245, 158, 11, 0.2);
+    color: #fbbf24;
+  }
+  &.status-published {
+    background: rgba(16, 185, 129, 0.2);
+    color: #34d399;
+  }
+  &.status-archived {
+    background: rgba(148, 163, 184, 0.2);
+    color: #cbd5e1;
+  }
 }
 
 .hero-title {
@@ -454,13 +509,16 @@ onMounted(() => {
   gap: 6rpx;
   padding: 6rpx 14rpx;
   border-radius: 999rpx;
-  background: rgba(255,255,255,0.15);
-  text { font-size: 22rpx; color: rgba(255,255,255,0.85); }
+  background: rgba(255, 255, 255, 0.15);
+  text {
+    font-size: 22rpx;
+    color: rgba(255, 255, 255, 0.85);
+  }
 }
 
 .hero-date {
   font-size: 22rpx;
-  color: rgba(255,255,255,0.5);
+  color: rgba(255, 255, 255, 0.5);
 }
 
 // ===== 内容区 =====
@@ -502,10 +560,14 @@ onMounted(() => {
 
 // ===== 底部操作 =====
 .bottom-bar {
-  position: fixed; left: 0; right: 0; bottom: 0;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
   padding: 16rpx 32rpx;
   padding-bottom: calc(16rpx + env(safe-area-inset-bottom, 0px));
-  display: flex; gap: 16rpx;
+  display: flex;
+  gap: 16rpx;
   background: var(--surface);
   border-top: 1px solid var(--line);
   backdrop-filter: blur(14px);
@@ -520,7 +582,9 @@ onMounted(() => {
   justify-content: center;
   gap: 8rpx;
   transition: all 0.15s ease;
-  &:active { transform: scale(0.97); }
+  &:active {
+    transform: scale(0.97);
+  }
 
   &.outline {
     background: transparent;
@@ -535,8 +599,12 @@ onMounted(() => {
 
 // ===== 更多操作弹窗 =====
 .action-mask {
-  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.4);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
   z-index: 999;
   display: flex;
   align-items: flex-end;
@@ -556,7 +624,9 @@ onMounted(() => {
   gap: 16rpx;
   padding: 24rpx 16rpx;
   border-radius: 16rpx;
-  &:active { opacity: 0.7; }
+  &:active {
+    opacity: 0.7;
+  }
 
   text {
     font-size: 28rpx;
@@ -568,7 +638,9 @@ onMounted(() => {
     justify-content: center;
     margin-top: 8rpx;
     border-top: 1px solid var(--line);
-    text { color: var(--text-soft); }
+    text {
+      color: var(--text-soft);
+    }
   }
 }
 </style>

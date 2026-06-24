@@ -30,20 +30,37 @@
             <text v-if="msg.role === 'user'" class="msg-text user-text">{{ msg.content }}</text>
             <template v-else>
               <!-- 思考过程（流式中显示，完成后折叠） -->
-              <view v-if="msg.reasoning" :class="['thinking-block', { collapsed: !msg.isThinking && msg.content }]">
+              <view
+                v-if="msg.reasoning"
+                :class="['thinking-block', { collapsed: !msg.isThinking && msg.content }]"
+              >
                 <view class="thinking-header" @tap="toggleThinking(msg)">
                   <text class="thinking-icon">{{ msg.isThinking ? '💭' : '🧠' }}</text>
                   <text class="thinking-label">
-                    {{ msg.isThinking ? (isZh ? '思考中...' : 'Thinking...') : (isZh ? '思考过程' : 'Thought Process') }}
+                    {{
+                      msg.isThinking
+                        ? isZh
+                          ? '思考中...'
+                          : 'Thinking...'
+                        : isZh
+                          ? '思考过程'
+                          : 'Thought Process'
+                    }}
                   </text>
-                  <text v-if="!msg.isThinking" class="thinking-toggle">{{ msg.thinkingExpanded ? '▲' : '▼' }}</text>
+                  <text v-if="!msg.isThinking" class="thinking-toggle">{{
+                    msg.thinkingExpanded ? '▲' : '▼'
+                  }}</text>
                 </view>
                 <view v-if="msg.isThinking || msg.thinkingExpanded" class="thinking-content">
                   <text class="thinking-text">{{ msg.reasoning }}</text>
                 </view>
               </view>
               <!-- 正式回复 -->
-              <MarkdownText v-if="msg.content" :content="msg.content" :theme="uiPreferencesStore.theme" />
+              <MarkdownText
+                v-if="msg.content"
+                :content="msg.content"
+                :theme="uiPreferencesStore.theme"
+              />
               <view v-else-if="msg.isStreaming && !msg.reasoning" class="typing-indicator">
                 <view class="typing-dots">
                   <view class="dot" /><view class="dot" /><view class="dot" />
@@ -72,17 +89,28 @@
               <Icon name="check_circle" :size="28" :color="subjectColor" />
               <view class="ppt-result-info">
                 <text class="ppt-result-title">{{ msg.pptData.title }}</text>
-                <text class="ppt-result-desc">{{ msg.pptData.slides.length }}{{ isZh ? '页课件已就绪' : ' slides ready' }}</text>
+                <text class="ppt-result-desc"
+                  >{{ msg.pptData.slides.length
+                  }}{{ isZh ? '页课件已就绪' : ' slides ready' }}</text
+                >
               </view>
             </view>
             <view class="ppt-actions">
-              <view class="ppt-action-btn primary" :style="{ background: subjectColor }" @tap="openSvgPreview(msg.pptData)">
+              <view
+                class="ppt-action-btn primary"
+                :style="{ background: subjectColor }"
+                @tap="openSvgPreview(msg.pptData)"
+              >
                 <Icon name="slideshow" :size="16" color="#fff" />
-                <text style="color:#fff;font-size:24rpx;font-weight:600">{{ isZh ? '预览幻灯片' : 'Preview' }}</text>
+                <text style="color: #fff; font-size: 24rpx; font-weight: 600">{{
+                  isZh ? '预览幻灯片' : 'Preview'
+                }}</text>
               </view>
               <view class="ppt-action-btn outline" @tap="downloadPptx(msg.pptData)">
                 <Icon name="download" :size="16" :color="subjectColor" />
-                <text :style="{ color: subjectColor, fontSize: '24rpx', fontWeight: '600' }">{{ isZh ? '下载 PPTX' : 'Download' }}</text>
+                <text :style="{ color: subjectColor, fontSize: '24rpx', fontWeight: '600' }">{{
+                  isZh ? '下载 PPTX' : 'Download'
+                }}</text>
               </view>
             </view>
           </view>
@@ -96,11 +124,14 @@
           <text class="progress-pct">{{ Math.round(pptProgress) }}%</text>
         </view>
         <view class="progress-track">
-          <view class="progress-fill" :style="{ width: `${pptProgress}%`, background: subjectColor }" />
+          <view
+            class="progress-fill"
+            :style="{ width: `${pptProgress}%`, background: subjectColor }"
+          />
         </view>
       </view>
 
-      <view :id="scrollAnchor" style="height: 1px;" />
+      <view :id="scrollAnchor" style="height: 1px" />
     </scroll-view>
 
     <!-- 输入栏 -->
@@ -124,7 +155,9 @@
           <Icon name="send" :size="18" color="#ffffff" />
         </view>
       </view>
-      <text class="input-tip">{{ isZh ? '告诉我你想做什么课件，我会引导你完善需求' : 'Tell me what slides you need' }}</text>
+      <text class="input-tip">{{
+        isZh ? '告诉我你想做什么课件，我会引导你完善需求' : 'Tell me what slides you need'
+      }}</text>
     </view>
 
     <!-- 大纲弹窗 -->
@@ -143,7 +176,9 @@
             </view>
             <view class="outline-text">
               <text class="outline-slide-title">{{ slide.title }}</text>
-              <text v-if="slide.bullets && slide.bullets.length" class="outline-slide-desc">{{ slide.bullets.join(' · ') }}</text>
+              <text v-if="slide.bullets && slide.bullets.length" class="outline-slide-desc">{{
+                slide.bullets.join(' · ')
+              }}</text>
             </view>
           </view>
         </scroll-view>
@@ -161,13 +196,25 @@
         </view>
         <!-- 主幻灯片 -->
         <view class="svg-slide-main">
-          <view class="svg-slide-content" v-html="sanitizeSvg(svgPreview.slides[currentSlideIdx]?.svg || '')" />
+          <view
+            class="svg-slide-content"
+            v-html="sanitizeSvg(svgPreview.slides[currentSlideIdx]?.svg || '')"
+          />
         </view>
         <!-- 底部导航 -->
         <view class="svg-slide-nav">
-          <view class="nav-btn" :class="{ disabled: currentSlideIdx <= 0 }" @tap="prevSlide"><text>◀</text></view>
-          <text class="slide-counter">{{ currentSlideIdx + 1 }} / {{ svgPreview.slides.length }}</text>
-          <view class="nav-btn" :class="{ disabled: currentSlideIdx >= svgPreview.slides.length - 1 }" @tap="nextSlide"><text>▶</text></view>
+          <view class="nav-btn" :class="{ disabled: currentSlideIdx <= 0 }" @tap="prevSlide"
+            ><text>◀</text></view
+          >
+          <text class="slide-counter"
+            >{{ currentSlideIdx + 1 }} / {{ svgPreview.slides.length }}</text
+          >
+          <view
+            class="nav-btn"
+            :class="{ disabled: currentSlideIdx >= svgPreview.slides.length - 1 }"
+            @tap="nextSlide"
+            ><text>▶</text></view
+          >
         </view>
         <!-- 缩略图 -->
         <scroll-view class="svg-thumbs" scroll-x>
@@ -224,15 +271,19 @@ const authStore = useAuthStore()
 const uiPreferencesStore = useUiPreferencesStore()
 
 const themeClass = computed(() => `theme-${uiPreferencesStore.theme}`)
-const iconColor = computed(() => uiPreferencesStore.theme === 'light' ? '#64748b' : '#94a3b8')
+const iconColor = computed(() => (uiPreferencesStore.theme === 'light' ? '#64748b' : '#94a3b8'))
 const isZh = computed(() => uiPreferencesStore.locale === 'zh-CN')
 
 const currentSubject = computed(() => getSubjectConfig(authStore.teacherSubject) || SUBJECT_LIST[3])
 const subjectColor = computed(() => currentSubject.value.color)
-const subjectName = computed(() => isZh.value ? currentSubject.value.name : currentSubject.value.nameEn)
+const subjectName = computed(() =>
+  isZh.value ? currentSubject.value.name : currentSubject.value.nameEn,
+)
 const userInitial = computed(() => (authStore.user?.name?.[0] || 'T').toUpperCase())
 
-const inputPlaceholder = computed(() => isZh.value ? '输入课件需求或回答问题...' : 'Enter your needs...')
+const inputPlaceholder = computed(() =>
+  isZh.value ? '输入课件需求或回答问题...' : 'Enter your needs...',
+)
 const scrollAnchor = 'chatBottom'
 
 const messages = ref<MsgItem[]>([])
@@ -250,10 +301,16 @@ const outlineModal = ref<PptResult | null>(null)
 const svgPreview = ref<PptResult | null>(null)
 const currentSlideIdx = ref(0)
 
-const PPT_API_URL = (import.meta as any).env?.VITE_PPT_API_URL || (import.meta as any).env?.VITE_API_URL || ''
+const PPT_API_URL =
+  (import.meta as any).env?.VITE_PPT_API_URL || (import.meta as any).env?.VITE_API_URL || ''
 
-function prevSlide() { if (currentSlideIdx.value > 0) currentSlideIdx.value-- }
-function nextSlide() { if (svgPreview.value && currentSlideIdx.value < svgPreview.value.slides.length - 1) currentSlideIdx.value++ }
+function prevSlide() {
+  if (currentSlideIdx.value > 0) currentSlideIdx.value--
+}
+function nextSlide() {
+  if (svgPreview.value && currentSlideIdx.value < svgPreview.value.slides.length - 1)
+    currentSlideIdx.value++
+}
 
 function openSvgPreview(data: PptResult) {
   svgPreview.value = data
@@ -264,10 +321,13 @@ function openSvgPreview(data: PptResult) {
 function sanitizeSvg(svg: string): string {
   if (!svg) return ''
   // 移除 script 和 foreignObject
-  return svg.replace(/<script[\s\S]*?<\/script>/gi, '').replace(/<foreignObject[\s\S]*?<\/foreignObject>/gi, '')
+  return svg
+    .replace(/<script[\s\S]*?<\/script>/gi, '')
+    .replace(/<foreignObject[\s\S]*?<\/foreignObject>/gi, '')
 }
 
-const SYSTEM_PROMPT = computed(() => `你是一个专业的教学课件设计助手，专注于${subjectName.value}学科。
+const SYSTEM_PROMPT = computed(
+  () => `你是一个专业的教学课件设计助手，专注于${subjectName.value}学科。
 
 你的工作流程：
 1. 首先了解用户想做什么课件，通过 1-2 个关键问题明确需求（主题、受众、侧重点）
@@ -288,7 +348,8 @@ const SYSTEM_PROMPT = computed(() => `你是一个专业的教学课件设计助
 风格: 正式/清新
 重点: xxx
 
-注意：[READY_TO_GENERATE] 后面的信息用于提取参数，不要用 markdown 格式包裹。`)
+注意：[READY_TO_GENERATE] 后面的信息用于提取参数，不要用 markdown 格式包裹。`,
+)
 
 function toggleThinking(msg: MsgItem) {
   if (!msg.isThinking) {
@@ -296,7 +357,9 @@ function toggleThinking(msg: MsgItem) {
   }
 }
 
-function genId() { return `msg_${Date.now()}_${Math.random().toString(36).slice(2, 6)}` }
+function genId() {
+  return `msg_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`
+}
 
 function scrollToBottom() {
   nextTick(() => {
@@ -324,7 +387,7 @@ function addWelcomeMessage() {
     content: welcomeText,
     quickReplies: isZh.value
       ? [`帮我做一份关于${currentSubject.value.name}的PPT`, '我想做一个10页的教学课件']
-      : [`Make a PPT about ${currentSubject.value.nameEn}`, 'I want a 10-page teaching slide']
+      : [`Make a PPT about ${currentSubject.value.nameEn}`, 'I want a 10-page teaching slide'],
   })
 }
 
@@ -332,7 +395,6 @@ async function sendMessage(text?: string) {
   const msg = (text || chatInput.value).trim()
   if (!msg || isStreaming.value) return
   chatInput.value = ''
-  console.log('[PPT] sendMessage:', msg)
 
   // 用户消息
   messages.value.push({ id: genId(), role: 'user', content: msg })
@@ -342,23 +404,25 @@ async function sendMessage(text?: string) {
   chatHistory.value.push({ role: 'user', content: msg })
 
   // AI 回复 — 通过数组索引获取 reactive proxy
-  messages.value.push({ id: genId(), role: 'assistant', content: '', isStreaming: true, isThinking: true })
+  messages.value.push({
+    id: genId(),
+    role: 'assistant',
+    content: '',
+    isStreaming: true,
+    isThinking: true,
+  })
   const aiMsgIdx = messages.value.length - 1
   isStreaming.value = true
   scrollToBottom()
 
   try {
-    console.log('[PPT] calling sendMessageStream...')
     await new Promise<void>((resolve, reject) => {
       aiChatService.sendMessageStream(
         {
-          messages: [
-            { role: 'system', content: SYSTEM_PROMPT.value },
-            ...chatHistory.value
-          ],
+          messages: [{ role: 'system', content: SYSTEM_PROMPT.value }, ...chatHistory.value],
           temperature: 0.7,
           maxTokens: 2000,
-          timeoutMs: 60000
+          timeoutMs: 60000,
         },
         (token, fullText, isReasoning) => {
           const m = messages.value[aiMsgIdx]
@@ -385,7 +449,9 @@ async function sendMessage(text?: string) {
           // 检查是否包含 [READY_TO_GENERATE]
           if (rawContent.includes('[READY_TO_GENERATE]')) {
             const displayContent = rawContent.split('[READY_TO_GENERATE]')[0].trim()
-            m.content = displayContent || (isZh.value ? '✅ 需求已确认，正在生成课件...' : '✅ Confirmed, generating...')
+            m.content =
+              displayContent ||
+              (isZh.value ? '✅ 需求已确认，正在生成课件...' : '✅ Confirmed, generating...')
 
             const params = extractParams(rawContent)
             generatePpt(m, params).then(resolve).catch(reject)
@@ -401,7 +467,7 @@ async function sendMessage(text?: string) {
         },
         (error) => {
           reject(new Error(error))
-        }
+        },
       )
     })
   } catch (e: any) {
@@ -413,7 +479,12 @@ async function sendMessage(text?: string) {
   }
 }
 
-function extractParams(raw: string): { topic: string; pageCount: number; style: string; focus: string } {
+function extractParams(raw: string): {
+  topic: string
+  pageCount: number
+  style: string
+  focus: string
+} {
   const afterTag = raw.split('[READY_TO_GENERATE]')[1] || ''
   const topicMatch = afterTag.match(/主题[:：]\s*(.+)/)?.[1]?.trim()
   const pageMatch = afterTag.match(/页数[:：]\s*(\d+)/)?.[1]
@@ -421,14 +492,17 @@ function extractParams(raw: string): { topic: string; pageCount: number; style: 
   const focusMatch = afterTag.match(/重点[:：]\s*(.+)/)?.[1]?.trim()
 
   return {
-    topic: topicMatch || chatHistory.value.find(m => m.role === 'user')?.content || '教学课件',
+    topic: topicMatch || chatHistory.value.find((m) => m.role === 'user')?.content || '教学课件',
     pageCount: parseInt(pageMatch || '10', 10),
     style: styleMatch || '正式',
-    focus: focusMatch || ''
+    focus: focusMatch || '',
   }
 }
 
-async function generatePpt(aiMsg: MsgItem, params: { topic: string; pageCount: number; style: string; focus: string }) {
+async function generatePpt(
+  aiMsg: MsgItem,
+  params: { topic: string; pageCount: number; style: string; focus: string },
+) {
   pptGenerating.value = true
   pptProgress.value = 5
   pptStage.value = isZh.value ? '阶段 1/3：大纲生成中…' : 'Stage 1/3: Outlining...'
@@ -506,7 +580,7 @@ async function generatePpt(aiMsg: MsgItem, params: { topic: string; pageCount: n
       ? `✅ **课件生成完成！**\n\n📊 **${pptData.title}**\n共 ${pptData.slides.length} 页（含封面、目录、内容页和结束页）\n\n👉 点击「预览幻灯片」查看 SVG 幻灯片效果，点击「下载 PPTX」获取文件。`
       : `✅ **Slides ready!**\n\n📊 **${pptData.title}** - ${pptData.slides.length} pages\n\nPreview or download below.`
 
-    await new Promise(r => setTimeout(r, 500))
+    await new Promise((r) => setTimeout(r, 500))
   } catch (e: any) {
     clearInterval(timer)
     aiMsg.content = `❌ ${isZh.value ? '课件生成失败' : 'Generation failed'}：${e.message}\n\n请重新描述需求试试。`
@@ -521,7 +595,8 @@ function parseOutline(raw: string, fallbackTopic: string): { title: string; slid
   const codeMatch = raw.match(/```(?:json)?\s*([\s\S]*?)```/)
   if (codeMatch?.[1]) jsonStr = codeMatch[1].trim()
   else {
-    const s = raw.indexOf('{'), e = raw.lastIndexOf('}')
+    const s = raw.indexOf('{'),
+      e = raw.lastIndexOf('}')
     if (s >= 0 && e > s) jsonStr = raw.slice(s, e + 1)
   }
 
@@ -530,8 +605,9 @@ function parseOutline(raw: string, fallbackTopic: string): { title: string; slid
   try {
     const data = JSON.parse(jsonStr)
     const slides = (data.slides || []).map((s: any) => ({
-      title: s.title || '', type: s.type || 'content',
-      bullets: Array.isArray(s.bullets) ? s.bullets.filter((b: any) => typeof b === 'string') : []
+      title: s.title || '',
+      type: s.type || 'content',
+      bullets: Array.isArray(s.bullets) ? s.bullets.filter((b: any) => typeof b === 'string') : [],
     }))
     return { title: data.title || fallbackTopic, slides }
   } catch {
@@ -548,8 +624,8 @@ function buildFallback(t: string) {
       { type: 'content', title: '概念认识', bullets: [`${t}的基本含义`, '核心要素', '生活体现'] },
       { type: 'content', title: '深入理解', bullets: ['理论基础', '案例分析', '多角度思考'] },
       { type: 'content', title: '实践应用', bullets: ['课堂讨论', '行动建议', '延伸思考'] },
-      { type: 'end', title: '总结与思考', bullets: ['核心回顾', '课后建议'] }
-    ]
+      { type: 'end', title: '总结与思考', bullets: ['核心回顾', '课后建议'] },
+    ],
   }
 }
 
@@ -577,39 +653,118 @@ async function downloadPptx(data: PptResult) {
 
       if (slide.type === 'cover') {
         s.background = { color: themeHex }
-        s.addText(slide.title, { x: 0.8, y: 1.5, w: 8.4, h: 1.5, fontSize: 36, bold: true, color: 'FFFFFF', align: 'center' })
-        if (slide.bullets[0]) s.addText(slide.bullets[0], { x: 0.8, y: 3.2, w: 8.4, h: 0.8, fontSize: 18, color: 'FFFFFFCC', align: 'center' })
-        s.addText('UniSmart AI · 智能课件', { x: 0.8, y: 4.5, w: 8.4, h: 0.5, fontSize: 12, color: 'FFFFFF99', align: 'center' })
+        s.addText(slide.title, {
+          x: 0.8,
+          y: 1.5,
+          w: 8.4,
+          h: 1.5,
+          fontSize: 36,
+          bold: true,
+          color: 'FFFFFF',
+          align: 'center',
+        })
+        if (slide.bullets[0])
+          s.addText(slide.bullets[0], {
+            x: 0.8,
+            y: 3.2,
+            w: 8.4,
+            h: 0.8,
+            fontSize: 18,
+            color: 'FFFFFFCC',
+            align: 'center',
+          })
+        s.addText('UniSmart AI · 智能课件', {
+          x: 0.8,
+          y: 4.5,
+          w: 8.4,
+          h: 0.5,
+          fontSize: 12,
+          color: 'FFFFFF99',
+          align: 'center',
+        })
       } else if (slide.type === 'end') {
         s.background = { color: themeHex }
-        s.addText(slide.title, { x: 0.8, y: 2.0, w: 8.4, h: 1.2, fontSize: 32, bold: true, color: 'FFFFFF', align: 'center' })
-        if (slide.bullets.length) s.addText(slide.bullets.join('\n'), { x: 0.8, y: 3.4, w: 8.4, h: 1.0, fontSize: 16, color: 'FFFFFFCC', align: 'center' })
+        s.addText(slide.title, {
+          x: 0.8,
+          y: 2.0,
+          w: 8.4,
+          h: 1.2,
+          fontSize: 32,
+          bold: true,
+          color: 'FFFFFF',
+          align: 'center',
+        })
+        if (slide.bullets.length)
+          s.addText(slide.bullets.join('\n'), {
+            x: 0.8,
+            y: 3.4,
+            w: 8.4,
+            h: 1.0,
+            fontSize: 16,
+            color: 'FFFFFFCC',
+            align: 'center',
+          })
       } else {
         s.background = { color: bgColor }
         s.addShape('rect' as any, { x: 0, y: 0, w: 10, h: 0.08, fill: { color: themeHex } })
-        s.addText(slide.title, { x: 0.6, y: 0.3, w: 8.8, h: 0.8, fontSize: 24, bold: true, color: themeHex })
+        s.addText(slide.title, {
+          x: 0.6,
+          y: 0.3,
+          w: 8.8,
+          h: 0.8,
+          fontSize: 24,
+          bold: true,
+          color: themeHex,
+        })
         s.addShape('rect' as any, { x: 0.6, y: 1.1, w: 1.2, h: 0.04, fill: { color: themeHex } })
         if (slide.bullets.length) {
-          const bulletText = slide.bullets.map(b => ({
+          const bulletText = slide.bullets.map((b) => ({
             text: b,
-            options: { fontSize: 16, color: textColor, bullet: { type: 'bullet' as const, code: '25CF' }, breakLine: true, lineSpacingMultiple: 1.6, paraSpaceBefore: 8 }
+            options: {
+              fontSize: 16,
+              color: textColor,
+              bullet: { type: 'bullet' as const, code: '25CF' },
+              breakLine: true,
+              lineSpacingMultiple: 1.6,
+              paraSpaceBefore: 8,
+            },
           }))
           s.addText(bulletText, { x: 0.6, y: 1.4, w: 8.8, h: 3.6, valign: 'top' })
         }
-        s.addText(`${i + 1}`, { x: 9.0, y: 5.0, w: 0.6, h: 0.4, fontSize: 10, color: '999999', align: 'right' })
+        s.addText(`${i + 1}`, {
+          x: 9.0,
+          y: 5.0,
+          w: 0.6,
+          h: 0.4,
+          fontSize: 10,
+          color: '999999',
+          align: 'right',
+        })
       }
     }
 
-    const blob = await pptx.write({ outputType: 'blob' }) as Blob
+    // #ifdef H5
+    const blob = (await pptx.write({ outputType: 'blob' })) as Blob
     const fileName = `${data.title.replace(/[/\\?%*:|"<>]/g, '')}.pptx`
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
-    a.href = url; a.download = fileName
-    document.body.appendChild(a); a.click()
-    document.body.removeChild(a); URL.revokeObjectURL(url)
+    a.href = url
+    a.download = fileName
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
 
     uni.hideLoading()
     uni.showToast({ title: isZh.value ? '下载成功' : 'Downloaded', icon: 'success' })
+    // #endif
+    // #ifndef H5
+    uni.hideLoading()
+    uni.showToast({
+      title: isZh.value ? '请在电脑端浏览器导出 PPT' : 'Please export PPT on a desktop browser',
+      icon: 'none',
+    })
+    // #endif
   } catch (e: any) {
     uni.hideLoading()
     uni.showToast({ title: isZh.value ? '生成失败' : 'Failed', icon: 'none' })
@@ -657,277 +812,590 @@ addWelcomeMessage()
 }
 
 .top-bar {
-  padding: 0 24rpx; height: 88rpx;
-  display: flex; align-items: center; justify-content: space-between;
-  backdrop-filter: blur(14px); background: var(--surface);
-  border-bottom: 1px solid var(--line); flex-shrink: 0;
+  padding: 0 24rpx;
+  height: 88rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  backdrop-filter: blur(14px);
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+  flex-shrink: 0;
 }
 
 .icon-btn {
-  width: 64rpx; height: 64rpx; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  &:active { opacity: 0.7; }
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  &:active {
+    opacity: 0.7;
+  }
 }
 
-.topbar-center { display: flex; align-items: center; gap: 8rpx; }
-.title { color: var(--text-main); font-size: 30rpx; font-weight: 700; }
+.topbar-center {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+.title {
+  color: var(--text-main);
+  font-size: 30rpx;
+  font-weight: 700;
+}
 
 // ===== 聊天 =====
-.chat-area { flex: 1; padding: 24rpx; }
+.chat-area {
+  flex: 1;
+  padding: 24rpx;
+}
 
 .msg-row {
-  display: flex; gap: 16rpx; margin-bottom: 28rpx;
-  &.assistant { max-width: 92%; }
-  &.user { flex-direction: row-reverse; margin-left: auto; max-width: 85%; padding-right: 4rpx; }
+  display: flex;
+  gap: 16rpx;
+  margin-bottom: 28rpx;
+  &.assistant {
+    max-width: 92%;
+  }
+  &.user {
+    flex-direction: row-reverse;
+    margin-left: auto;
+    max-width: 85%;
+    padding-right: 4rpx;
+  }
 }
 
 .msg-avatar {
-  width: 64rpx; height: 64rpx; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-  &.user { background: var(--bubble-user); }
-  &.assistant { background: linear-gradient(135deg, #fce4ec, #f8bbd0); }
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  &.user {
+    background: var(--bubble-user);
+  }
+  &.assistant {
+    background: linear-gradient(135deg, #fce4ec, #f8bbd0);
+  }
 }
 
-.avatar-emoji { font-size: 28rpx; }
-.avatar-text { font-size: 24rpx; font-weight: 700; color: var(--text-main); }
+.avatar-emoji {
+  font-size: 28rpx;
+}
+.avatar-text {
+  font-size: 24rpx;
+  font-weight: 700;
+  color: var(--text-main);
+}
 
-.msg-body { flex: 1; min-width: 0; }
+.msg-body {
+  flex: 1;
+  min-width: 0;
+}
 
 .msg-bubble {
-  padding: 18rpx 24rpx; border-radius: 20rpx;
-  &.user { background: var(--bubble-user); border-top-right-radius: 6rpx; }
-  &.assistant { background: var(--bubble-ai); border: 1px solid var(--line); border-top-left-radius: 6rpx; }
+  padding: 18rpx 24rpx;
+  border-radius: 20rpx;
+  &.user {
+    background: var(--bubble-user);
+    border-top-right-radius: 6rpx;
+  }
+  &.assistant {
+    background: var(--bubble-ai);
+    border: 1px solid var(--line);
+    border-top-left-radius: 6rpx;
+  }
 }
 
-.msg-text { font-size: 28rpx; line-height: 1.7; color: var(--text-main); }
+.msg-text {
+  font-size: 28rpx;
+  line-height: 1.7;
+  color: var(--text-main);
+}
 
-.typing-indicator { display: flex; align-items: center; gap: 10rpx; padding: 4rpx 0; }
-.typing-dots { display: flex; gap: 6rpx; }
+.typing-indicator {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  padding: 4rpx 0;
+}
+.typing-dots {
+  display: flex;
+  gap: 6rpx;
+}
 .dot {
-  width: 10rpx; height: 10rpx; border-radius: 50%; background: var(--text-soft);
+  width: 10rpx;
+  height: 10rpx;
+  border-radius: 50%;
+  background: var(--text-soft);
   animation: dotBounce 1.4s infinite ease-in-out;
-  &:nth-child(1) { animation-delay: 0s; }
-  &:nth-child(2) { animation-delay: 0.2s; }
-  &:nth-child(3) { animation-delay: 0.4s; }
+  &:nth-child(1) {
+    animation-delay: 0s;
+  }
+  &:nth-child(2) {
+    animation-delay: 0.2s;
+  }
+  &:nth-child(3) {
+    animation-delay: 0.4s;
+  }
 }
 @keyframes dotBounce {
-  0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
-  40% { transform: scale(1); opacity: 1; }
+  0%,
+  80%,
+  100% {
+    transform: scale(0.6);
+    opacity: 0.4;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
-.typing-text { font-size: 22rpx; color: var(--text-soft); }
+.typing-text {
+  font-size: 22rpx;
+  color: var(--text-soft);
+}
 
 // 思考过程折叠区
 .thinking-block {
-  margin-bottom: 12rpx; padding: 12rpx 16rpx;
-  border-radius: 12rpx; background: rgba(139, 92, 246, 0.06);
+  margin-bottom: 12rpx;
+  padding: 12rpx 16rpx;
+  border-radius: 12rpx;
+  background: rgba(139, 92, 246, 0.06);
   border-left: 3px solid rgba(139, 92, 246, 0.4);
   transition: all 0.3s ease;
 
   &.collapsed {
-    .thinking-content { display: none; }
+    .thinking-content {
+      display: none;
+    }
   }
 }
 
 .thinking-header {
-  display: flex; align-items: center; gap: 8rpx; cursor: pointer;
-  &:active { opacity: 0.7; }
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  cursor: pointer;
+  &:active {
+    opacity: 0.7;
+  }
 }
 
-.thinking-icon { font-size: 24rpx; }
-.thinking-label { font-size: 22rpx; color: rgba(139, 92, 246, 0.8); font-weight: 500; }
-.thinking-toggle { font-size: 18rpx; color: var(--text-soft); margin-left: auto; }
+.thinking-icon {
+  font-size: 24rpx;
+}
+.thinking-label {
+  font-size: 22rpx;
+  color: rgba(139, 92, 246, 0.8);
+  font-weight: 500;
+}
+.thinking-toggle {
+  font-size: 18rpx;
+  color: var(--text-soft);
+  margin-left: auto;
+}
 
 .thinking-content {
-  margin-top: 8rpx; padding-top: 8rpx;
+  margin-top: 8rpx;
+  padding-top: 8rpx;
   border-top: 1px solid rgba(139, 92, 246, 0.12);
 }
 
 .thinking-text {
-  font-size: 22rpx; color: var(--text-soft); line-height: 1.6;
-  word-break: break-all; white-space: pre-wrap;
+  font-size: 22rpx;
+  color: var(--text-soft);
+  line-height: 1.6;
+  word-break: break-all;
+  white-space: pre-wrap;
 }
 
 // 快捷回复
 .quick-replies {
-  display: flex; flex-wrap: wrap; gap: 8rpx; margin-top: 12rpx;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8rpx;
+  margin-top: 12rpx;
 }
 
 .quick-reply-btn {
-  padding: 8rpx 20rpx; border-radius: 999rpx;
-  border: 1px solid; background: transparent;
-  text { font-size: 22rpx; }
-  &:active { opacity: 0.7; transform: scale(0.97); }
+  padding: 8rpx 20rpx;
+  border-radius: 999rpx;
+  border: 1px solid;
+  background: transparent;
+  text {
+    font-size: 22rpx;
+  }
+  &:active {
+    opacity: 0.7;
+    transform: scale(0.97);
+  }
 }
 
 // PPT 结果
-.ppt-result { margin-top: 12rpx; }
-
-.ppt-result-card {
-  padding: 16rpx 20rpx; border-radius: 16rpx;
-  border: 1.5px solid; background: var(--surface);
-  display: flex; align-items: center; gap: 12rpx;
+.ppt-result {
+  margin-top: 12rpx;
 }
 
-.ppt-result-info { flex: 1; }
-.ppt-result-title { font-size: 26rpx; font-weight: 600; color: var(--text-main); display: block; }
-.ppt-result-desc { font-size: 22rpx; color: var(--text-soft); display: block; margin-top: 2rpx; }
+.ppt-result-card {
+  padding: 16rpx 20rpx;
+  border-radius: 16rpx;
+  border: 1.5px solid;
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
 
-.ppt-actions { display: flex; gap: 8rpx; margin-top: 8rpx; }
+.ppt-result-info {
+  flex: 1;
+}
+.ppt-result-title {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: var(--text-main);
+  display: block;
+}
+.ppt-result-desc {
+  font-size: 22rpx;
+  color: var(--text-soft);
+  display: block;
+  margin-top: 2rpx;
+}
+
+.ppt-actions {
+  display: flex;
+  gap: 8rpx;
+  margin-top: 8rpx;
+}
 
 .ppt-action-btn {
-  flex: 1; height: 64rpx; border-radius: 12rpx;
-  display: flex; align-items: center; justify-content: center; gap: 6rpx;
-  &.outline { background: transparent; border: 1px solid var(--line); }
-  &:active { transform: scale(0.97); }
+  flex: 1;
+  height: 64rpx;
+  border-radius: 12rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6rpx;
+  &.outline {
+    background: transparent;
+    border: 1px solid var(--line);
+  }
+  &:active {
+    transform: scale(0.97);
+  }
 }
 
 // 进度
 .progress-bar-wrap {
-  margin: 12rpx 0 16rpx; padding: 16rpx 20rpx;
-  border-radius: 16rpx; background: var(--surface); border: 1px solid var(--line);
+  margin: 12rpx 0 16rpx;
+  padding: 16rpx 20rpx;
+  border-radius: 16rpx;
+  background: var(--surface);
+  border: 1px solid var(--line);
 }
 
-.progress-info { display: flex; justify-content: space-between; margin-bottom: 8rpx; }
-.progress-text { font-size: 22rpx; color: var(--text-soft); }
-.progress-pct { font-size: 22rpx; font-weight: 700; color: var(--text-main); }
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8rpx;
+}
+.progress-text {
+  font-size: 22rpx;
+  color: var(--text-soft);
+}
+.progress-pct {
+  font-size: 22rpx;
+  font-weight: 700;
+  color: var(--text-main);
+}
 
 .progress-track {
-  height: 10rpx; border-radius: 999rpx;
-  background: rgba(0,0,0,0.04); overflow: hidden;
+  height: 10rpx;
+  border-radius: 999rpx;
+  background: rgba(0, 0, 0, 0.04);
+  overflow: hidden;
 }
-.progress-fill { height: 100%; border-radius: 999rpx; transition: width 0.3s ease; }
+.progress-fill {
+  height: 100%;
+  border-radius: 999rpx;
+  transition: width 0.3s ease;
+}
 
 // ===== 输入栏 =====
 .chat-input-bar {
-  padding: 12rpx 24rpx; padding-bottom: calc(12rpx + env(safe-area-inset-bottom, 0px));
-  background: var(--surface); border-top: 1px solid var(--line);
+  padding: 12rpx 24rpx;
+  padding-bottom: calc(12rpx + env(safe-area-inset-bottom, 0px));
+  background: var(--surface);
+  border-top: 1px solid var(--line);
 }
 
-.input-wrapper { display: flex; gap: 12rpx; align-items: flex-end; }
+.input-wrapper {
+  display: flex;
+  gap: 12rpx;
+  align-items: flex-end;
+}
 
 .chat-textarea {
-  flex: 1; min-height: 56rpx; max-height: 200rpx;
-  padding: 14rpx 20rpx; border-radius: 20rpx;
-  border: 1px solid var(--line); background: transparent;
-  color: var(--text-main); font-size: 28rpx; line-height: 1.5;
+  flex: 1;
+  min-height: 56rpx;
+  max-height: 200rpx;
+  padding: 14rpx 20rpx;
+  border-radius: 20rpx;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--text-main);
+  font-size: 28rpx;
+  line-height: 1.5;
 }
 
-.chat-placeholder { color: #9ca3af; }
+.chat-placeholder {
+  color: #9ca3af;
+}
 
 .send-btn {
-  width: 72rpx; height: 72rpx; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-  &.disabled { opacity: 0.4; }
-  &:active { transform: scale(0.93); }
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  &.disabled {
+    opacity: 0.4;
+  }
+  &:active {
+    transform: scale(0.93);
+  }
 }
 
 .input-tip {
-  font-size: 20rpx; color: var(--text-soft);
-  text-align: center; margin-top: 6rpx; display: block;
+  font-size: 20rpx;
+  color: var(--text-soft);
+  text-align: center;
+  margin-top: 6rpx;
+  display: block;
 }
 
 // ===== 大纲弹窗 =====
 .modal-mask {
-  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.5); z-index: 999;
-  display: flex; align-items: center; justify-content: center; padding: 32rpx;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32rpx;
 }
 
 .modal-card {
-  width: 100%; max-height: 80vh; background: var(--surface);
-  border-radius: 24rpx; overflow: hidden; display: flex; flex-direction: column;
+  width: 100%;
+  max-height: 80vh;
+  background: var(--surface);
+  border-radius: 24rpx;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .modal-header {
-  padding: 20rpx 24rpx; display: flex; align-items: center; justify-content: space-between;
+  padding: 20rpx 24rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   border-bottom: 1px solid var(--line);
 }
 
-.modal-title { font-size: 28rpx; font-weight: 700; color: var(--text-main); }
-.modal-body { flex: 1; padding: 20rpx 24rpx; }
-
-.outline-item { display: flex; align-items: flex-start; gap: 12rpx; margin-bottom: 12rpx; }
-
-.outline-num {
-  width: 40rpx; height: 40rpx; border-radius: 10rpx; flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center;
-  text { font-size: 20rpx; font-weight: 700; color: #fff; }
+.modal-title {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: var(--text-main);
+}
+.modal-body {
+  flex: 1;
+  padding: 20rpx 24rpx;
 }
 
-.outline-text { flex: 1; min-width: 0; }
-.outline-slide-title { font-size: 26rpx; font-weight: 600; color: var(--text-main); display: block; }
+.outline-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12rpx;
+  margin-bottom: 12rpx;
+}
+
+.outline-num {
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: 10rpx;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text {
+    font-size: 20rpx;
+    font-weight: 700;
+    color: #fff;
+  }
+}
+
+.outline-text {
+  flex: 1;
+  min-width: 0;
+}
+.outline-slide-title {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: var(--text-main);
+  display: block;
+}
 .outline-slide-desc {
-  font-size: 22rpx; color: var(--text-soft); margin-top: 2rpx;
-  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block;
+  font-size: 22rpx;
+  color: var(--text-soft);
+  margin-top: 2rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: block;
 }
 
 // ===== SVG 幻灯片预览 =====
 .svg-preview-mask {
-  background: rgba(0,0,0,0.85) !important;
+  background: rgba(0, 0, 0, 0.85) !important;
   padding: 0 !important;
 }
 
 .svg-preview-panel {
-  width: 100%; height: 100%;
-  display: flex; flex-direction: column;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .svg-preview-topbar {
-  height: 80rpx; display: flex; align-items: center; justify-content: space-between;
-  padding: 0 24rpx; background: rgba(0,0,0,0.6);
+  height: 80rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24rpx;
+  background: rgba(0, 0, 0, 0.6);
   flex-shrink: 0;
 }
 
 .svg-preview-title {
-  font-size: 28rpx; font-weight: 700; color: #fff;
-  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1;
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #fff;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
 }
 
 .svg-slide-main {
-  flex: 1; display: flex; align-items: center; justify-content: center;
-  padding: 16rpx; overflow: hidden;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16rpx;
+  overflow: hidden;
 }
 
 .svg-slide-content {
-  width: 100%; max-height: 100%; background: #fff;
-  border-radius: 12rpx; overflow: hidden;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.3);
-  :deep(svg) { width: 100%; height: auto; display: block; }
+  width: 100%;
+  max-height: 100%;
+  background: #fff;
+  border-radius: 12rpx;
+  overflow: hidden;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+  :deep(svg) {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
 }
 
 .svg-slide-nav {
-  display: flex; align-items: center; justify-content: center; gap: 32rpx;
-  padding: 16rpx 0; flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 32rpx;
+  padding: 16rpx 0;
+  flex-shrink: 0;
 }
 
 .nav-btn {
-  width: 64rpx; height: 64rpx; border-radius: 50%;
-  background: rgba(255,255,255,0.15); display: flex;
-  align-items: center; justify-content: center;
-  text { font-size: 24rpx; color: #fff; }
-  &:active { background: rgba(255,255,255,0.3); }
-  &.disabled { opacity: 0.3; pointer-events: none; }
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text {
+    font-size: 24rpx;
+    color: #fff;
+  }
+  &:active {
+    background: rgba(255, 255, 255, 0.3);
+  }
+  &.disabled {
+    opacity: 0.3;
+    pointer-events: none;
+  }
 }
 
-.slide-counter { font-size: 24rpx; color: rgba(255,255,255,0.8); font-weight: 500; }
+.slide-counter {
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 500;
+}
 
 .svg-thumbs {
-  flex-shrink: 0; white-space: nowrap;
-  padding: 8rpx 16rpx 24rpx; display: flex; gap: 12rpx;
+  flex-shrink: 0;
+  white-space: nowrap;
+  padding: 8rpx 16rpx 24rpx;
+  display: flex;
+  gap: 12rpx;
 }
 
 .thumb-item {
-  display: inline-flex; flex-direction: column; align-items: center; gap: 4rpx;
-  cursor: pointer; flex-shrink: 0;
-  &.active .thumb-svg { border-color: #fff; box-shadow: 0 0 0 2px rgba(255,255,255,0.5); }
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4rpx;
+  cursor: pointer;
+  flex-shrink: 0;
+  &.active .thumb-svg {
+    border-color: #fff;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5);
+  }
 }
 
 .thumb-svg {
-  width: 120rpx; height: 68rpx; border-radius: 6rpx; overflow: hidden;
-  background: #fff; border: 2px solid transparent;
+  width: 120rpx;
+  height: 68rpx;
+  border-radius: 6rpx;
+  overflow: hidden;
+  background: #fff;
+  border: 2px solid transparent;
   transition: border-color 0.2s;
-  :deep(svg) { width: 100%; height: 100%; display: block; }
+  :deep(svg) {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
 }
 
-.thumb-label { font-size: 18rpx; color: rgba(255,255,255,0.6); }
+.thumb-label {
+  font-size: 18rpx;
+  color: rgba(255, 255, 255, 0.6);
+}
 </style>

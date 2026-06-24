@@ -51,7 +51,9 @@
           </view>
           <view class="total-row">
             <text class="total-label">{{ isZh ? '总计' : 'Total' }}</text>
-            <text class="total-value" :style="{ color: subjectColor }">{{ totalCount }} {{ isZh ? '题' : 'Q' }}</text>
+            <text class="total-value" :style="{ color: subjectColor }"
+              >{{ totalCount }} {{ isZh ? '题' : 'Q' }}</text
+            >
           </view>
         </view>
 
@@ -66,7 +68,11 @@
               v-for="d in difficultyOptions"
               :key="d.value"
               :class="['diff-chip', { active: selectedDifficulty === d.value }]"
-              :style="selectedDifficulty === d.value ? { background: d.activeColor, borderColor: d.activeColor, color: '#fff' } : {}"
+              :style="
+                selectedDifficulty === d.value
+                  ? { background: d.activeColor, borderColor: d.activeColor, color: '#fff' }
+                  : {}
+              "
               @tap="selectedDifficulty = d.value"
             >
               <text>{{ d.label }}</text>
@@ -82,17 +88,24 @@
           </view>
           <view class="option-row" @tap="includeAnswer = !includeAnswer">
             <text class="option-label">{{ isZh ? '包含答案和解析' : 'Include answers' }}</text>
-            <view :class="['toggle', { on: includeAnswer }]" :style="includeAnswer ? { background: subjectColor } : {}">
+            <view
+              :class="['toggle', { on: includeAnswer }]"
+              :style="includeAnswer ? { background: subjectColor } : {}"
+            >
               <view class="toggle-thumb" />
             </view>
           </view>
           <view class="option-row">
-            <text class="option-label">{{ isZh ? '知识点/主题（可选）' : 'Topic (optional)' }}</text>
+            <text class="option-label">{{
+              isZh ? '知识点/主题（可选）' : 'Topic (optional)'
+            }}</text>
           </view>
           <input
             v-model="topicHint"
             class="topic-input"
-            :placeholder="isZh ? '如：力与运动、二次函数、古诗鉴赏...' : 'e.g. Quadratic equations...'"
+            :placeholder="
+              isZh ? '如：力与运动、二次函数、古诗鉴赏...' : 'e.g. Quadratic equations...'
+            "
             placeholder-class="topic-placeholder"
           />
         </view>
@@ -109,7 +122,9 @@
         <!-- 结果头部 -->
         <view class="result-header">
           <text class="result-title">{{ isZh ? '生成结果' : 'Generated Questions' }}</text>
-          <text class="result-count" :style="{ color: subjectColor }">{{ resultQuestionCount }} {{ isZh ? '题' : 'Q' }}</text>
+          <text class="result-count" :style="{ color: subjectColor }"
+            >{{ resultQuestionCount }} {{ isZh ? '题' : 'Q' }}</text
+          >
         </view>
 
         <!-- AI 生成状态 -->
@@ -117,7 +132,9 @@
           <view class="typing-dots">
             <view class="dot" /><view class="dot" /><view class="dot" />
           </view>
-          <text class="gen-status-text">{{ isZh ? '正在生成试题...' : 'Generating questions...' }}</text>
+          <text class="gen-status-text">{{
+            isZh ? '正在生成试题...' : 'Generating questions...'
+          }}</text>
         </view>
 
         <!-- 结果内容 - Markdown 渲染 -->
@@ -141,12 +158,12 @@
           </view>
           <view class="result-btn primary" :style="{ background: subjectColor }" @tap="regenerate">
             <Icon name="refresh" :size="18" color="#ffffff" />
-            <text style="color:#ffffff">{{ isZh ? '重新' : 'Redo' }}</text>
+            <text style="color: #ffffff">{{ isZh ? '重新' : 'Redo' }}</text>
           </view>
         </view>
       </view>
 
-      <view style="height: 60rpx;" />
+      <view style="height: 60rpx" />
     </scroll-view>
 
     <!-- 导出选择弹窗 -->
@@ -156,15 +173,23 @@
         <view class="export-option" @tap="doExport(true)">
           <Icon name="visibility" :size="20" color="#10b981" />
           <view class="export-option-text">
-            <text class="export-option-title" style="color:#10b981">{{ isZh ? '📝 答案版（教师用）' : '📝 With Answers' }}</text>
-            <text class="export-option-desc">{{ isZh ? '包含答案和解析，适合教师备用' : 'Includes answers and explanations' }}</text>
+            <text class="export-option-title" style="color: #10b981">{{
+              isZh ? '📝 答案版（教师用）' : '📝 With Answers'
+            }}</text>
+            <text class="export-option-desc">{{
+              isZh ? '包含答案和解析，适合教师备用' : 'Includes answers and explanations'
+            }}</text>
           </view>
         </view>
         <view class="export-option" @tap="doExport(false)">
           <Icon name="visibility_off" :size="20" color="#3b82f6" />
           <view class="export-option-text">
-            <text class="export-option-title" style="color:#3b82f6">{{ isZh ? '📄 无答案版（学生用）' : '📄 Without Answers' }}</text>
-            <text class="export-option-desc">{{ isZh ? '去除答案解析，适合打印发给学生' : 'For printing and distribution' }}</text>
+            <text class="export-option-title" style="color: #3b82f6">{{
+              isZh ? '📄 无答案版（学生用）' : '📄 Without Answers'
+            }}</text>
+            <text class="export-option-desc">{{
+              isZh ? '去除答案解析，适合打印发给学生' : 'For printing and distribution'
+            }}</text>
           </view>
         </view>
         <view class="export-option cancel" @tap="showExportPicker = false">
@@ -187,12 +212,14 @@ const authStore = useAuthStore()
 const uiPreferencesStore = useUiPreferencesStore()
 
 const themeClass = computed(() => `theme-${uiPreferencesStore.theme}`)
-const iconColor = computed(() => uiPreferencesStore.theme === 'light' ? '#64748b' : '#94a3b8')
+const iconColor = computed(() => (uiPreferencesStore.theme === 'light' ? '#64748b' : '#94a3b8'))
 const isZh = computed(() => uiPreferencesStore.locale === 'zh-CN')
 
 const currentSubject = computed(() => getSubjectConfig(authStore.teacherSubject) || SUBJECT_LIST[3])
 const subjectColor = computed(() => currentSubject.value.color)
-const subjectLabel = computed(() => isZh.value ? currentSubject.value.name : currentSubject.value.nameEn)
+const subjectLabel = computed(() =>
+  isZh.value ? currentSubject.value.name : currentSubject.value.nameEn,
+)
 
 // ===== 题型配置 =====
 interface TypeSpec {
@@ -209,20 +236,33 @@ const typeSpecs = ref<TypeSpec[]>([
 ])
 
 const typeMap: Record<string, string> = {
-  single_choice: '单选题', multi_choice: '多选题', true_false: '判断题',
-  short_answer: '简答题', essay: '论述题',
+  single_choice: '单选题',
+  multi_choice: '多选题',
+  true_false: '判断题',
+  short_answer: '简答题',
+  essay: '论述题',
 }
 const typeMapEn: Record<string, string> = {
-  single_choice: 'Single Choice', multi_choice: 'Multiple Choice', true_false: 'True/False',
-  short_answer: 'Short Answer', essay: 'Essay',
+  single_choice: 'Single Choice',
+  multi_choice: 'Multiple Choice',
+  true_false: 'True/False',
+  short_answer: 'Short Answer',
+  essay: 'Essay',
 }
 const typeColorMap: Record<string, string> = {
-  single_choice: '#3b82f6', multi_choice: '#8b5cf6', true_false: '#06b6d4',
-  short_answer: '#f97316', essay: '#ec4899',
+  single_choice: '#3b82f6',
+  multi_choice: '#8b5cf6',
+  true_false: '#06b6d4',
+  short_answer: '#f97316',
+  essay: '#ec4899',
 }
 
-function getTypeLabel(type: string) { return isZh.value ? (typeMap[type] || type) : (typeMapEn[type] || type) }
-function getTypeColor(type: string) { return typeColorMap[type] || '#6b7280' }
+function getTypeLabel(type: string) {
+  return isZh.value ? typeMap[type] || type : typeMapEn[type] || type
+}
+function getTypeColor(type: string) {
+  return typeColorMap[type] || '#6b7280'
+}
 
 function adjustCount(index: number, delta: number) {
   const spec = typeSpecs.value[index]
@@ -274,16 +314,23 @@ async function generateQuestions() {
   resultContent.value = ''
 
   // 构建题型描述
-  const activeTypes = typeSpecs.value.filter(t => t.count > 0)
-  const typeDesc = activeTypes.map(t =>
-    `${getTypeLabel(t.type)} ${t.count} ${isZh.value ? '道' : ''}`
-  ).join('、')
+  const activeTypes = typeSpecs.value.filter((t) => t.count > 0)
+  const typeDesc = activeTypes
+    .map((t) => `${getTypeLabel(t.type)} ${t.count} ${isZh.value ? '道' : ''}`)
+    .join('、')
 
-  const diffLabel = selectedDifficulty.value === 'mixed'
-    ? (isZh.value ? '混合难度（简单、中等、困难搭配）' : 'mixed difficulty')
-    : difficultyOptions.value.find(d => d.value === selectedDifficulty.value)?.label || ''
+  const diffLabel =
+    selectedDifficulty.value === 'mixed'
+      ? isZh.value
+        ? '混合难度（简单、中等、困难搭配）'
+        : 'mixed difficulty'
+      : difficultyOptions.value.find((d) => d.value === selectedDifficulty.value)?.label || ''
 
-  const topicStr = topicHint.value.trim() ? (isZh.value ? `，知识点范围：${topicHint.value.trim()}` : `, topic: ${topicHint.value.trim()}`) : ''
+  const topicStr = topicHint.value.trim()
+    ? isZh.value
+      ? `，知识点范围：${topicHint.value.trim()}`
+      : `, topic: ${topicHint.value.trim()}`
+    : ''
 
   const systemPrompt = isZh.value
     ? `你是一位专业的${subjectLabel.value}教师，擅长出题和命制试卷。请严格按照用户要求生成试题。
@@ -306,10 +353,10 @@ ${includeAnswer.value ? '- 每道题后附上 **答案** 和 **解析**，用 > 
       {
         messages: [
           { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt }
+          { role: 'user', content: userPrompt },
         ],
         temperature: 0.8,
-        maxTokens: 6000
+        maxTokens: 6000,
       },
       (_token, full) => {
         resultContent.value = full
@@ -321,7 +368,7 @@ ${includeAnswer.value ? '- 每道题后附上 **答案** 和 **解析**，用 > 
       (error) => {
         resultContent.value = error || (isZh.value ? '生成失败，请重试' : 'Generation failed')
         isGenerating.value = false
-      }
+      },
     )
   } catch (e) {
     console.error('[QuestionGen] error:', e)
@@ -334,7 +381,7 @@ function copyResult() {
   if (!resultContent.value) return
   uni.setClipboardData({
     data: resultContent.value,
-    success: () => uni.showToast({ title: isZh.value ? '已复制' : 'Copied', icon: 'success' })
+    success: () => uni.showToast({ title: isZh.value ? '已复制' : 'Copied', icon: 'success' }),
   })
 }
 
@@ -353,7 +400,7 @@ function saveAsQuiz() {
       difficulty: selectedDifficulty.value,
       questionCount: totalCount.value,
       content: resultContent.value,
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
     }
     saved.unshift(quiz)
     // 最多保存 50 份
@@ -366,8 +413,9 @@ function saveAsQuiz() {
   }
 }
 
-/** 通用文件下载（H5） */
+/** 通用文件下载（H5 使用浏览器下载，小程序端降级为复制到剪贴板） */
 function triggerDownload(content: string, filename: string, mimeType: string) {
+  // #ifdef H5
   try {
     const blob = new Blob([content], { type: `${mimeType};charset=utf-8` })
     const url = URL.createObjectURL(blob)
@@ -386,6 +434,19 @@ function triggerDownload(content: string, filename: string, mimeType: string) {
     console.error('Export failed:', e)
     uni.showToast({ title: isZh.value ? '导出失败' : 'Export failed', icon: 'none' })
   }
+  // #endif
+  // #ifndef H5
+  // 小程序端无 Blob/URL，降级为复制内容到剪贴板
+  uni.setClipboardData({
+    data: content,
+    success: () =>
+      uni.showToast({
+        title: isZh.value ? '内容已复制，可粘贴保存' : 'Content copied',
+        icon: 'success',
+      }),
+    fail: () => uni.showToast({ title: isZh.value ? '导出失败' : 'Export failed', icon: 'none' }),
+  })
+  // #endif
 }
 
 /** 弹出导出选择 */
@@ -396,22 +457,30 @@ function exportResult() {
 
 /** 去除答案和解析内容 */
 function stripAnswers(text: string): string {
-  return text
-    // 去除 > 答案：... 或 > **答案**... 引用块
-    .replace(/^>\s*\*{0,2}(答案|解析|Answer|Explanation)\*{0,2}[：:].*/gm, '')
-    // 去除 **答案：** ... 行
-    .replace(/^\*{2}(答案|解析|Answer|Explanation)\*{2}[：:].*$/gm, '')
-    // 去除 答案：X 单独行
-    .replace(/^(答案|解析|Answer|Explanation)[：:].*/gm, '')
-    // 清理多余空行
-    .replace(/\n{3,}/g, '\n\n')
-    .trim()
+  return (
+    text
+      // 去除 > 答案：... 或 > **答案**... 引用块
+      .replace(/^>\s*\*{0,2}(答案|解析|Answer|Explanation)\*{0,2}[：:].*/gm, '')
+      // 去除 **答案：** ... 行
+      .replace(/^\*{2}(答案|解析|Answer|Explanation)\*{2}[：:].*$/gm, '')
+      // 去除 答案：X 单独行
+      .replace(/^(答案|解析|Answer|Explanation)[：:].*/gm, '')
+      // 清理多余空行
+      .replace(/\n{3,}/g, '\n\n')
+      .trim()
+  )
 }
 
 /** 导出试卷为 HTML */
 function doExport(withAnswers: boolean) {
   showExportPicker.value = false
-  const suffix = withAnswers ? (isZh.value ? '(答案版)' : '(answers)') : (isZh.value ? '(学生版)' : '(student)')
+  const suffix = withAnswers
+    ? isZh.value
+      ? '(答案版)'
+      : '(answers)'
+    : isZh.value
+      ? '(学生版)'
+      : '(student)'
   const title = `${subjectLabel.value}${isZh.value ? '试题' : ' Quiz'} ${suffix} - ${new Date().toLocaleDateString()}`
   const content = withAnswers ? resultContent.value : stripAnswers(resultContent.value)
 
@@ -478,14 +547,22 @@ function goBack() {
   flex-shrink: 0;
 
   .icon-btn {
-    width: 64rpx; height: 64rpx; border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    &:active { opacity: 0.7; }
+    width: 64rpx;
+    height: 64rpx;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    &:active {
+      opacity: 0.7;
+    }
   }
 }
 
 .topbar-center {
-  display: flex; align-items: center; gap: 8rpx;
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
 }
 
 .title {
@@ -533,7 +610,9 @@ function goBack() {
   border-radius: 16rpx;
   border: 1.5px solid;
   background: rgba(192, 0, 0, 0.04);
-  text { font-size: 28rpx; }
+  text {
+    font-size: 28rpx;
+  }
 }
 
 // 题型行
@@ -577,8 +656,14 @@ function goBack() {
   align-items: center;
   justify-content: center;
   background: var(--page-bg);
-  &:active { opacity: 0.7; }
-  text { font-size: 28rpx; color: var(--text-main); font-weight: 600; }
+  &:active {
+    opacity: 0.7;
+  }
+  text {
+    font-size: 28rpx;
+    color: var(--text-main);
+    font-weight: 600;
+  }
 }
 
 .stepper-value {
@@ -622,9 +707,17 @@ function goBack() {
   border: 1px solid var(--line);
   text-align: center;
   transition: all 0.15s ease;
-  &:active { transform: scale(0.96); }
-  text { font-size: 24rpx; font-weight: 600; color: var(--text-sub); }
-  &.active text { color: #ffffff; }
+  &:active {
+    transform: scale(0.96);
+  }
+  text {
+    font-size: 24rpx;
+    font-weight: 600;
+    color: var(--text-sub);
+  }
+  &.active text {
+    color: #ffffff;
+  }
 }
 
 // 附加选项
@@ -658,7 +751,7 @@ function goBack() {
   border-radius: 50%;
   background: #ffffff;
   transition: transform 0.2s ease;
-  box-shadow: 0 2rpx 6rpx rgba(0,0,0,0.15);
+  box-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.15);
 }
 
 .toggle.on .toggle-thumb {
@@ -677,7 +770,9 @@ function goBack() {
   color: var(--text-main);
 }
 
-.topic-placeholder { color: var(--text-soft); }
+.topic-placeholder {
+  color: var(--text-soft);
+}
 
 // 生成按钮
 .gen-btn {
@@ -690,7 +785,10 @@ function goBack() {
   justify-content: center;
   gap: 10rpx;
   transition: all 0.15s ease;
-  &:active { transform: scale(0.97); opacity: 0.9; }
+  &:active {
+    transform: scale(0.97);
+    opacity: 0.9;
+  }
 }
 
 .gen-btn-text {
@@ -734,19 +832,35 @@ function goBack() {
 }
 
 .typing-dots {
-  display: flex; gap: 8rpx;
+  display: flex;
+  gap: 8rpx;
 }
 
 .dot {
-  width: 12rpx; height: 12rpx; border-radius: 50%; background: var(--text-soft);
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 50%;
+  background: var(--text-soft);
   animation: typing 1.4s infinite;
-  &:nth-child(2) { animation-delay: 0.2s; }
-  &:nth-child(3) { animation-delay: 0.4s; }
+  &:nth-child(2) {
+    animation-delay: 0.2s;
+  }
+  &:nth-child(3) {
+    animation-delay: 0.4s;
+  }
 }
 
 @keyframes typing {
-  0%, 60%, 100% { opacity: 0.3; transform: scale(0.8); }
-  30% { opacity: 1; transform: scale(1); }
+  0%,
+  60%,
+  100% {
+    opacity: 0.3;
+    transform: scale(0.8);
+  }
+  30% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .gen-status-text {
@@ -756,8 +870,13 @@ function goBack() {
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 0.5; }
-  50% { opacity: 1; }
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
 }
 
 .result-content-card {
@@ -783,7 +902,9 @@ function goBack() {
   justify-content: center;
   gap: 8rpx;
   transition: all 0.15s ease;
-  &:active { transform: scale(0.97); }
+  &:active {
+    transform: scale(0.97);
+  }
 
   &.outline {
     background: transparent;
@@ -798,8 +919,12 @@ function goBack() {
 
 // ===== 导出弹窗 =====
 .export-mask {
-  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.4);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
   z-index: 999;
   display: flex;
   align-items: flex-end;
@@ -830,13 +955,19 @@ function goBack() {
   border-radius: 16rpx;
   margin-bottom: 8rpx;
   border: 1px solid var(--line);
-  &:active { opacity: 0.7; transform: scale(0.98); }
+  &:active {
+    opacity: 0.7;
+    transform: scale(0.98);
+  }
 
   &.cancel {
     justify-content: center;
     margin-top: 8rpx;
     border: none;
-    text { color: var(--text-soft); font-size: 28rpx; }
+    text {
+      color: var(--text-soft);
+      font-size: 28rpx;
+    }
   }
 }
 
